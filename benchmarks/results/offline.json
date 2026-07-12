@@ -1,0 +1,254 @@
+{
+  "model": "claude-fable-5",
+  "sidecarUrl": "http://127.0.0.1:8787",
+  "generatedAt": "2026-07-10T20:29:24.394Z",
+  "payloads": [
+    {
+      "name": "json-data",
+      "description": "Large JSON API response (150 rows)",
+      "baselineTokens": 18662,
+      "configs": {
+        "pxpipe-only": {
+          "effectiveTokens": 15309,
+          "savedTokens": 3353,
+          "savedFraction": 0.17966991747936983,
+          "reversible": 0,
+          "opticalOwnsCacheControl": true,
+          "stages": [
+            {
+              "stage": "semantic",
+              "applied": false,
+              "reason": "disabled",
+              "tokensText": 0,
+              "tokensCompressed": 0,
+              "basis": "estimate"
+            },
+            {
+              "stage": "optical",
+              "applied": true,
+              "reason": "applied",
+              "tokensText": 10975,
+              "tokensCompressed": 1259,
+              "basis": "estimate"
+            }
+          ]
+        },
+        "headroom-only": {
+          "effectiveTokens": 12537,
+          "savedTokens": 6125,
+          "savedFraction": 0.32820705176294074,
+          "reversible": 0,
+          "opticalOwnsCacheControl": false,
+          "stages": [
+            {
+              "stage": "semantic",
+              "applied": true,
+              "reason": "applied",
+              "tokensText": 11714,
+              "tokensCompressed": 5888,
+              "basis": "tiktoken"
+            },
+            {
+              "stage": "optical",
+              "applied": false,
+              "reason": "disabled",
+              "tokensText": 0,
+              "tokensCompressed": 0,
+              "basis": "estimate"
+            }
+          ]
+        },
+        "pixroom": {
+          "effectiveTokens": 9184,
+          "savedTokens": 9478,
+          "savedFraction": 0.5078769692423106,
+          "reversible": 0,
+          "opticalOwnsCacheControl": true,
+          "stages": [
+            {
+              "stage": "semantic",
+              "applied": true,
+              "reason": "applied",
+              "tokensText": 11714,
+              "tokensCompressed": 5888,
+              "basis": "tiktoken"
+            },
+            {
+              "stage": "optical",
+              "applied": true,
+              "reason": "applied",
+              "tokensText": 10975,
+              "tokensCompressed": 1259,
+              "basis": "estimate"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "build-log",
+      "description": "Verbose build/test log (400 lines)",
+      "baselineTokens": 18309,
+      "configs": {
+        "pxpipe-only": {
+          "effectiveTokens": 14956,
+          "savedTokens": 3353,
+          "savedFraction": 0.18313397782511334,
+          "reversible": 0,
+          "opticalOwnsCacheControl": true,
+          "stages": [
+            {
+              "stage": "semantic",
+              "applied": false,
+              "reason": "disabled",
+              "tokensText": 0,
+              "tokensCompressed": 0,
+              "basis": "estimate"
+            },
+            {
+              "stage": "optical",
+              "applied": true,
+              "reason": "applied",
+              "tokensText": 10975,
+              "tokensCompressed": 1259,
+              "basis": "estimate"
+            }
+          ]
+        },
+        "headroom-only": {
+          "effectiveTokens": 14718,
+          "savedTokens": 3591,
+          "savedFraction": 0.19613304932000655,
+          "reversible": 0,
+          "opticalOwnsCacheControl": false,
+          "stages": [
+            {
+              "stage": "semantic",
+              "applied": true,
+              "reason": "applied",
+              "tokensText": 13212,
+              "tokensCompressed": 9621,
+              "basis": "tiktoken"
+            },
+            {
+              "stage": "optical",
+              "applied": false,
+              "reason": "disabled",
+              "tokensText": 0,
+              "tokensCompressed": 0,
+              "basis": "estimate"
+            }
+          ]
+        },
+        "pixroom": {
+          "effectiveTokens": 11365,
+          "savedTokens": 6944,
+          "savedFraction": 0.3792670271451199,
+          "reversible": 0,
+          "opticalOwnsCacheControl": true,
+          "stages": [
+            {
+              "stage": "semantic",
+              "applied": true,
+              "reason": "applied",
+              "tokensText": 13212,
+              "tokensCompressed": 9621,
+              "basis": "tiktoken"
+            },
+            {
+              "stage": "optical",
+              "applied": true,
+              "reason": "applied",
+              "tokensText": 10975,
+              "tokensCompressed": 1259,
+              "basis": "estimate"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "source-code",
+      "description": "Concatenated TypeScript source",
+      "baselineTokens": 10467,
+      "configs": {
+        "pxpipe-only": {
+          "effectiveTokens": 7114,
+          "savedTokens": 3353,
+          "savedFraction": 0.32034011655679756,
+          "reversible": 0,
+          "opticalOwnsCacheControl": true,
+          "stages": [
+            {
+              "stage": "semantic",
+              "applied": false,
+              "reason": "disabled",
+              "tokensText": 0,
+              "tokensCompressed": 0,
+              "basis": "estimate"
+            },
+            {
+              "stage": "optical",
+              "applied": true,
+              "reason": "applied",
+              "tokensText": 10975,
+              "tokensCompressed": 1259,
+              "basis": "estimate"
+            }
+          ]
+        },
+        "headroom-only": {
+          "effectiveTokens": 10467,
+          "savedTokens": 0,
+          "savedFraction": 0,
+          "reversible": 0,
+          "opticalOwnsCacheControl": false,
+          "stages": [
+            {
+              "stage": "semantic",
+              "applied": false,
+              "reason": "not_profitable",
+              "tokensText": 5002,
+              "tokensCompressed": 5002,
+              "basis": "tiktoken"
+            },
+            {
+              "stage": "optical",
+              "applied": false,
+              "reason": "disabled",
+              "tokensText": 0,
+              "tokensCompressed": 0,
+              "basis": "estimate"
+            }
+          ]
+        },
+        "pixroom": {
+          "effectiveTokens": 7114,
+          "savedTokens": 3353,
+          "savedFraction": 0.32034011655679756,
+          "reversible": 0,
+          "opticalOwnsCacheControl": true,
+          "stages": [
+            {
+              "stage": "semantic",
+              "applied": false,
+              "reason": "not_profitable",
+              "tokensText": 5002,
+              "tokensCompressed": 5002,
+              "basis": "tiktoken"
+            },
+            {
+              "stage": "optical",
+              "applied": true,
+              "reason": "applied",
+              "tokensText": 10975,
+              "tokensCompressed": 1259,
+              "basis": "estimate"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "sidecarStatus": "external"
+}

@@ -1,0 +1,66 @@
+{
+  "model": "claude-fable-5",
+  "sidecar": true,
+  "generatedAt": "2026-07-11T18:12:03.718Z",
+  "scenarios": [
+    {
+      "name": "mixed-json",
+      "category": "mixed",
+      "note": "big static slab + large JSON tool output (both regions)",
+      "raw": 18661,
+      "headroom": 12536,
+      "pxpipe": 15308,
+      "pixroom": 9183,
+      "dominates": true,
+      "strictWin": true
+    },
+    {
+      "name": "mixed-logs",
+      "category": "mixed",
+      "note": "big static slab + verbose build log (both regions)",
+      "raw": 18308,
+      "headroom": 14717,
+      "pxpipe": 14955,
+      "pixroom": 11364,
+      "dominates": true,
+      "strictWin": true
+    },
+    {
+      "name": "mixed-code",
+      "category": "mixed",
+      "note": "big static slab + source-code tool output (both regions)",
+      "raw": 10466,
+      "headroom": 10466,
+      "pxpipe": 7113,
+      "pixroom": 7113,
+      "dominates": true,
+      "strictWin": false
+    },
+    {
+      "name": "slab-heavy",
+      "category": "slab-heavy",
+      "note": "big slab, negligible tool output (only optical helps)",
+      "raw": 4719,
+      "headroom": 4719,
+      "pxpipe": 1366,
+      "pixroom": 1366,
+      "dominates": true,
+      "strictWin": false
+    },
+    {
+      "name": "tools-heavy",
+      "category": "tools-heavy",
+      "note": "negligible slab, big JSON output (only semantic helps)",
+      "raw": 20536,
+      "headroom": 11537,
+      "pxpipe": 20536,
+      "pixroom": 11537,
+      "dominates": true,
+      "strictWin": false
+    }
+  ],
+  "verdict": {
+    "dominatesAll": true,
+    "strictOnMixed": false
+  }
+}

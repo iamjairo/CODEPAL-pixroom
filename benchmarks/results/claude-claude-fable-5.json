@@ -1,0 +1,292 @@
+{
+  "model": "claude-fable-5",
+  "opticalOnSubscription": true,
+  "generatedAt": "2026-07-11T08:46:17.803Z",
+  "proxies": {
+    "hOk": true,
+    "pOk": true,
+    "pxOk": true
+  },
+  "runs": [
+    {
+      "id": "echo",
+      "kind": "exact",
+      "prompt": "Reply with exactly this token and nothing else: BENCH_ECHO_7Q",
+      "expected": "BENCH_ECHO_7Q",
+      "results": {
+        "baseline": {
+          "ok": true,
+          "ms": 8378,
+          "correct": true,
+          "input": 3011,
+          "cacheCreate": 225,
+          "cacheRead": 17940,
+          "output": 24,
+          "totalInput": 21176,
+          "billedInput": 5086,
+          "snippet": "BENCH_ECHO_7Q"
+        },
+        "headroom-only": {
+          "ok": true,
+          "ms": 6927,
+          "correct": true,
+          "input": 2733,
+          "cacheCreate": 4344,
+          "cacheRead": 0,
+          "output": 15,
+          "totalInput": 7077,
+          "billedInput": 8163,
+          "snippet": "BENCH_ECHO_7Q"
+        },
+        "pxpipe-only": {
+          "ok": true,
+          "ms": 8447,
+          "correct": true,
+          "input": 3216,
+          "cacheCreate": 11609,
+          "cacheRead": 0,
+          "output": 24,
+          "totalInput": 14825,
+          "billedInput": 17727,
+          "snippet": "BENCH_ECHO_7Q"
+        },
+        "pixroom": {
+          "ok": true,
+          "ms": 8083,
+          "correct": true,
+          "input": 3216,
+          "cacheCreate": 0,
+          "cacheRead": 11609,
+          "output": 15,
+          "totalInput": 14825,
+          "billedInput": 4377,
+          "snippet": "BENCH_ECHO_7Q"
+        }
+      }
+    },
+    {
+      "id": "math",
+      "kind": "reasoning",
+      "prompt": "Compute 1234 * 5678. Reply with only the integer, no commas.",
+      "expected": "7006652",
+      "results": {
+        "baseline": {
+          "ok": true,
+          "ms": 6562,
+          "correct": true,
+          "input": 3011,
+          "cacheCreate": 3244,
+          "cacheRead": 14837,
+          "output": 5,
+          "totalInput": 21092,
+          "billedInput": 8550,
+          "snippet": "7006652"
+        },
+        "headroom-only": {
+          "ok": true,
+          "ms": 7152,
+          "correct": false,
+          "input": 2733,
+          "cacheCreate": 222,
+          "cacheRead": 4119,
+          "output": 5,
+          "totalInput": 7074,
+          "billedInput": 3422,
+          "snippet": "2378652"
+        },
+        "pxpipe-only": {
+          "ok": true,
+          "ms": 6266,
+          "correct": false,
+          "input": 3216,
+          "cacheCreate": 722,
+          "cacheRead": 10884,
+          "output": 4,
+          "totalInput": 14822,
+          "billedInput": 5207,
+          "snippet": "2345"
+        },
+        "pixroom": {
+          "ok": true,
+          "ms": 8036,
+          "correct": false,
+          "input": 3216,
+          "cacheCreate": 0,
+          "cacheRead": 11606,
+          "output": 5,
+          "totalInput": 14822,
+          "billedInput": 4377,
+          "snippet": "7346652"
+        }
+      }
+    },
+    {
+      "id": "files",
+      "kind": "agentic-tool",
+      "prompt": "How many files ending in .ts are under the src directory (recursively) of this repository? Reply with only the number.",
+      "expected": "18",
+      "results": {
+        "baseline": {
+          "ok": true,
+          "ms": 12322,
+          "correct": true,
+          "input": 3013,
+          "cacheCreate": 3360,
+          "cacheRead": 35948,
+          "output": 117,
+          "totalInput": 42321,
+          "billedInput": 10808,
+          "snippet": "18"
+        },
+        "headroom-only": {
+          "ok": true,
+          "ms": 18293,
+          "correct": true,
+          "input": 6610,
+          "cacheCreate": 4227,
+          "cacheRead": 12817,
+          "output": 200,
+          "totalInput": 23654,
+          "billedInput": 13175,
+          "snippet": "18"
+        },
+        "pxpipe-only": {
+          "ok": true,
+          "ms": 13519,
+          "correct": true,
+          "input": 3703,
+          "cacheCreate": 3560,
+          "cacheRead": 22498,
+          "output": 95,
+          "totalInput": 29761,
+          "billedInput": 10403,
+          "snippet": "18"
+        },
+        "pixroom": {
+          "ok": true,
+          "ms": 17090,
+          "correct": true,
+          "input": 3703,
+          "cacheCreate": 0,
+          "cacheRead": 26058,
+          "output": 95,
+          "totalInput": 29761,
+          "billedInput": 6309,
+          "snippet": "18"
+        }
+      }
+    },
+    {
+      "id": "classes",
+      "kind": "verbatim-fidelity",
+      "prompt": "Name the two exported compressor classes defined in src/compressors/optical.ts and src/compressors/semantic.ts. Reply as a comma-separated list.",
+      "expected": "OpticalCompressor, SemanticCompressor",
+      "results": {
+        "baseline": {
+          "ok": true,
+          "ms": 12510,
+          "correct": true,
+          "input": 3013,
+          "cacheCreate": 3530,
+          "cacheRead": 36128,
+          "output": 171,
+          "totalInput": 42671,
+          "billedInput": 11038,
+          "snippet": "OpticalCompressor, SemanticCompressor"
+        },
+        "headroom-only": {
+          "ok": true,
+          "ms": 17237,
+          "correct": true,
+          "input": 9498,
+          "cacheCreate": 14247,
+          "cacheRead": 12853,
+          "output": 266,
+          "totalInput": 36598,
+          "billedInput": 28592,
+          "snippet": "OpticalCompressor, SemanticCompressor"
+        },
+        "pxpipe-only": {
+          "ok": true,
+          "ms": 16877,
+          "correct": true,
+          "input": 3703,
+          "cacheCreate": 3740,
+          "cacheRead": 22516,
+          "output": 207,
+          "totalInput": 29959,
+          "billedInput": 10630,
+          "snippet": "`OpticalCompressor`, `SemanticCompressor`"
+        },
+        "pixroom": {
+          "ok": true,
+          "ms": 16213,
+          "correct": true,
+          "input": 3703,
+          "cacheCreate": 2936,
+          "cacheRead": 23264,
+          "output": 147,
+          "totalInput": 29903,
+          "billedInput": 9699,
+          "snippet": "OpticalCompressor, SemanticCompressor"
+        }
+      }
+    },
+    {
+      "id": "summary",
+      "kind": "gist",
+      "prompt": "In one sentence, what is the purpose of src/wrap/runner.ts in this repository?",
+      "expected": "(gist: launches/delegates wrapped agents)",
+      "results": {
+        "baseline": {
+          "ok": true,
+          "ms": 14085,
+          "correct": true,
+          "input": 3013,
+          "cacheCreate": 4403,
+          "cacheRead": 36106,
+          "output": 272,
+          "totalInput": 43522,
+          "billedInput": 12127,
+          "snippet": "`src/wrap/runner.ts` implements the `pixroom wrap` command: given a named coding agent, it starts the pixroom proxy and either launches the agent pointed at it, prints IDE config for it, or delegates "
+        },
+        "headroom-only": {
+          "ok": true,
+          "ms": 20930,
+          "correct": true,
+          "input": 9508,
+          "cacheCreate": 11409,
+          "cacheRead": 12809,
+          "output": 302,
+          "totalInput": 33726,
+          "billedInput": 25050,
+          "snippet": "`src/wrap/runner.ts` implements the `pixroom wrap` command: given an agent name, it either starts the pixroom proxy and launches the agent pointed at it (or prints IDE configuration instructions), or,"
+        },
+        "pxpipe-only": {
+          "ok": true,
+          "ms": 21003,
+          "correct": true,
+          "input": 3703,
+          "cacheCreate": 4627,
+          "cacheRead": 22494,
+          "output": 296,
+          "totalInput": 30824,
+          "billedInput": 11736,
+          "snippet": "It implements the `pixroom wrap` command's runner: given a target agent, it dispatches to the right composition strategy — launching the agent through a freshly started pixroom proxy, printing IDE pro"
+        },
+        "pixroom": {
+          "ok": true,
+          "ms": 16293,
+          "correct": true,
+          "input": 3703,
+          "cacheCreate": 3900,
+          "cacheRead": 23220,
+          "output": 284,
+          "totalInput": 30823,
+          "billedInput": 10900,
+          "snippet": "`src/wrap/runner.ts` implements the `pixroom wrap` command's runner: it dispatches a named agent to the appropriate composition — launching the agent as a child process pointed at an ephemeral pixroom"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+pixroom
+Copyright 2026 pixroom contributors
+
+This product includes software developed as an orchestration layer over two
+upstream open-source projects, consumed as unmodified, pinned dependencies:
+
+--------------------------------------------------------------------------------
+pxpipe (npm: pxpipe-proxy)
+  Optical / pixel context compression.
+  Copyright (c) teamchong and pxpipe contributors.
+  Licensed under the MIT License.
+  https://github.com/teamchong/pxpipe
+
+headroom (PyPI: headroom-ai)
+  Semantic / content-aware context compression, CCR reversible store,
+  multi-provider proxy, MCP server, and agent wrap.
+  Copyright (c) headroomlabs-ai / chopratejas and headroom contributors.
+  Licensed under the Apache License, Version 2.0.
+  https://github.com/headroomlabs-ai/headroom
+
+  headroom bundles additional attributions (e.g. RTK for shell-output
+  rewriting); see the headroom distribution's own NOTICE for those.
+--------------------------------------------------------------------------------
+
+The MIT License of pxpipe is compatible with, and may be combined under, the
+Apache License, Version 2.0 under which pixroom is distributed.

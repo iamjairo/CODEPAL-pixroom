@@ -1,0 +1,139 @@
+{
+  "requestedModel": "claude-opus-4.8",
+  "effectiveModel": "claude-opus-4.8",
+  "modelFallback": false,
+  "modelUnavailable": false,
+  "generatedAt": "2026-07-10T20:34:44.281Z",
+  "runs": [
+    {
+      "id": "echo",
+      "kind": "exact",
+      "prompt": "Reply with exactly this token and nothing else: BENCH_ECHO_7Q",
+      "expected": "BENCH_ECHO_7Q",
+      "baseline": {
+        "ok": true,
+        "timedOut": false,
+        "exitCode": 0,
+        "ms": 7006,
+        "tokensIn": 27200,
+        "tokensOut": 15,
+        "correct": true,
+        "snippet": "BENCH_ECHO_7Q AI Credits 5.81 (5s)"
+      },
+      "wrapped": {
+        "ok": true,
+        "timedOut": false,
+        "exitCode": 0,
+        "ms": 21645,
+        "tokensIn": 26100,
+        "tokensOut": 15,
+        "correct": true,
+        "snippet": "BENCH_ECHO_7Q"
+      }
+    },
+    {
+      "id": "math",
+      "kind": "reasoning",
+      "prompt": "Compute 1234 * 5678. Reply with only the integer, no commas.",
+      "expected": "7006652",
+      "baseline": {
+        "ok": true,
+        "timedOut": false,
+        "exitCode": 0,
+        "ms": 6896,
+        "tokensIn": 27200,
+        "tokensOut": 5,
+        "correct": true,
+        "snippet": "7006652 AI Credits 5.78 (5s)"
+      },
+      "wrapped": {
+        "ok": true,
+        "timedOut": false,
+        "exitCode": 0,
+        "ms": 19046,
+        "tokensIn": 26100,
+        "tokensOut": 5,
+        "correct": true,
+        "snippet": "7006652"
+      }
+    },
+    {
+      "id": "files",
+      "kind": "agentic-tool",
+      "prompt": "How many files ending in .ts are under the src directory (recursively) of this repository? Reply with only the number.",
+      "expected": "18",
+      "baseline": {
+        "ok": true,
+        "timedOut": false,
+        "exitCode": 0,
+        "ms": 8922,
+        "tokensIn": 54600,
+        "tokensOut": 58,
+        "correct": true,
+        "snippet": "│ \"src/**/*.ts\" └ 18 files found 18 AI Credits 7.45 (7s)"
+      },
+      "wrapped": {
+        "ok": true,
+        "timedOut": false,
+        "exitCode": 0,
+        "ms": 15052,
+        "tokensIn": 52500,
+        "tokensOut": 58,
+        "correct": true,
+        "snippet": "/ Search (glob) │ \"src/**/*.ts\" └ 18 files found 18"
+      }
+    },
+    {
+      "id": "classes",
+      "kind": "verbatim-fidelity",
+      "prompt": "Name the two exported compressor classes defined in src/compressors/optical.ts and src/compressors/semantic.ts. Reply as a comma-separated list.",
+      "expected": "OpticalCompressor, SemanticCompressor",
+      "baseline": {
+        "ok": true,
+        "timedOut": false,
+        "exitCode": 0,
+        "ms": 11695,
+        "tokensIn": 54800,
+        "tokensOut": 271,
+        "correct": true,
+        "snippet": "│ \"export class\" (src/compressors/optical.ts) └ 1 line found OpticalCompressor, SemanticCompressor AI Credits 8.07 (9s)"
+      },
+      "wrapped": {
+        "ok": true,
+        "timedOut": false,
+        "exitCode": 0,
+        "ms": 12854,
+        "tokensIn": 52400,
+        "tokensOut": 141,
+        "correct": true,
+        "snippet": "/ Search (grep) │ \"export class\" (src/compressors/optical.ts, src/compressors/semantic.ts) └ 2 lines found OpticalCompressor, SemanticCompressor"
+      }
+    },
+    {
+      "id": "summary",
+      "kind": "gist",
+      "prompt": "In one sentence, what is the purpose of src/wrap/runner.ts in this repository?",
+      "expected": "(gist: launches/delegates wrapped agents)",
+      "baseline": {
+        "ok": true,
+        "timedOut": false,
+        "exitCode": 0,
+        "ms": 11810,
+        "tokensIn": 58800,
+        "tokensOut": 219,
+        "correct": true,
+        "snippet": "│ src/wrap/runner.ts └ 250 lines read AI Credits 10.5 (9s)"
+      },
+      "wrapped": {
+        "ok": true,
+        "timedOut": false,
+        "exitCode": 0,
+        "ms": 15226,
+        "tokensIn": 82900,
+        "tokensOut": 237,
+        "correct": true,
+        "snippet": "│ \"src/wrap/runner.ts\" └ 1 file found │ src/wrap/runner.ts └ 250 lines read"
+      }
+    }
+  ]
+}
