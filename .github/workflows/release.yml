@@ -3,6 +3,15 @@ name: Release to npm
 on:
   release:
     types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing release tag to verify and publish
+        required: true
+        type: string
+
+env:
+  RELEASE_TAG: ${{ github.event_name == 'release' && github.event.release.tag_name || inputs.tag }}
 
 jobs:
   build:
@@ -18,6 +27,7 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
+          ref: ${{ env.RELEASE_TAG }}
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22.22.2
@@ -28,10 +38,12 @@ jobs:
         run: |
           PACKAGE_NAME=$(node -p "require('./package.json').name")
           PACKAGE_VERSION=$(node -p "require('./package.json').version")
+          TAG_COMMIT=$(git rev-list -n 1 "$RELEASE_TAG")
           test "$PACKAGE_NAME" = "@codepal/pinpoint"
-          test "$GITHUB_REF_NAME" = "v$PACKAGE_VERSION"
+          test "$RELEASE_TAG" = "v$PACKAGE_VERSION"
+          test "$(git rev-parse HEAD)" = "$TAG_COMMIT"
           git fetch --no-tags origin "$DEFAULT_BRANCH:refs/remotes/origin/$DEFAULT_BRANCH"
-          git merge-base --is-ancestor "$GITHUB_SHA" "origin/$DEFAULT_BRANCH"
+          git merge-base --is-ancestor "$TAG_COMMIT" "origin/$DEFAULT_BRANCH"
       - run: npm ci --ignore-scripts
       - run: npm audit --audit-level=high
       - run: npm run prepublishOnly
@@ -81,7 +93,7 @@ jobs:
           shasum -a 512 -c SHA512SUMS
           test "$(find . -maxdepth 1 -name 'codepal-pinpoint-*.tgz' | wc -l)" -eq 1
           NPM_SHA512=$(openssl dgst -sha512 -binary npm-12.0.1.tgz | openssl base64 -A)
-          test "$NPM_SHA512" = "L5T9i/YAQWQqTS/xZxJkei/9zcu99hCeE4qi41IyBVV7mRQad3qc2JfuOktwmH+qwGI/V2rbCL+/UYxb1+RQA=="
+          test "$NPM_SHA512" = "L5T9i/YAQWQWqTS/xZxJkei/9zcu99hCeE4qi41IyBVV7mRQad3qc2JfuOktwmH+qwGI/V2rbCL+/UYxb1+RQA=="
           mkdir ../npm-cli
           tar -xzf npm-12.0.1.tgz -C ../npm-cli
           test "$(node ../npm-cli/package/bin/npm-cli.js --version)" = "12.0.1"
@@ -99,7 +111,7 @@ jobs:
         id: registry
         run: |
           PACKAGE_NAME='@codepal/pinpoint'
-          PACKAGE_VERSION=${GITHUB_REF_NAME#v}
+          PACKAGE_VERSION=${RELEASE_TAG#v}
           if npm view "$PACKAGE_NAME@$PACKAGE_VERSION" version >/dev/null 2>&1; then
             echo "published=true" >> "$GITHUB_OUTPUT"
             echo "$PACKAGE_NAME@$PACKAGE_VERSION is already published"
