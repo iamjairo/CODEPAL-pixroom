@@ -1,4 +1,4 @@
-// Arm E — PROOF: does pixroom dominate headroom-only and pxpipe-only?
+// Arm E — PROOF: does pinpoint dominate headroom-only and pxpipe-only?
 //
 // Follows headroom's benchmarking route (benchmarks/comprehensive_eval.py,
 // real_world_agent_benchmark.py): named realistic scenarios, baseline vs
@@ -13,7 +13,7 @@
 // for optical (this is how Anthropic bills images, not an estimate).
 //
 // The provable thesis (Pareto-domination): because the two engines compress
-// DISJOINT regions (optical→static slab, semantic→tool outputs), pixroom's
+// DISJOINT regions (optical→static slab, semantic→tool outputs), pinpoint's
 // output is <= min(headroom-only, pxpipe-only) on every workload, and strictly
 // smaller when BOTH regions are compressible (the common agent case). Equality
 // only when the other region is empty/incompressible — which we include on
@@ -25,7 +25,7 @@ import { homedir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
-import { createPixroom } from '../dist/index.js';
+import { createPinpoint } from '../dist/index.js';
 import { EVIDENCE } from './evidence.mjs';
 import {
   countTokens,
@@ -53,7 +53,7 @@ function isExec(p) {
 }
 function locateHeadroom() {
   return (
-    [process.env.PIXROOM_HEADROOM_BIN, join(homedir(), 'repos-pixroom', '.headroom-venv', 'bin', 'headroom')]
+    [process.env.PINPOINT_HEADROOM_BIN, join(homedir(), 'repos-pinpoint', '.headroom-venv', 'bin', 'headroom')]
       .filter(Boolean)
       .find(isExec) || 'headroom'
   );
@@ -142,14 +142,14 @@ const CONFIGS = {
     semantic: { enabled: true, sidecarUrl, autoSpawn: false, protectRecent: 0 },
   },
   'pxpipe-only': { optical: { enabled: true }, semantic: { enabled: false } },
-  pixroom: {
+  pinpoint: {
     optical: { enabled: true },
     semantic: { enabled: true, sidecarUrl, autoSpawn: false, protectRecent: 0 },
   },
 };
 
 async function measure(cfgOverrides, body) {
-  const px = createPixroom({ ...cfgOverrides, logLevel: 'silent' });
+  const px = createPinpoint({ ...cfgOverrides, logLevel: 'silent' });
   const routed = await px.route('anthropic', MODEL, structuredClone(body), 'payg');
   const tokens = effectiveTokens(routed.body, routed.report);
   await px.shutdown();
@@ -179,7 +179,7 @@ async function main() {
     const raw = countTokens(JSON.stringify(body));
     const headroom = await measure(CONFIGS['headroom-only'], body);
     const pxpipe = await measure(CONFIGS['pxpipe-only'], body);
-    const pixroom = await measure(CONFIGS.pixroom, body);
+    const pinpoint = await measure(CONFIGS.pinpoint, body);
     const best = Math.min(headroom, pxpipe);
     const entry = {
       name: sc.name,
@@ -188,14 +188,14 @@ async function main() {
       raw,
       headroom,
       pxpipe,
-      pixroom,
-      dominates: pixroom <= best + 2, // ≤ better single engine (2-tok tolerance for rounding)
-      strictWin: pixroom < best - 2, // strictly better than both
+      pinpoint,
+      dominates: pinpoint <= best + 2, // ≤ better single engine (2-tok tolerance for rounding)
+      strictWin: pinpoint < best - 2, // strictly better than both
     };
     results.scenarios.push(entry);
     const s = (n) => `${(((raw - n) / raw) * 100).toFixed(0)}%`;
     console.log(
-      `${sc.name.padEnd(12)} raw=${raw} hr=${headroom}(${s(headroom)}) px=${pxpipe}(${s(pxpipe)}) pixroom=${pixroom}(${s(pixroom)}) ${entry.strictWin ? 'STRICT-WIN' : entry.dominates ? 'ties-best' : 'LOSES'}`,
+      `${sc.name.padEnd(12)} raw=${raw} hr=${headroom}(${s(headroom)}) px=${pxpipe}(${s(pxpipe)}) pinpoint=${pinpoint}(${s(pinpoint)}) ${entry.strictWin ? 'STRICT-WIN' : entry.dominates ? 'ties-best' : 'LOSES'}`,
     );
   }
 

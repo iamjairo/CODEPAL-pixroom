@@ -16,7 +16,7 @@
     {
       "id": "json-lookup",
       "directInputTokens": 11282,
-      "pixroomInputTokens": 323,
+      "pinpointInputTokens": 323,
       "semanticApplied": false,
       "virtualApplied": true,
       "queryToolInjected": false,
@@ -24,7 +24,7 @@
       "eligible": true,
       "inputSavingsFraction": 0.9713703244105655,
       "directWorstCaseUSD": 0.011442,
-      "pixroomWorstCaseUSD": 0.011442,
+      "pinpointWorstCaseUSD": 0.011442,
       "report": [
         {
           "stage": "virtual",
@@ -52,7 +52,7 @@
     {
       "id": "log-errors",
       "directInputTokens": 11332,
-      "pixroomInputTokens": 271,
+      "pinpointInputTokens": 271,
       "semanticApplied": false,
       "virtualApplied": true,
       "queryToolInjected": false,
@@ -60,7 +60,7 @@
       "eligible": true,
       "inputSavingsFraction": 0.9760854218143311,
       "directWorstCaseUSD": 0.011492,
-      "pixroomWorstCaseUSD": 0.011492,
+      "pinpointWorstCaseUSD": 0.011492,
       "report": [
         {
           "stage": "virtual",

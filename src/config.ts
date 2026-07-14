@@ -1,7 +1,7 @@
 /**
- * pixroom configuration — resolved from environment variables with safe defaults.
+ * pinpoint configuration — resolved from environment variables with safe defaults.
  *
- * pixroom follows pxpipe's "loopback-only by default" posture and headroom's
+ * pinpoint follows pxpipe's "loopback-only by default" posture and headroom's
  * `HEADROOM_*` tunability. Optical model scope defaults to pxpipe's own opt-in
  * posture (Fable-5 only) rather than silently imaging weak readers
  * (planning/pxpipe_integration.md §6).
@@ -37,7 +37,7 @@ export interface SemanticConfig {
   readonly sidecarUrl: string;
   /** Auto-spawn `headroom proxy` when the sidecar is not reachable. */
   readonly autoSpawn: boolean;
-  /** Port used when pixroom spawns the sidecar itself. */
+  /** Port used when pinpoint spawns the sidecar itself. */
   readonly sidecarPort: number;
   /** Recent turns to protect from semantic compression (maps to CCR `protect_recent`). */
   readonly protectRecent: number;
@@ -50,7 +50,7 @@ export interface SemanticConfig {
   /**
    * Also hand headroom the large plain-text prose blocks in non-recent USER turns
    * (not just `tool_result` blocks). This routes prose to headroom's ML prose
-   * compressor (Kompress) — the region pixroom otherwise passes through raw.
+   * compressor (Kompress) — the region pinpoint otherwise passes through raw.
    * Off by default: recent turns and model output are never touched, but user
    * prose is content, so it stays opt-in. Reversible via CCR when offloaded.
    */
@@ -94,7 +94,7 @@ export interface TelemetryConfig {
 export interface VirtualContextConfig {
   /** Replace safely answerable structured tool results with exact local manifests. */
   readonly enabled: boolean;
-  /** Allow unresolved questions to use model-driven pixroom_query continuation. */
+  /** Allow unresolved questions to use model-driven pinpoint_query continuation. */
   readonly queryFallback: boolean;
   /** Recent messages protected from virtualization. */
   readonly protectRecent: number;
@@ -132,7 +132,7 @@ export interface AdaptiveConfig {
   readonly storePath: string;
 }
 
-export interface PixroomConfig {
+export interface PinpointConfig {
   readonly mode: RuntimeMode;
   readonly host: string;
   readonly port: number;
@@ -148,7 +148,7 @@ export interface PixroomConfig {
 }
 
 /** Shallow-per-section overrides accepted by {@link loadConfig} / embedders. */
-export interface PixroomConfigOverrides {
+export interface PinpointConfigOverrides {
   mode?: RuntimeMode;
   host?: string;
   port?: number;
@@ -201,20 +201,20 @@ function envHeaders(name: string, fallbackName: string): Readonly<Record<string,
 }
 
 function resolveOtlpEndpoint(): string {
-  const direct = process.env.PIXROOM_OTLP_ENDPOINT ?? process.env.OTEL_EXPORTER_OTLP_TRACES_ENDPOINT;
+  const direct = process.env.PINPOINT_OTLP_ENDPOINT ?? process.env.OTEL_EXPORTER_OTLP_TRACES_ENDPOINT;
   if (direct?.trim()) return direct.trim();
   const base = process.env.OTEL_EXPORTER_OTLP_ENDPOINT?.trim();
   return base ? `${base.replace(/\/+$/, '')}/v1/traces` : '';
 }
 
 /**
- * Resolve optical model scope. `PIXROOM_MODELS`:
+ * Resolve optical model scope. `PINPOINT_MODELS`:
  *   unset      → `null` (pxpipe default: Fable-5 only)
  *   'off'      → `[]`   (optical disabled)
  *   'a,b,c'    → those model bases allowed
  */
 function resolveOpticalScope(): readonly string[] | null {
-  const raw = process.env.PIXROOM_MODELS;
+  const raw = process.env.PINPOINT_MODELS;
   if (raw == null || raw.trim() === '') return null;
   if (raw.trim().toLowerCase() === 'off') return [];
   return raw
@@ -224,88 +224,88 @@ function resolveOpticalScope(): readonly string[] | null {
 }
 
 function resolveLogLevel(): LogLevel {
-  const raw = (process.env.PIXROOM_LOG ?? 'info').trim().toLowerCase();
+  const raw = (process.env.PINPOINT_LOG ?? 'info').trim().toLowerCase();
   const allowed: readonly LogLevel[] = ['silent', 'error', 'warn', 'info', 'debug'];
   return (allowed as readonly string[]).includes(raw) ? (raw as LogLevel) : 'info';
 }
 
 function resolveMode(): RuntimeMode {
-  const raw = (process.env.PIXROOM_MODE ?? 'optimize').trim().toLowerCase();
+  const raw = (process.env.PINPOINT_MODE ?? 'optimize').trim().toLowerCase();
   return ['audit', 'shadow', 'optimize', 'enforce'].includes(raw)
     ? (raw as RuntimeMode)
     : 'optimize';
 }
 
-/** Build the pixroom config from the current environment, applying overrides last. */
-export function loadConfig(overrides: PixroomConfigOverrides = {}): PixroomConfig {
+/** Build the pinpoint config from the current environment, applying overrides last. */
+export function loadConfig(overrides: PinpointConfigOverrides = {}): PinpointConfig {
   const opticalScope = resolveOpticalScope();
-  const base: PixroomConfig = {
+  const base: PinpointConfig = {
     mode: resolveMode(),
-    host: envStr('PIXROOM_HOST', '127.0.0.1'),
-    port: envInt('PIXROOM_PORT', 8788),
+    host: envStr('PINPOINT_HOST', '127.0.0.1'),
+    port: envInt('PINPOINT_PORT', 8788),
     upstreams: {
       anthropic: envStr(
-        'PIXROOM_ANTHROPIC_UPSTREAM',
+        'PINPOINT_ANTHROPIC_UPSTREAM',
         envStr('ANTHROPIC_UPSTREAM', DEFAULT_ANTHROPIC_UPSTREAM),
       ),
       openai: envStr(
-        'PIXROOM_OPENAI_UPSTREAM',
+        'PINPOINT_OPENAI_UPSTREAM',
         envStr('OPENAI_UPSTREAM', DEFAULT_OPENAI_UPSTREAM),
       ),
     },
     optical: {
-      enabled: envBool('PIXROOM_OPTICAL', true) && opticalScope?.length !== 0,
+      enabled: envBool('PINPOINT_OPTICAL', true) && opticalScope?.length !== 0,
       allowedModelBases: opticalScope,
-      emitRecoverable: envBool('PIXROOM_OPTICAL_RECOVERABLE', true),
-      allowOnSubscription: envBool('PIXROOM_OPTICAL_ON_SUBSCRIPTION', false),
+      emitRecoverable: envBool('PINPOINT_OPTICAL_RECOVERABLE', true),
+      allowOnSubscription: envBool('PINPOINT_OPTICAL_ON_SUBSCRIPTION', false),
     },
     semantic: {
-      enabled: envBool('PIXROOM_SEMANTIC', true),
-      sidecarUrl: envStr('PIXROOM_HEADROOM_URL', 'http://127.0.0.1:8787'),
-      autoSpawn: envBool('PIXROOM_HEADROOM_AUTOSPAWN', true),
-      sidecarPort: envInt('PIXROOM_HEADROOM_PORT', 8787),
-      protectRecent: envInt('PIXROOM_PROTECT_RECENT', 4),
-      minTokensToCompress: envInt('PIXROOM_MIN_TOKENS', 250),
-      healthTimeoutMs: envInt('PIXROOM_HEALTH_TIMEOUT_MS', 1500),
-      spawnReadyTimeoutMs: envInt('PIXROOM_SPAWN_READY_TIMEOUT_MS', 20000),
-      includeUserProse: envBool('PIXROOM_SEMANTIC_PROSE', false),
-      proseMinChars: envInt('PIXROOM_SEMANTIC_PROSE_MIN_CHARS', 800),
+      enabled: envBool('PINPOINT_SEMANTIC', true),
+      sidecarUrl: envStr('PINPOINT_HEADROOM_URL', 'http://127.0.0.1:8787'),
+      autoSpawn: envBool('PINPOINT_HEADROOM_AUTOSPAWN', true),
+      sidecarPort: envInt('PINPOINT_HEADROOM_PORT', 8787),
+      protectRecent: envInt('PINPOINT_PROTECT_RECENT', 4),
+      minTokensToCompress: envInt('PINPOINT_MIN_TOKENS', 250),
+      healthTimeoutMs: envInt('PINPOINT_HEALTH_TIMEOUT_MS', 1500),
+      spawnReadyTimeoutMs: envInt('PINPOINT_SPAWN_READY_TIMEOUT_MS', 20000),
+      includeUserProse: envBool('PINPOINT_SEMANTIC_PROSE', false),
+      proseMinChars: envInt('PINPOINT_SEMANTIC_PROSE_MIN_CHARS', 800),
     },
     virtualContext: {
-      enabled: envBool('PIXROOM_VIRTUAL_CONTEXT', true),
-      queryFallback: envBool('PIXROOM_VIRTUAL_QUERY_FALLBACK', false),
-      protectRecent: envInt('PIXROOM_VIRTUAL_PROTECT_RECENT', 1),
-      minChars: envInt('PIXROOM_VIRTUAL_MIN_CHARS', 6_000),
-      maxChars: envInt('PIXROOM_VIRTUAL_MAX_CHARS', 2_000_000),
-      maxResultChars: envInt('PIXROOM_VIRTUAL_MAX_RESULT_CHARS', 12_000),
-      maxEntries: envInt('PIXROOM_VIRTUAL_MAX_ENTRIES', 256),
-      maxStoredBytes: envInt('PIXROOM_VIRTUAL_MAX_STORED_BYTES', 64 * 1024 * 1024),
-      maxDatasetsPerRequest: envInt('PIXROOM_VIRTUAL_MAX_DATASETS_PER_REQUEST', 8),
-      maxQueryRounds: envInt('PIXROOM_VIRTUAL_MAX_QUERY_ROUNDS', 4),
+      enabled: envBool('PINPOINT_VIRTUAL_CONTEXT', true),
+      queryFallback: envBool('PINPOINT_VIRTUAL_QUERY_FALLBACK', false),
+      protectRecent: envInt('PINPOINT_VIRTUAL_PROTECT_RECENT', 1),
+      minChars: envInt('PINPOINT_VIRTUAL_MIN_CHARS', 6_000),
+      maxChars: envInt('PINPOINT_VIRTUAL_MAX_CHARS', 2_000_000),
+      maxResultChars: envInt('PINPOINT_VIRTUAL_MAX_RESULT_CHARS', 12_000),
+      maxEntries: envInt('PINPOINT_VIRTUAL_MAX_ENTRIES', 256),
+      maxStoredBytes: envInt('PINPOINT_VIRTUAL_MAX_STORED_BYTES', 64 * 1024 * 1024),
+      maxDatasetsPerRequest: envInt('PINPOINT_VIRTUAL_MAX_DATASETS_PER_REQUEST', 8),
+      maxQueryRounds: envInt('PINPOINT_VIRTUAL_MAX_QUERY_ROUNDS', 4),
     },
     ccr: {
-      injectRetrieveTool: envBool('PIXROOM_CCR_TOOL', true),
-      continueToolCalls: envBool('PIXROOM_CCR_CONTINUATION', true),
-      maxContinuationRounds: envInt('PIXROOM_CCR_MAX_CONTINUATION_ROUNDS', 3),
+      injectRetrieveTool: envBool('PINPOINT_CCR_TOOL', true),
+      continueToolCalls: envBool('PINPOINT_CCR_CONTINUATION', true),
+      maxContinuationRounds: envInt('PINPOINT_CCR_MAX_CONTINUATION_ROUNDS', 3),
     },
     capture: {
-      path: envStr('PIXROOM_CAPTURE_PATH', ''),
-      includeBodies: envBool('PIXROOM_CAPTURE_BODIES', false),
-      fsync: envBool('PIXROOM_CAPTURE_FSYNC', true),
-      maxBytes: envInt('PIXROOM_CAPTURE_MAX_BYTES', 256 * 1024 * 1024),
-      maxFiles: envInt('PIXROOM_CAPTURE_MAX_FILES', 3),
+      path: envStr('PINPOINT_CAPTURE_PATH', ''),
+      includeBodies: envBool('PINPOINT_CAPTURE_BODIES', false),
+      fsync: envBool('PINPOINT_CAPTURE_FSYNC', true),
+      maxBytes: envInt('PINPOINT_CAPTURE_MAX_BYTES', 256 * 1024 * 1024),
+      maxFiles: envInt('PINPOINT_CAPTURE_MAX_FILES', 3),
     },
     telemetry: {
       endpoint: resolveOtlpEndpoint(),
-      headers: envHeaders('PIXROOM_OTLP_HEADERS', 'OTEL_EXPORTER_OTLP_HEADERS'),
-      serviceName: envStr('PIXROOM_OTLP_SERVICE_NAME', 'pixroom'),
-      timeoutMs: envInt('PIXROOM_OTLP_TIMEOUT_MS', 2_000),
-      maxQueue: envInt('PIXROOM_OTLP_MAX_QUEUE', 1_024),
+      headers: envHeaders('PINPOINT_OTLP_HEADERS', 'OTEL_EXPORTER_OTLP_HEADERS'),
+      serviceName: envStr('PINPOINT_OTLP_SERVICE_NAME', 'pinpoint'),
+      timeoutMs: envInt('PINPOINT_OTLP_TIMEOUT_MS', 2_000),
+      maxQueue: envInt('PINPOINT_OTLP_MAX_QUEUE', 1_024),
     },
     adaptive: {
-      enabled: envBool('PIXROOM_ADAPTIVE', false),
-      logOnly: envBool('PIXROOM_ADAPTIVE_LOG', false),
-      storePath: envStr('PIXROOM_ADAPTIVE_STORE', ''),
+      enabled: envBool('PINPOINT_ADAPTIVE', false),
+      logOnly: envBool('PINPOINT_ADAPTIVE_LOG', false),
+      storePath: envStr('PINPOINT_ADAPTIVE_STORE', ''),
     },
     logLevel: resolveLogLevel(),
   };

@@ -1,5 +1,5 @@
 /**
- * pixroom ContentRouter (planning/end_product.md §5.1).
+ * pinpoint ContentRouter (planning/end_product.md §5.1).
  *
  * A thin orchestration layer over registered optimizers that enforces region ownership —
  * exactly one engine per region — and unifies reversibility through one CCR store:
@@ -51,7 +51,7 @@ export interface RouteResult {
   readonly virtualQueryToolNeeded: boolean;
   /** Exact dataset capabilities available to this routed request. */
   readonly virtualContextIds: readonly string[];
-  /** True when Pixroom should execute its injected CCR retrieval tool locally. */
+  /** True when Pinpoint should execute its injected CCR retrieval tool locally. */
   readonly ccrToolNeeded: boolean;
   /** CCR handle capabilities available to this routed request only. */
   readonly ccrContextIds: readonly string[];

@@ -61,8 +61,8 @@ describe('OpenAI Chat exact QCV', () => {
       body: raw,
     });
 
-    expect(JSON.stringify(forwarded)).toContain('<<pixroom_virtual');
+    expect(JSON.stringify(forwarded)).toContain('<<pinpoint_virtual');
     expect(JSON.stringify(forwarded)).toContain('user31@example.com');
-    expect(JSON.stringify(forwarded)).not.toContain('pixroom_query');
+    expect(JSON.stringify(forwarded)).not.toContain('pinpoint_query');
   });
 });

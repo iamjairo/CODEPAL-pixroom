@@ -1,21 +1,21 @@
 /**
- * pixroom SDK — the embeddable core (planning/end_product.md §6).
+ * pinpoint SDK — the embeddable core (planning/end_product.md §6).
  *
- * `createPixroom()` returns the composed engine; `createProxyServer()` is the
+ * `createPinpoint()` returns the composed engine; `createProxyServer()` is the
  * standalone front door. Both consume pxpipe (optical, in-process) and headroom
  * (semantic, via the loopback sidecar) as pinned, unmodified dependencies.
  */
 
-export { createPixroom, createRuntime } from './pixroom.js';
-export type { Pixroom, RuntimeOptions, SessionStats } from './pixroom.js';
+export { createPinpoint, createRuntime } from './pinpoint.js';
+export type { Pinpoint, RuntimeOptions, SessionStats } from './pinpoint.js';
 
-export { withPixroom as withPixroomAnthropic } from './sdk/anthropic.js';
-export { withPixroom as withPixroomOpenAI } from './sdk/openai.js';
+export { withPinpoint as withPinpointAnthropic } from './sdk/anthropic.js';
+export { withPinpoint as withPinpointOpenAI } from './sdk/openai.js';
 export type {
-  PixroomClientHandle,
+  PinpointClientHandle,
   ProviderSdkClient,
-  WrappedPixroomClient,
-  WithPixroomOptions,
+  WrappedPinpointClient,
+  WithPinpointOptions,
 } from './sdk/client.js';
 
 export { createProxyServer } from './proxy/server.js';
@@ -107,8 +107,8 @@ export type { SidecarState } from './sidecar/headroom-sidecar.js';
 
 export { loadConfig } from './config.js';
 export type {
-  PixroomConfig,
-  PixroomConfigOverrides,
+  PinpointConfig,
+  PinpointConfigOverrides,
   OpticalConfig,
   SemanticConfig,
   CcrConfig,

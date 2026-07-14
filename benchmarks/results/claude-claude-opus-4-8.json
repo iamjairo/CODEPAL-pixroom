@@ -49,7 +49,7 @@
           "billedInput": 6008,
           "snippet": "BENCH_ECHO_7Q"
         },
-        "pixroom": {
+        "pinpoint": {
           "ok": true,
           "ms": 2876,
           "correct": true,
@@ -105,7 +105,7 @@
           "billedInput": 6263,
           "snippet": "6994652"
         },
-        "pixroom": {
+        "pinpoint": {
           "ok": true,
           "ms": 5197,
           "correct": false,
@@ -161,7 +161,7 @@
           "billedInput": 13112,
           "snippet": "18"
         },
-        "pixroom": {
+        "pinpoint": {
           "ok": true,
           "ms": 6413,
           "correct": true,
@@ -217,7 +217,7 @@
           "billedInput": 13347,
           "snippet": "OpticalCompressor, SemanticCompressor"
         },
-        "pixroom": {
+        "pinpoint": {
           "ok": true,
           "ms": 9045,
           "correct": true,
@@ -247,7 +247,7 @@
           "output": 221,
           "totalInput": 44192,
           "billedInput": 15960,
-          "snippet": "`src/wrap/runner.ts` implements the `pixroom wrap` command, dispatching each supported coding agent to the appropriate strategy — launching it against a locally-started pixroom proxy, printing IDE con"
+          "snippet": "`src/wrap/runner.ts` implements the `pinpoint wrap` command, dispatching each supported coding agent to the appropriate strategy — launching it against a locally-started pinpoint proxy, printing IDE con"
         },
         "headroom-only": {
           "ok": true,
@@ -259,7 +259,7 @@
           "output": 309,
           "totalInput": 46411,
           "billedInput": 43335,
-          "snippet": "`src/wrap/runner.ts` implements the `pixroom wrap` command, dispatching each supported coding agent to the right integration path—launching it against a local pixroom proxy, printing IDE config for th"
+          "snippet": "`src/wrap/runner.ts` implements the `pinpoint wrap` command, dispatching each supported coding agent to the right integration path—launching it against a local pinpoint proxy, printing IDE config for th"
         },
         "pxpipe-only": {
           "ok": true,
@@ -271,9 +271,9 @@
           "output": 192,
           "totalInput": 75389,
           "billedInput": 18487,
-          "snippet": "`src/wrap/runner.ts` implements the `pixroom wrap` command, which launches a coding agent wired to pixroom's proxy — dispatching each supported agent to the right strategy (spawn it against the local "
+          "snippet": "`src/wrap/runner.ts` implements the `pinpoint wrap` command, which launches a coding agent wired to pinpoint's proxy — dispatching each supported agent to the right strategy (spawn it against the local "
         },
-        "pixroom": {
+        "pinpoint": {
           "ok": true,
           "ms": 7785,
           "correct": true,
@@ -283,7 +283,7 @@
           "output": 199,
           "totalInput": 75389,
           "billedInput": 10000,
-          "snippet": "`src/wrap/runner.ts` implements the `pixroom wrap` command, which launches a coding agent wired up to pixroom — either starting the local proxy and spawning/configuring the agent against it (launch/pr"
+          "snippet": "`src/wrap/runner.ts` implements the `pinpoint wrap` command, which launches a coding agent wired up to pinpoint — either starting the local proxy and spawning/configuring the agent against it (launch/pr"
         }
       }
     }

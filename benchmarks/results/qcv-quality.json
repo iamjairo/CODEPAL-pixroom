@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "evidenceLevel": "offline-real-transform",
-  "generatedAt": "2026-07-14T12:26:31.877Z",
+  "generatedAt": "2026-07-14T15:12:45.058Z",
   "methodology": {
     "providerCalls": 0,
     "modelQuality": "not measured; deterministic exact materialization only",
@@ -24,8 +24,8 @@
     "virtualized": 36,
     "fallbackInjected": 0,
     "tokensText": 104018,
-    "tokensCompressed": 5964,
-    "tokensSaved": 98054,
+    "tokensCompressed": 5981,
+    "tokensSaved": 98037,
     "negativeControls": 12,
     "refused": 12
   },
@@ -97,8 +97,8 @@
       "virtualized": true,
       "fallbackInjected": false,
       "tokensText": 2026,
-      "tokensCompressed": 150,
-      "tokensSaved": 1876
+      "tokensCompressed": 151,
+      "tokensSaved": 1875
     },
     {
       "id": "filtered-count-2",
@@ -107,8 +107,8 @@
       "virtualized": true,
       "fallbackInjected": false,
       "tokensText": 2156,
-      "tokensCompressed": 150,
-      "tokensSaved": 2006
+      "tokensCompressed": 151,
+      "tokensSaved": 2005
     },
     {
       "id": "filtered-count-3",
@@ -117,8 +117,8 @@
       "virtualized": true,
       "fallbackInjected": false,
       "tokensText": 2285,
-      "tokensCompressed": 150,
-      "tokensSaved": 2135
+      "tokensCompressed": 151,
+      "tokensSaved": 2134
     },
     {
       "id": "filtered-count-4",
@@ -127,8 +127,8 @@
       "virtualized": true,
       "fallbackInjected": false,
       "tokensText": 2413,
-      "tokensCompressed": 150,
-      "tokensSaved": 2263
+      "tokensCompressed": 151,
+      "tokensSaved": 2262
     },
     {
       "id": "filtered-count-5",
@@ -137,8 +137,8 @@
       "virtualized": true,
       "fallbackInjected": false,
       "tokensText": 2541,
-      "tokensCompressed": 150,
-      "tokensSaved": 2391
+      "tokensCompressed": 151,
+      "tokensSaved": 2390
     },
     {
       "id": "filtered-count-6",
@@ -147,8 +147,8 @@
       "virtualized": true,
       "fallbackInjected": false,
       "tokensText": 2672,
-      "tokensCompressed": 150,
-      "tokensSaved": 2522
+      "tokensCompressed": 151,
+      "tokensSaved": 2521
     },
     {
       "id": "log-count-1",
@@ -157,8 +157,8 @@
       "virtualized": true,
       "fallbackInjected": false,
       "tokensText": 2913,
-      "tokensCompressed": 139,
-      "tokensSaved": 2774
+      "tokensCompressed": 140,
+      "tokensSaved": 2773
     },
     {
       "id": "log-count-2",
@@ -177,8 +177,8 @@
       "virtualized": true,
       "fallbackInjected": false,
       "tokensText": 2898,
-      "tokensCompressed": 139,
-      "tokensSaved": 2759
+      "tokensCompressed": 140,
+      "tokensSaved": 2758
     },
     {
       "id": "log-count-4",
@@ -187,8 +187,8 @@
       "virtualized": true,
       "fallbackInjected": false,
       "tokensText": 2905,
-      "tokensCompressed": 139,
-      "tokensSaved": 2766
+      "tokensCompressed": 140,
+      "tokensSaved": 2765
     },
     {
       "id": "log-count-5",
@@ -197,8 +197,8 @@
       "virtualized": true,
       "fallbackInjected": false,
       "tokensText": 2904,
-      "tokensCompressed": 139,
-      "tokensSaved": 2765
+      "tokensCompressed": 140,
+      "tokensSaved": 2764
     },
     {
       "id": "log-count-6",
@@ -207,8 +207,8 @@
       "virtualized": true,
       "fallbackInjected": false,
       "tokensText": 2903,
-      "tokensCompressed": 139,
-      "tokensSaved": 2764
+      "tokensCompressed": 140,
+      "tokensSaved": 2763
     },
     {
       "id": "source-exports-1",
@@ -217,8 +217,8 @@
       "virtualized": true,
       "fallbackInjected": false,
       "tokensText": 2000,
-      "tokensCompressed": 176,
-      "tokensSaved": 1824
+      "tokensCompressed": 177,
+      "tokensSaved": 1823
     },
     {
       "id": "source-exports-2",
@@ -227,8 +227,8 @@
       "virtualized": true,
       "fallbackInjected": false,
       "tokensText": 2000,
-      "tokensCompressed": 176,
-      "tokensSaved": 1824
+      "tokensCompressed": 177,
+      "tokensSaved": 1823
     },
     {
       "id": "source-exports-3",
@@ -237,8 +237,8 @@
       "virtualized": true,
       "fallbackInjected": false,
       "tokensText": 2000,
-      "tokensCompressed": 176,
-      "tokensSaved": 1824
+      "tokensCompressed": 177,
+      "tokensSaved": 1823
     },
     {
       "id": "source-exports-4",
@@ -247,8 +247,8 @@
       "virtualized": true,
       "fallbackInjected": false,
       "tokensText": 2000,
-      "tokensCompressed": 176,
-      "tokensSaved": 1824
+      "tokensCompressed": 177,
+      "tokensSaved": 1823
     },
     {
       "id": "source-exports-5",
@@ -257,8 +257,8 @@
       "virtualized": true,
       "fallbackInjected": false,
       "tokensText": 2000,
-      "tokensCompressed": 176,
-      "tokensSaved": 1824
+      "tokensCompressed": 177,
+      "tokensSaved": 1823
     },
     {
       "id": "source-exports-6",
@@ -267,8 +267,8 @@
       "virtualized": true,
       "fallbackInjected": false,
       "tokensText": 2000,
-      "tokensCompressed": 176,
-      "tokensSaved": 1824
+      "tokensCompressed": 177,
+      "tokensSaved": 1823
     },
     {
       "id": "table-row-1",

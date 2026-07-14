@@ -8,7 +8,7 @@ QCV handles non-recent JSON, line-oriented logs, and source-like tool results on
 
 ## Data flow
 
-1. The `pixroom-virtual-context` integration runs before Headroom and pxpipe.
+1. The `pinpoint-virtual-context` integration runs before Headroom and pxpipe.
 2. Eligible `tool_result` text is inspected without retention under a 128-bit SHA-256-derived capability id.
 3. A deterministic planner evaluates the current question without mutating request state or the local store.
 4. A conservative planner inspects the current user question:
@@ -19,12 +19,12 @@ QCV handles non-recent JSON, line-oriented logs, and source-like tool results on
 5. Default-on QCV selects a candidate only when exactly one dataset yields one complete exact answer and the transformed request is smaller. Repeated selectors, ranges, negation, and multiple matching datasets are refused.
 6. The transaction validates a cloned request, atomically retains every selected dataset within entry/byte limits, commits stable manifests into Anthropic `tool_result`, OpenAI Chat `role:tool`, or Responses `function_call_output` positions, and appends escaped exact data to the current provider-native user turn.
 7. Within exact-query turns, historical manifest bytes depend only on the dataset and configuration, not the selector, preserving that transformed prefix. An ambiguous turn intentionally falls back to the original and can therefore change applicability.
-8. Unresolved questions fall through by default. With `PIXROOM_VIRTUAL_QUERY_FALLBACK=1`, pixroom injects `pixroom_query`; pure internal calls receive bounded local `schema`, `json_select`, `count`, `grep`, or `slice` results and continue transparently.
+8. Unresolved questions fall through by default. With `PINPOINT_VIRTUAL_QUERY_FALLBACK=1`, pinpoint injects `pinpoint_query`; pure internal calls receive bounded local `schema`, `json_select`, `count`, `grep`, or `slice` results and continue transparently.
 9. Headroom and pxpipe remain available for every unclaimed region. QCV owns the dedicated `virtual-context` planner region rather than all tool results.
 
 ## Why the default changed
 
-The old `PIXROOM_VIRTUAL_CONTEXT=1` gate covered two materially different designs:
+The old `PINPOINT_VIRTUAL_CONTEXT=1` gate covered two materially different designs:
 
 - deterministic exact prefetch, which needs no model planning and has narrow falsifiable safety conditions;
 - model-driven retrieval, which adds provider rounds and can fail through planning, truncation, mixed tool ownership, or transport.
@@ -32,8 +32,8 @@ The old `PIXROOM_VIRTUAL_CONTEXT=1` gate covered two materially different design
 Keeping both behind one experimental switch made the safe path unnecessarily hard to adopt and made the risky path look equally validated. The controls now match the actual risk:
 
 - exact QCV defaults on;
-- `PIXROOM_VIRTUAL_CONTEXT=0` is the kill switch;
-- `PIXROOM_VIRTUAL_QUERY_FALLBACK=1` enables model-driven continuation;
+- `PINPOINT_VIRTUAL_CONTEXT=0` is the kill switch;
+- `PINPOINT_VIRTUAL_QUERY_FALLBACK=1` enables model-driven continuation;
 - `--no-qcv` and `--virtual-query-fallback` expose the same split in the CLI.
 
 ## Why the naive design failed
@@ -72,8 +72,8 @@ The ingredients have prior art. The current claim is a distinct integration and 
 
 ## Safety boundaries
 
-- deterministic exact subset enabled by default; `PIXROOM_VIRTUAL_CONTEXT=0` is the kill switch;
-- model-driven fallback disabled by default (`PIXROOM_VIRTUAL_QUERY_FALLBACK=1` opts in);
+- deterministic exact subset enabled by default; `PINPOINT_VIRTUAL_CONTEXT=0` is the kill switch;
+- model-driven fallback disabled by default (`PINPOINT_VIRTUAL_QUERY_FALLBACK=1` opts in);
 - PAYG only; OAuth/subscription pass through;
 - deterministic exact prefetch supports streaming; model-driven fallback is non-streaming;
 - minimum 6,000 and maximum 2,000,000 characters per dataset by default;

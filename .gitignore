@@ -5,4 +5,4 @@ dist/
 .DS_Store
 coverage/
 *.tsbuildinfo
-.pixroom/
+.pinpoint/

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { createRuntime } from '../src/pixroom.js';
+import { createRuntime } from '../src/pinpoint.js';
 import type { ProcessorIntegration } from '../src/kernel/types.js';
 
 describe('createRuntime', () => {

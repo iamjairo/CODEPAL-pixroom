@@ -2,7 +2,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { createPixroom } from '../dist/pixroom.js';
+import { createPinpoint } from '../dist/pinpoint.js';
 import { EVIDENCE } from './evidence.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -170,7 +170,7 @@ function prefetchPayload(body) {
     const content = Array.isArray(messages[messageIndex]?.content) ? messages[messageIndex].content : [];
     for (const block of content) {
       if (block?.type !== 'text' || typeof block.text !== 'string') continue;
-      const match = /<pixroom_exact_prefetch>\n([^\n]+)\n<\/pixroom_exact_prefetch>/.exec(block.text);
+      const match = /<pinpoint_exact_prefetch>\n([^\n]+)\n<\/pinpoint_exact_prefetch>/.exec(block.text);
       if (match?.[1]) return JSON.parse(match[1]);
     }
   }
@@ -178,7 +178,7 @@ function prefetchPayload(body) {
 }
 
 async function main() {
-  const runtime = createPixroom({
+  const runtime = createPinpoint({
     virtualContext: { enabled: true, queryFallback: false, minChars: 100, protectRecent: 0 },
     semantic: { enabled: false },
     optical: { enabled: false },
@@ -209,7 +209,7 @@ async function main() {
         category: task.category,
         exact: materialized.includes(task.expected),
         virtualized: routed.virtualized,
-        fallbackInjected: serialized.includes('pixroom_query'),
+        fallbackInjected: serialized.includes('pinpoint_query'),
         tokensText: row?.tokensText ?? 0,
         tokensCompressed: row?.tokensCompressed ?? 0,
         tokensSaved: row?.tokensSaved ?? 0,
@@ -235,7 +235,7 @@ async function main() {
         id: task.id,
         category: task.category,
         refused: !routed.virtualized,
-        fallbackInjected: JSON.stringify(routed.body).includes('pixroom_query'),
+        fallbackInjected: JSON.stringify(routed.body).includes('pinpoint_query'),
       });
     }
   } finally {

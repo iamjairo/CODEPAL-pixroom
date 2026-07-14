@@ -1,12 +1,12 @@
 /**
- * `pixroom wrap` runner (planning/end_product.md §6).
+ * `pinpoint wrap` runner (planning/end_product.md §6).
  *
  * Dispatches each agent to the right composition:
- *   - launch:   start the pixroom proxy, point the agent at it, spawn it.
+ *   - launch:   start the pinpoint proxy, point the agent at it, spawn it.
  *   - print:    start the proxy and print IDE config (Cursor/Cline/Continue).
  *   - delegate: hand copilot to the headroom backbone (its subscription-OAuth
- *               transport is headroom's; pixroom's lossy optical can't help
- *               copilot's models). pixroom adds preflight + a unified CLI.
+ *               transport is headroom's; pinpoint's lossy optical can't help
+ *               copilot's models). pinpoint adds preflight + a unified CLI.
  *
  * Ephemeral: only the launched child's env is set — no config files are mutated.
  */
@@ -40,13 +40,13 @@ export interface WrapOptions {
   readonly registry?: AgentRegistry;
 }
 
-/** Run `pixroom wrap`. Resolves to the process exit code. Never throws. */
+/** Run `pinpoint wrap`. Resolves to the process exit code. Never throws. */
 export async function runWrap(opts: WrapOptions): Promise<number> {
   const registry = opts.registry ?? BUILTIN_AGENT_REGISTRY;
   const spec = registry.get(opts.agent)?.adapter;
   if (spec === undefined) {
     console.error(`unknown agent '${opts.agent}'. Supported: ${knownAgents(registry).join(', ')}.`);
-    console.error("For any compatible client, run 'pixroom proxy' and point its base URL at it.");
+    console.error("For any compatible client, run 'pinpoint proxy' and point its base URL at it.");
     return 1;
   }
   switch (spec.kind) {
@@ -71,7 +71,7 @@ async function runLaunch(spec: LaunchAgent, opts: WrapOptions): Promise<number> 
   const { host, port } = await server.listen();
   const baseUrl = `http://${host}:${port}`;
   const agentEnv = spec.env(baseUrl);
-  server.pixroom.log.info(`wrapping '${opts.agent}': ${Object.keys(agentEnv).join(', ')} → ${baseUrl}`);
+  server.pinpoint.log.info(`wrapping '${opts.agent}': ${Object.keys(agentEnv).join(', ')} → ${baseUrl}`);
   try {
     return await spawnAndWait(spec.command, opts.passthrough, { ...process.env, ...agentEnv });
   } catch (err) {
@@ -86,7 +86,7 @@ async function runPrint(spec: PrintAgent, opts: WrapOptions): Promise<number> {
   const server = createProxyServer(proxyOverrides(opts));
   const { host, port } = await server.listen();
   const baseUrl = `http://${host}:${port}`;
-  console.log(`\npixroom proxy is running for ${spec.displayName} at ${baseUrl}\n`);
+  console.log(`\npinpoint proxy is running for ${spec.displayName} at ${baseUrl}\n`);
   console.log(spec.instructions(baseUrl));
   console.log('\nLeave this running; press Ctrl-C to stop.\n');
   return waitForSignal(server);
@@ -110,7 +110,7 @@ export function copilotPreflight(): CopilotPreflight {
     headroomBin: locateHeadroom(),
     copilotCli: which('copilot'),
     tokenFound: probeCopilotToken(),
-    model: process.env.PIXROOM_COPILOT_MODEL || 'gpt-4o',
+    model: process.env.PINPOINT_COPILOT_MODEL || 'gpt-4o',
   };
 }
 
@@ -121,7 +121,7 @@ async function runDelegateCopilot(opts: WrapOptions): Promise<number> {
     console.error(
       'Copilot support delegates to the headroom backbone, but `headroom` was not found.\n' +
         '  Install it (pipx install headroom-ai / pip install headroom-ai) or set\n' +
-        '  PIXROOM_HEADROOM_BIN to the binary (e.g. ~/repos-pixroom/.headroom-venv/bin/headroom).',
+        '  PINPOINT_HEADROOM_BIN to the binary (e.g. ~/repos-pinpoint/.headroom-venv/bin/headroom).',
     );
     return 1;
   }
@@ -144,7 +144,7 @@ async function runDelegateCopilot(opts: WrapOptions): Promise<number> {
 
   const mode = opts.byok ? 'BYOK' : 'subscription';
   console.error(
-    `pixroom wrap copilot → delegating to headroom (${mode}); model=${modelOf(passthrough)}; headroom=${pf.headroomBin}`,
+    `pinpoint wrap copilot → delegating to headroom (${mode}); model=${modelOf(passthrough)}; headroom=${pf.headroomBin}`,
   );
   console.error(
     "  Copilot compression runs via headroom's semantic engine; savings appear in headroom's dashboard.",
@@ -222,12 +222,12 @@ function which(cmd: string): string | null {
 }
 
 function locateHeadroom(): string | null {
-  const explicit = process.env.PIXROOM_HEADROOM_BIN;
+  const explicit = process.env.PINPOINT_HEADROOM_BIN;
   if (explicit && isExecutable(explicit)) return explicit;
   const onPath = which('headroom');
   if (onPath) return onPath;
   for (const c of [
-    join(homedir(), 'repos-pixroom', '.headroom-venv', 'bin', 'headroom'),
+    join(homedir(), 'repos-pinpoint', '.headroom-venv', 'bin', 'headroom'),
     join(process.cwd(), '.headroom-venv', 'bin', 'headroom'),
     join(homedir(), '.headroom-venv', 'bin', 'headroom'),
   ]) {

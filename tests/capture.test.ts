@@ -6,7 +6,8 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { readCaptureFile } from '../src/capture/store.js';
 import { replayCaptureFile } from '../src/capture/replay.js';
 import { runCaptureReplay } from '../src/cli/main.js';
-import { createPixroom } from '../src/pixroom.js';
+import type { ProcessorIntegration } from '../src/kernel/types.js';
+import { createPinpoint, createRuntime } from '../src/pinpoint.js';
 
 const directories: string[] = [];
 
@@ -17,7 +18,7 @@ afterEach(() => {
 });
 
 function capturePath(): string {
-  const directory = mkdtempSync(join(tmpdir(), 'pixroom-capture-'));
+  const directory = mkdtempSync(join(tmpdir(), 'pinpoint-capture-'));
   directories.push(directory);
   return join(directory, 'nested', 'capture.jsonl');
 }
@@ -25,7 +26,7 @@ function capturePath(): string {
 describe('durable capture and replay', () => {
   it('writes metadata-only mode-0600 records without request content', async () => {
     const path = capturePath();
-    const runtime = createPixroom({
+    const runtime = createPinpoint({
       capture: { path, includeBodies: false, fsync: true },
       virtualContext: { enabled: false },
       semantic: { enabled: false },
@@ -54,6 +55,42 @@ describe('durable capture and replay', () => {
     await runtime.shutdown();
   });
 
+  it('does not capture private text thrown by an integration', async () => {
+    const path = capturePath();
+    const secret = 'private prompt leaked through an exception';
+    const throwing: ProcessorIntegration = {
+      id: 'test.throwing',
+      version: 'test',
+      order: 1,
+      capabilities: { regions: ['current-turn'], fidelity: 'lossless', cacheImpact: 'preserve' },
+      async propose() {
+        throw new Error(secret);
+      },
+    };
+    const runtime = createRuntime({
+      includeBuiltinIntegrations: false,
+      integrations: [throwing],
+      config: {
+        capture: { path, includeBodies: false, fsync: true },
+        semantic: { enabled: false },
+        optical: { enabled: false },
+        logLevel: 'silent',
+      },
+    });
+
+    await runtime.route(
+      'openai',
+      'gpt-test',
+      { model: 'gpt-test', messages: [{ role: 'user', content: secret }] },
+      'payg',
+    );
+    await runtime.shutdown();
+
+    const serialized = JSON.stringify(readCaptureFile(path)[0]);
+    expect(serialized).not.toContain(secret);
+    expect(serialized).toContain('proposal_failed');
+  });
+
   it('replays body-enabled exact QCV captures and matches the transformed hash', async () => {
     const path = capturePath();
     const overrides = {
@@ -63,7 +100,7 @@ describe('durable capture and replay', () => {
       optical: { enabled: false },
       logLevel: 'silent' as const,
     };
-    const runtime = createPixroom(overrides);
+    const runtime = createPinpoint(overrides);
     const rows = Array.from({ length: 50 }, (_, id) => ({ id, value: `value-${id}` }));
     await runtime.route(
       'anthropic',
@@ -102,7 +139,7 @@ describe('durable capture and replay', () => {
 
   it('rotates capture files before the configured byte cap', async () => {
     const path = capturePath();
-    const runtime = createPixroom({
+    const runtime = createPinpoint({
       capture: {
         path,
         includeBodies: false,

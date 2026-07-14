@@ -23,7 +23,7 @@ export interface Logger {
 
 function fmt(scope: string, msg: string): string {
   const ts = new Date().toISOString();
-  return `${ts} [pixroom${scope ? `:${scope}` : ''}] ${msg}`;
+  return `${ts} [pinpoint${scope ? `:${scope}` : ''}] ${msg}`;
 }
 
 export function createLogger(level: LogLevel, scope = ''): Logger {

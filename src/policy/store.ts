@@ -11,7 +11,7 @@
  * fraction to pick an engine per region; this file is just the durable evidence.
  *
  * Storage is a single JSON file written atomically (tmp + rename). We deliberately
- * do NOT depend on `node:sqlite` (Node ≥22 only; pixroom targets Node ≥18) or any
+ * do NOT depend on `node:sqlite` (Node ≥22 only; pinpoint targets Node ≥18) or any
  * external driver — zero new runtime dependencies (planning invariant). Loads are
  * tolerant: a missing or corrupt file starts empty rather than throwing, so the
  * pipeline never fails closed on a bad store.

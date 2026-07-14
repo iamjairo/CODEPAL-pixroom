@@ -115,7 +115,7 @@ export class SemanticCompressor implements Compressor, CcrRetriever {
     const toolTargets = collectToolResultTargets(ctx.body, {
       protectRecent: this.cfg.protectRecent,
       minChars: SEMANTIC_MIN_BLOCK_CHARS,
-    }).filter((target) => !target.text.startsWith('<<pixroom_virtual '));
+    }).filter((target) => !target.text.startsWith('<<pinpoint_virtual '));
     const proseTargets = this.cfg.includeUserProse
       ? collectProseTargets(ctx.body, {
           protectRecent: this.cfg.protectRecent,
@@ -136,7 +136,7 @@ export class SemanticCompressor implements Compressor, CcrRetriever {
     const messages = [
       ...toolTargets.map((t: ToolResultTarget, i: number) => ({
         role: 'tool',
-        tool_call_id: t.toolUseId ?? `pxr_${i}`,
+        tool_call_id: t.toolUseId ?? `pinpoint_${i}`,
         content: t.text,
       })),
       ...proseTargets.map((t) => ({ role: 'user', content: t.text })),

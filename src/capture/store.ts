@@ -78,7 +78,7 @@ function summarizePipeline(pipeline: PipelineResult): CaptureRecord['pipeline'] 
     transactions: pipeline.transactions.map((transaction) => ({
       integrationId: transaction.proposal.integrationId,
       status: transaction.status,
-      error: transaction.error,
+      error: transaction.status === 'rolled-back' ? transaction.error : undefined,
     })),
     errors: pipeline.errors.map((error) => ({ ...error })),
   };
@@ -146,7 +146,7 @@ export class CaptureWriter {
   private rotateIfNeeded(incomingBytes: number): void {
     const maxBytes = Math.max(1, this.config.maxBytes);
     if (incomingBytes > maxBytes) {
-      throw new Error(`capture record exceeds PIXROOM_CAPTURE_MAX_BYTES (${incomingBytes} > ${maxBytes})`);
+      throw new Error(`capture record exceeds PINPOINT_CAPTURE_MAX_BYTES (${incomingBytes} > ${maxBytes})`);
     }
     const currentBytes = existsSync(this.config.path) ? statSync(this.config.path).size : 0;
     if (currentBytes + incomingBytes <= maxBytes) return;

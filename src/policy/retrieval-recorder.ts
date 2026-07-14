@@ -1,7 +1,7 @@
 /**
  * Retrieval-regret instrumentation — the modality-agnostic distortion signal.
  *
- * pixroom is the only layer that holds multiple compression modalities (optical =
+ * pinpoint is the only layer that holds multiple compression modalities (optical =
  * pxpipe, semantic = headroom) behind ONE reversible store and ONE retrieve tool.
  * That lets us attribute a single, uniform signal across engines: when the model
  * calls `headroom_retrieve` on an offloaded original, that retrieval is *regret* —

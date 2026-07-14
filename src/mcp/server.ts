@@ -1,19 +1,19 @@
 /**
- * pixroom MCP server (planning/end_product.md §6).
+ * pinpoint MCP server (planning/end_product.md §6).
  *
  * A dependency-free JSON-RPC 2.0 server over stdio (newline-delimited messages,
  * the MCP stdio transport). Exposes three tools mirroring headroom's MCP surface:
- *   - pixroom_compress  — route a provider request through registered optimizers
- *   - pixroom_retrieve  — pull an offloaded original back by CCR id
- *   - pixroom_stats     — session savings
+ *   - pinpoint_compress  — route a provider request through registered optimizers
+ *   - pinpoint_retrieve  — pull an offloaded original back by CCR id
+ *   - pinpoint_stats     — session savings
  *
  * All diagnostics go to stderr; stdout carries only protocol messages.
  */
 
 import { createInterface } from 'node:readline';
 
-import type { PixroomConfigOverrides } from '../config.js';
-import { createPixroom } from '../pixroom.js';
+import type { PinpointConfigOverrides } from '../config.js';
+import { createPinpoint } from '../pinpoint.js';
 import type { Provider } from '../types.js';
 
 const PROTOCOL_VERSION = '2024-11-05';
@@ -29,10 +29,10 @@ interface JsonRpcMessage {
 
 const TOOLS = [
   {
-    name: 'pixroom_compress',
+    name: 'pinpoint_compress',
     description:
       'Compress a provider request (Anthropic Messages or OpenAI Chat Completions) ' +
-      'through pixroom (QCV + semantic + optical) and return the transformed body plus an ' +
+      'through pinpoint (QCV + semantic + optical) and return the transformed body plus an ' +
       'honest savings report.',
     inputSchema: {
       type: 'object',
@@ -45,8 +45,8 @@ const TOOLS = [
     },
   },
   {
-    name: 'pixroom_retrieve',
-    description: 'Retrieve the full original content that pixroom offloaded, by CCR id / rec_ id.',
+    name: 'pinpoint_retrieve',
+    description: 'Retrieve the full original content that pinpoint offloaded, by CCR id / rec_ id.',
     inputSchema: {
       type: 'object',
       properties: { id: { type: 'string' } },
@@ -54,16 +54,16 @@ const TOOLS = [
     },
   },
   {
-    name: 'pixroom_stats',
-    description: 'Return running session savings totals for this pixroom instance.',
+    name: 'pinpoint_stats',
+    description: 'Return running session savings totals for this pinpoint instance.',
     inputSchema: { type: 'object', properties: {} },
   },
 ] as const;
 
-export async function runMcpServer(overrides: PixroomConfigOverrides = {}): Promise<void> {
-  const px = createPixroom(overrides);
+export async function runMcpServer(overrides: PinpointConfigOverrides = {}): Promise<void> {
+  const px = createPinpoint(overrides);
   await px.warmup();
-  px.log.info('pixroom MCP server ready on stdio');
+  px.log.info('pinpoint MCP server ready on stdio');
 
   const send = (msg: JsonRpcMessage): void => {
     process.stdout.write(`${JSON.stringify(msg)}\n`);
@@ -75,7 +75,7 @@ export async function runMcpServer(overrides: PixroomConfigOverrides = {}): Prom
 
   async function callTool(name: string, args: Record<string, unknown>): Promise<unknown> {
     switch (name) {
-      case 'pixroom_compress': {
+      case 'pinpoint_compress': {
         const provider: Provider = args.provider === 'openai' ? 'openai' : 'anthropic';
         const body = (args.body ?? {}) as Record<string, unknown>;
         const model =
@@ -94,12 +94,12 @@ export async function runMcpServer(overrides: PixroomConfigOverrides = {}): Prom
           opticalOwnsCacheControl: routed.opticalOwnsCacheControl,
         };
       }
-      case 'pixroom_retrieve': {
+      case 'pinpoint_retrieve': {
         const id = String(args.id ?? '');
         const content = await px.retrieve(id);
         return { id, found: content != null, content };
       }
-      case 'pixroom_stats':
+      case 'pinpoint_stats':
         return px.stats();
       default:
         throw new Error(`unknown tool: ${name}`);
@@ -114,7 +114,7 @@ export async function runMcpServer(overrides: PixroomConfigOverrides = {}): Prom
         reply(id, {
           protocolVersion: PROTOCOL_VERSION,
           capabilities: { tools: {} },
-          serverInfo: { name: 'pixroom', version: '0.1.0' },
+          serverInfo: { name: 'pinpoint', version: '0.1.0' },
         });
         return;
       case 'notifications/initialized':

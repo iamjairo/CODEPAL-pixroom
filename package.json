@@ -1,5 +1,5 @@
 {
-  "name": "pixroom",
+  "name": "@codepal/pinpoint",
   "version": "0.1.0",
   "description": "CodePal's open-source LLM context optimizer for reducing repeated input while preserving exact tool data.",
   "type": "module",
@@ -10,14 +10,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/CodePalAI/pixroom.git"
+    "url": "git+https://github.com/CodePalAI/pinpoint.git"
   },
-  "homepage": "https://github.com/CodePalAI/pixroom#readme",
+  "homepage": "https://github.com/CodePalAI/pinpoint#readme",
   "bugs": {
-    "url": "https://github.com/CodePalAI/pixroom/issues"
+    "url": "https://github.com/CodePalAI/pinpoint/issues"
   },
   "bin": {
-    "pixroom": "bin/cli.js"
+    "pinpoint": "bin/cli.js"
   },
   "exports": {
     ".": {

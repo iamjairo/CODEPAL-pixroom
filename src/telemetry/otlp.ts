@@ -43,22 +43,22 @@ function unixNano(milliseconds: number): string {
 
 function payload(config: TelemetryConfig, input: OptimizationSpanInput): Record<string, unknown> {
   const attributes: OtlpAttribute[] = [
-    attribute('pixroom.provider', input.provider),
-    attribute('pixroom.model', input.model ?? 'unknown'),
-    attribute('pixroom.auth_mode', input.authMode),
-    attribute('pixroom.mode', input.mode),
-    attribute('pixroom.tokens.text', input.report.tokensTextTotal),
-    attribute('pixroom.tokens.compressed', input.report.tokensCompressedTotal),
-    attribute('pixroom.tokens.saved', input.report.tokensSavedTotal),
-    attribute('pixroom.saved_fraction', input.report.savedFraction),
-    attribute('pixroom.reversible_count', input.report.reversibleCount),
-    attribute('pixroom.pipeline.error_count', input.pipeline.errors.length),
+    attribute('pinpoint.provider', input.provider),
+    attribute('pinpoint.model', input.model ?? 'unknown'),
+    attribute('pinpoint.auth_mode', input.authMode),
+    attribute('pinpoint.mode', input.mode),
+    attribute('pinpoint.tokens.text', input.report.tokensTextTotal),
+    attribute('pinpoint.tokens.compressed', input.report.tokensCompressedTotal),
+    attribute('pinpoint.tokens.saved', input.report.tokensSavedTotal),
+    attribute('pinpoint.saved_fraction', input.report.savedFraction),
+    attribute('pinpoint.reversible_count', input.report.reversibleCount),
+    attribute('pinpoint.pipeline.error_count', input.pipeline.errors.length),
   ];
   for (const row of input.report.rows) {
     attributes.push(
-      attribute(`pixroom.stage.${row.stage}.applied`, row.applied),
-      attribute(`pixroom.stage.${row.stage}.reason`, row.reason),
-      attribute(`pixroom.stage.${row.stage}.tokens_saved`, row.tokensSaved),
+      attribute(`pinpoint.stage.${row.stage}.applied`, row.applied),
+      attribute(`pinpoint.stage.${row.stage}.reason`, row.reason),
+      attribute(`pinpoint.stage.${row.stage}.tokens_saved`, row.tokensSaved),
     );
   }
   const errorText = input.pipeline.errors.map((error) => `${error.integrationId}: ${error.error}`).join('; ');
@@ -71,12 +71,12 @@ function payload(config: TelemetryConfig, input: OptimizationSpanInput): Record<
         },
         scopeSpans: [
           {
-            scope: { name: 'pixroom', version: '0.1.0' },
+            scope: { name: 'pinpoint', version: '0.1.0' },
             spans: [
               {
                 traceId: randomBytes(16).toString('hex'),
                 spanId: randomBytes(8).toString('hex'),
-                name: 'pixroom.optimize',
+                name: 'pinpoint.optimize',
                 kind: 1,
                 startTimeUnixNano: unixNano(input.startedAtUnixMs),
                 endTimeUnixNano: unixNano(endMs),

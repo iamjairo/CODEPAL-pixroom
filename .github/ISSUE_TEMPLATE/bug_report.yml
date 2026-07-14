@@ -9,7 +9,7 @@ body:
   - type: input
     id: version
     attributes:
-      label: Pixroom version or commit
+      label: Pinpoint version or commit
       placeholder: 0.1.0 or git SHA
     validations:
       required: true
@@ -52,7 +52,7 @@ body:
     id: environment
     attributes:
       label: Environment
-      description: OS, Node version, model/provider, auth mode, and relevant PIXROOM_* settings.
+      description: OS, Node version, model/provider, auth mode, and relevant PINPOINT_* settings.
     validations:
       required: true
   - type: checkboxes

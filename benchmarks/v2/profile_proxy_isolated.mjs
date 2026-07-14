@@ -174,8 +174,8 @@ async function main() {
         for (const concurrency of concurrencies) {
           for (let repetition = 0; repetition < repetitions; repetition += 1) {
             const order = (size + concurrency + repetition + protocol.length) % 2 === 0
-              ? ['direct', 'pixroom-noop']
-              : ['pixroom-noop', 'direct'];
+              ? ['direct', 'pinpoint-noop']
+              : ['pinpoint-noop', 'direct'];
             for (const arm of order) {
               const result = await runArm({
                 arm,
@@ -209,7 +209,7 @@ async function main() {
           (run) => run.protocol === protocol && run.payloadBytes === actualSize && run.concurrency === concurrency,
         );
         const direct = cells.filter((run) => run.arm === 'direct');
-        const proxied = cells.filter((run) => run.arm === 'pixroom-noop');
+        const proxied = cells.filter((run) => run.arm === 'pinpoint-noop');
         const directP95 = direct.reduce((sum, run) => sum + run.latency.p95Ms, 0) / direct.length;
         const proxyP95 = proxied.reduce((sum, run) => sum + run.latency.p95Ms, 0) / proxied.length;
         comparisons.push({

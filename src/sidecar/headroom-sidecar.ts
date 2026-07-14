@@ -1,7 +1,7 @@
 /**
  * headroom sidecar lifecycle (planning/end_product.md §10 #4).
  *
- * pixroom talks to headroom only through its stateless, loopback-only seam
+ * pinpoint talks to headroom only through its stateless, loopback-only seam
  * (`/v1/compress`, `/v1/retrieve*`). This manager finds a running sidecar or spawns
  * `headroom proxy` as a managed child, health-checks it, and — crucially — degrades
  * to "unavailable" (semantic stage becomes a no-op) rather than failing closed when
@@ -18,12 +18,96 @@ import type { Logger } from '../logger.js';
 export type SidecarState = 'unknown' | 'external' | 'spawned' | 'unavailable';
 
 const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
+const MANAGED_ENV_KEYS = [
+  'PATH',
+  'HOME',
+  'USERPROFILE',
+  'TMPDIR',
+  'TMP',
+  'TEMP',
+  'LANG',
+  'LC_ALL',
+  'LC_CTYPE',
+  'VIRTUAL_ENV',
+  'CONDA_PREFIX',
+  'PYTHONHOME',
+  'PYTHONPATH',
+  'DYLD_LIBRARY_PATH',
+  'LD_LIBRARY_PATH',
+  'ORT_DYLIB_PATH',
+  'SSL_CERT_FILE',
+  'SSL_CERT_DIR',
+  'REQUESTS_CA_BUNDLE',
+  'HF_HOME',
+  'HUGGINGFACE_HUB_CACHE',
+  'TRANSFORMERS_CACHE',
+  'TOKENIZERS_PARALLELISM',
+  'OMP_NUM_THREADS',
+  'SystemRoot',
+  'WINDIR',
+  'PATHEXT',
+  'ComSpec',
+] as const;
+
+/** Minimal environment for a keyless, process-local managed compression sidecar. */
+export function managedSidecarEnvironment(
+  port: number,
+  source: NodeJS.ProcessEnv = process.env,
+): NodeJS.ProcessEnv {
+  const env: NodeJS.ProcessEnv = {};
+  for (const key of MANAGED_ENV_KEYS) {
+    if (source[key] !== undefined) env[key] = source[key];
+  }
+  return {
+    ...env,
+    HEADROOM_HOST: '127.0.0.1',
+    HEADROOM_PORT: String(port),
+    HEADROOM_WORKERS: '1',
+    HEADROOM_MODE: 'cache',
+    HEADROOM_STATELESS: 'true',
+    HEADROOM_CCR_BACKEND: 'memory',
+    HEADROOM_TELEMETRY: 'off',
+    HEADROOM_UPDATE_CHECK: 'off',
+  };
+}
+
+function exited(child: ChildProcess): boolean {
+  return child.exitCode !== null || child.signalCode !== null;
+}
+
+function waitForExit(child: ChildProcess, timeoutMs: number): Promise<boolean> {
+  if (exited(child)) return Promise.resolve(true);
+  return new Promise((resolve) => {
+    let settled = false;
+    const finish = (value: boolean): void => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      child.off('exit', onExit);
+      child.off('close', onExit);
+      resolve(value);
+    };
+    const onExit = (): void => finish(true);
+    const timer = setTimeout(() => finish(false), Math.max(1, timeoutMs));
+    child.once('exit', onExit);
+    child.once('close', onExit);
+  });
+}
+
+async function terminateChild(child: ChildProcess): Promise<void> {
+  if (exited(child)) return;
+  child.kill('SIGTERM');
+  if (await waitForExit(child, 500)) return;
+  child.kill('SIGKILL');
+  await waitForExit(child, 500);
+}
 
 export class HeadroomSidecar {
   private child?: ChildProcess;
   private state: SidecarState = 'unknown';
   private baseUrl: string;
   private checked = false;
+  private startup?: Promise<boolean>;
 
   constructor(
     private readonly cfg: SemanticConfig,
@@ -53,7 +137,17 @@ export class HeadroomSidecar {
    */
   async ensureHealthy(): Promise<boolean> {
     if (this.checked && this.state !== 'unknown') return this.available;
+    if (this.startup) return this.startup;
 
+    this.startup = this.resolveHealth();
+    try {
+      return await this.startup;
+    } finally {
+      this.startup = undefined;
+    }
+  }
+
+  private async resolveHealth(): Promise<boolean> {
     if (await this.ping(this.baseUrl, this.cfg.healthTimeoutMs)) {
       this.state = 'external';
       this.checked = true;
@@ -99,14 +193,17 @@ export class HeadroomSidecar {
     const port = this.cfg.sidecarPort;
     const spawnUrl = `http://127.0.0.1:${port}`;
     const attempts: Array<{ cmd: string; args: string[] }> = [
-      { cmd: 'headroom', args: ['proxy', '--port', String(port)] },
-      { cmd: 'python3', args: ['-m', 'headroom.proxy.server', '--port', String(port)] },
+      { cmd: 'headroom', args: ['proxy', '--host', '127.0.0.1', '--port', String(port)] },
+      {
+        cmd: 'python3',
+        args: ['-m', 'headroom.proxy.server', '--host', '127.0.0.1', '--port', String(port)],
+      },
     ];
 
     for (const attempt of attempts) {
       this.log.info(`spawning headroom sidecar: ${attempt.cmd} ${attempt.args.join(' ')}`);
       const child = spawn(attempt.cmd, attempt.args, {
-        env: { ...process.env, HEADROOM_MODE: process.env.HEADROOM_MODE ?? 'cache' },
+        env: managedSidecarEnvironment(port),
         stdio: ['ignore', 'pipe', 'pipe'],
       });
 
@@ -133,7 +230,7 @@ export class HeadroomSidecar {
       }
 
       // This attempt didn't come up; clean it up and try the next command.
-      if (!child.killed) child.kill('SIGTERM');
+      await terminateChild(child);
       if (failed) continue;
     }
     return false;
@@ -141,12 +238,7 @@ export class HeadroomSidecar {
 
   /** Stop a managed child sidecar (no-op for an external one). */
   async stop(): Promise<void> {
-    if (this.child && !this.child.killed) {
-      this.child.kill('SIGTERM');
-      // Give it a moment, then force.
-      await sleep(500);
-      if (!this.child.killed) this.child.kill('SIGKILL');
-    }
+    if (this.child) await terminateChild(this.child);
     this.child = undefined;
   }
 }

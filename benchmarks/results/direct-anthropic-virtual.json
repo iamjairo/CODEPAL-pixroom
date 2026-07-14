@@ -14,17 +14,17 @@
     "syntheticCorrectnessTasks": 2,
     "randomizedArmOrder": true,
     "retries": 0,
-    "pixroom": "virtual exact prefetch enabled with at most one hidden query fallback, semantic fallback, optical disabled",
+    "pinpoint": "virtual exact prefetch enabled with at most one hidden query fallback, semantic fallback, optical disabled",
     "limitation": "Controlled pilot only; not statistical or agentic competitor evidence."
   },
   "summary": {
     "directCorrect": 1,
-    "pixroomCorrect": 2,
+    "pinpointCorrect": 2,
     "directInputTokens": 22614,
-    "pixroomInputTokens": 594,
+    "pinpointInputTokens": 594,
     "inputSavingsFraction": 0.9737330856991244,
     "directCostUSD": 0.022684000000000003,
-    "pixroomCostUSD": 0.000664,
+    "pinpointCostUSD": 0.000664,
     "costSavingsFraction": 0.9707282666196438
   },
   "budget": {
@@ -39,13 +39,13 @@
       "id": "json-lookup",
       "expected": "user73@example.com",
       "order": [
-        "pixroom",
+        "pinpoint",
         "direct"
       ],
       "preflight": {
         "id": "json-lookup",
         "directInputTokens": 11282,
-        "pixroomInputTokens": 323,
+        "pinpointInputTokens": 323,
         "semanticApplied": false,
         "virtualApplied": true,
         "queryToolInjected": false,
@@ -53,7 +53,7 @@
         "eligible": true,
         "inputSavingsFraction": 0.9713703244105655,
         "directWorstCaseUSD": 0.011442,
-        "pixroomWorstCaseUSD": 0.011442,
+        "pinpointWorstCaseUSD": 0.011442,
         "report": [
           {
             "stage": "virtual",
@@ -79,7 +79,7 @@
         ]
       },
       "results": {
-        "pixroom": {
+        "pinpoint": {
           "latencyMs": 762.7070000000003,
           "usage": {
             "input": 323,
@@ -114,12 +114,12 @@
       "expected": "7",
       "order": [
         "direct",
-        "pixroom"
+        "pinpoint"
       ],
       "preflight": {
         "id": "log-errors",
         "directInputTokens": 11332,
-        "pixroomInputTokens": 271,
+        "pinpointInputTokens": 271,
         "semanticApplied": false,
         "virtualApplied": true,
         "queryToolInjected": false,
@@ -127,7 +127,7 @@
         "eligible": true,
         "inputSavingsFraction": 0.9760854218143311,
         "directWorstCaseUSD": 0.011492,
-        "pixroomWorstCaseUSD": 0.011492,
+        "pinpointWorstCaseUSD": 0.011492,
         "report": [
           {
             "stage": "virtual",
@@ -160,7 +160,7 @@
           "toolCalls": [],
           "correct": false
         },
-        "pixroom": {
+        "pinpoint": {
           "latencyMs": 1149.0782500000005,
           "usage": {
             "input": 271,

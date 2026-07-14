@@ -1,7 +1,7 @@
 blank_issues_enabled: false
 contact_links:
   - name: Security vulnerability
-    url: https://github.com/CodePalAI/pixroom/security/advisories/new
+    url: https://github.com/CodePalAI/pinpoint/security/advisories/new
     about: Report vulnerabilities privately. Do not include secrets in a public issue.
   - name: CodePal product support
     url: https://help.codepal.ai/

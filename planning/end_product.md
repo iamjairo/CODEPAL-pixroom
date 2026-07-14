@@ -1,6 +1,6 @@
-# pixroom — End Product (The Plan)
+# pinpoint — End Product (The Plan)
 
-> The capstone of the **pixroom** planning set. Built from:
+> The capstone of the **pinpoint** planning set. Built from:
 > - [`pxpipe_integration.md`](./pxpipe_integration.md) — optical/pixel compression (investigated).
 > - [`headroom_integration.md`](./headroom_integration.md) — semantic compression (investigated).
 >
@@ -12,7 +12,7 @@
 
 ## 1. Vision
 
-**pixroom is one OSS tool that unifies optical and semantic context compression
+**pinpoint is one OSS tool that unifies optical and semantic context compression
 to cut LLM token usage — reversibly and honestly — behind a single embeddable
 interface (CLI first; SDK and standalone product from the same core).**
 
@@ -35,9 +35,9 @@ tree — a fork stops receiving upstream improvements the day it's cut, and both
 projects ship **daily** (pxpipe pre-1.0 daily commits; headroom 161 releases,
 PRs in the #1900s).
 
-**Therefore pixroom is an orchestration layer that consumes both upstreams as
+**Therefore pinpoint is an orchestration layer that consumes both upstreams as
 pinned, unmodified dependencies** (npm `pxpipe-proxy`; PyPI `headroom-ai`).
-Upgrades become *version bumps gated by smoke tests*, not re-ports. pixroom owns
+Upgrades become *version bumps gated by smoke tests*, not re-ports. pinpoint owns
 only the glue: a router, a unified reversible store, one measurement layer, and
 one front door.
 
@@ -53,7 +53,7 @@ The investigations surfaced a near-perfect partition (see
   warns — but leaves the slab intact.
 - pxpipe's entire strength is **imaging exactly that static slab**.
 
-So pxpipe fills precisely the gap headroom refuses to touch. pixroom's router
+So pxpipe fills precisely the gap headroom refuses to touch. pinpoint's router
 gives each region to **exactly one** engine:
 
 | Region | Engine | Why |
@@ -100,9 +100,9 @@ the proxy, and — critically — **sidesteps the breakpoint war** (§4.4).
 ### 4.3 Data flow (MVP)
 ```
  agent / client
-   │  (Anthropic or OpenAI request; API keys held only by pixroom)
+   │  (Anthropic or OpenAI request; API keys held only by pinpoint)
    ▼
- pixroom proxy  (Node/TS — owns transport, cache_control, streaming)
+ pinpoint proxy  (Node/TS — owns transport, cache_control, streaming)
    │  1. Router: split request into regions (model-aware)
    │  2. tool_results/logs/JSON/code ──► headroom sidecar  POST /v1/compress
    │        (stateless; returns compressed msgs + ccr_hashes; NO upstream keys)
@@ -113,8 +113,8 @@ the proxy, and — critically — **sidesteps the breakpoint war** (§4.4).
    ▼
  upstream LLM  (Anthropic · OpenAI · Gemini · …)  ← single forward hop
 ```
-Responses stream straight back through pixroom (neither engine rewrites model
-output; the sidecar never sees the response). If the sidecar is down pixroom
+Responses stream straight back through pinpoint (neither engine rewrites model
+output; the sidecar never sees the response). If the sidecar is down pinpoint
 degrades to pxpipe-only; if the model is pxpipe-unsupported it degrades to
 semantic-only — never fail closed.
 
@@ -127,7 +127,7 @@ neutralizes each:
   Anthropic breakpoint: pxpipe pins `ttl:'1h'` on its last image; headroom's
   *Anthropic transport handler* runs `normalize_message_cache_control` /
   `relocate_cache_breakpoint`. **Resolution:** call headroom via `/v1/compress`
-  (content-only, no transport) so its breakpoint relocation never runs; **pixroom
+  (content-only, no transport) so its breakpoint relocation never runs; **pinpoint
   + pxpipe own `cache_control`** end-to-end.
 - **pxpipe's "slab-only" lever (public API).** pxpipe's `keepSharp(block)` is
   consulted only on `reminder` / `tool_result` blocks; returning `true` keeps them
@@ -136,14 +136,14 @@ neutralizes each:
   exactly the §3 partition via pxpipe's **stable** exported API.
 - **Image-compressor vs generated PNGs.** headroom ships an OCR image path
   (image→text — the *opposite* of pxpipe). It is **skipped in headroom's default
-  CACHE mode**, so it won't OCR pxpipe's PNGs; pixroom must keep it off (or exempt
+  CACHE mode**, so it won't OCR pxpipe's PNGs; pinpoint must keep it off (or exempt
   pxpipe blocks) if a non-cache mode is ever used.
 - **Keyless sidecar (security win).** In the `/v1/compress` model the headroom
   sidecar never calls the LLM → it needs **no upstream API keys** and no egress;
-  only pixroom holds keys. `/v1/compress` + `/v1/retrieve*` are loopback-only.
+  only pinpoint holds keys. `/v1/compress` + `/v1/retrieve*` are loopback-only.
 - **headroom is highly tunable via `HEADROOM_*`** (`HEADROOM_MODE=cache` default,
   `HEADROOM_DISABLE_KOMPRESS_ANTHROPIC`, `HEADROOM_LOSSLESS`, `HEADROOM_CCR_*`,
-  per-call `config` in the `/v1/compress` body) — pixroom configures exactly which
+  per-call `config` in the `/v1/compress` body) — pinpoint configures exactly which
   semantic stages run.
 - **Tokenizer basis.** pxpipe counts with `gpt-tokenizer`; headroom with
   `tiktoken`/Rust. Unified measurement fixes one basis per provider (Anthropic
@@ -156,7 +156,7 @@ neutralizes each:
 
 ---
 
-## 5. Unified subsystems pixroom owns (the glue)
+## 5. Unified subsystems pinpoint owns (the glue)
 
 1. **Content Router** — thin layer over headroom's ContentRouter that adds the
    optical route and enforces the §3 partition (one engine per region).
@@ -165,13 +165,13 @@ neutralizes each:
 3. **Profitability gate + measurement** — one counterfactual/holdout layer for
    both stages (pxpipe's `count_tokens` counterfactual + headroom's savings
    tracker → one honest report; negative savings reported, not floored).
-4. **Front door** — CLI + proxy + **MCP** + **`pixroom wrap <agent>`** (adopt
+4. **Front door** — CLI + proxy + **MCP** + **`pinpoint wrap <agent>`** (adopt
    headroom's agent matrix; keep pxpipe's zero-config proxy ergonomics).
 5. **Output-token reduction (inherited).** headroom's output shaper is
    **request-side** (`output_shaper.py` appends a verbosity-steering suffix + sets
-   reasoning/effort), so it survives the `/v1/compress` seam: pixroom applies it
+   reasoning/effort), so it survives the `/v1/compress` seam: pinpoint applies it
    to the **live text** region (never the imaged slab, to keep the prompt cache
-   warm). Net: pixroom cuts **both input and output** tokens — pxpipe alone never
+   warm). Net: pinpoint cuts **both input and output** tokens — pxpipe alone never
    touches output.
 
 ---
@@ -181,11 +181,11 @@ neutralizes each:
 Mirror pxpipe's layering (thin bin → core) and headroom's distribution surface:
 
 ```
-pixroom proxy            # combined optical+semantic compression proxy
-pixroom wrap <agent>     # one-command wrap (claude, codex, copilot, cursor, …)
-pixroom mcp              # MCP server (compress / retrieve / stats)
-pixroom export <paths>   # offline render/compress + honest savings report
-pixroom doctor|stats     # health + per-region routing & savings view
+pinpoint proxy            # combined optical+semantic compression proxy
+pinpoint wrap <agent>     # one-command wrap (claude, codex, copilot, cursor, …)
+pinpoint mcp              # MCP server (compress / retrieve / stats)
+pinpoint export <paths>   # offline render/compress + honest savings report
+pinpoint doctor|stats     # health + per-region routing & savings view
 ```
 - **Core library** (Node/TS): router + gate + CCR bridge + adapters, published
   with subpath exports → this *is* the SDK.
@@ -197,7 +197,7 @@ pixroom doctor|stats     # health + per-region routing & savings view
 
 ## 7. Roadmap
 
-- [x] **Phase 0** — Repo setup (`~/repos-pixroom/{pxpipe,headroom,pixroom}`, private repo).
+- [x] **Phase 0** — Repo setup (`~/repos-pinpoint/{pxpipe,headroom,pinpoint}`, private repo).
 - [x] **Phase 1a** — Investigate pxpipe → [`pxpipe_integration.md`](./pxpipe_integration.md).
 - [x] **Phase 1b** — Investigate headroom → [`headroom_integration.md`](./headroom_integration.md).
 - [x] **Phase 2 — Architecture spike** (validate §10 unknowns): stood up a Node
@@ -209,7 +209,7 @@ pixroom doctor|stats     # health + per-region routing & savings view
       the uniform compressor interface is locked (`src/types.ts`). _Remaining:_
       confirm the CCR interplay on one real Claude Code trace against a **live**
       headroom sidecar (fake-sidecar end-to-end passes today).
-- [x] **Phase 3 — CLI MVP** *(complete)*: `pixroom proxy` composes both engines
+- [x] **Phase 3 — CLI MVP** *(complete)*: `pinpoint proxy` composes both engines
       via the §3/§4 partition (pxpipe in-process + headroom `/v1/compress`); unified
       CCR store + `headroom_retrieve`; one honest savings report; `export`, `doctor`,
       `stats`. Pinned `pxpipe-proxy@0.8.0` (npm) + `headroom-ai` (managed sidecar).
@@ -220,8 +220,8 @@ pixroom doctor|stats     # health + per-region routing & savings view
       honest zero-savings on sparse prose. _Remaining:_ gist-recall needs a live
       model (no automated coverage yet).
 - [ ] **Phase 4 — SDK + docs**: publish core exports; embedding guide;
-      `withPixroom()` adapters.
-- [ ] **Phase 5 — Distribution**: `pixroom wrap` + MCP + dashboard + Docker;
+      `withPinpoint()` adapters.
+- [ ] **Phase 5 — Distribution**: `pinpoint wrap` + MCP + dashboard + Docker;
       upstream-sync automation. *(`wrap <agent>` and the `mcp` stdio server are
       built; dashboard, Docker, and Renovate/PyPI-watch automation remain.)*
 - [ ] **Phase 6 — Hardening / (optional) convergence**: evaluate a single native
@@ -231,13 +231,13 @@ pixroom doctor|stats     # health + per-region routing & savings view
 
 ## 8. Staying current with both upstreams
 
-1. **Track, don't fork.** `~/repos-pixroom/{pxpipe,headroom}` stay as read-only
+1. **Track, don't fork.** `~/repos-pinpoint/{pxpipe,headroom}` stay as read-only
    tracking clones for review.
 2. **Pin published packages**: `pxpipe-proxy` (npm), `headroom-ai` (PyPI). Depend
    on **public contracts** (pxpipe subpath exports; headroom `compress()` / proxy
    / MCP), never internal modules (both churn; headroom's Rust port is in flight).
 3. **Automate detection**: Renovate/Dependabot + PyPI/`v*`-tag watch.
-4. **Gate every bump** behind pixroom's fidelity + savings smoke tests (model-read
+4. **Gate every bump** behind pinpoint's fidelity + savings smoke tests (model-read
    behavior shifts with model releases).
 5. **Record** adopted versions + any local patches in `UPSTREAM.md` / `PATCHES.md`.
 
@@ -261,7 +261,7 @@ Default stance: **stay composed.**
 |---|---|---|---|
 | 1 | `cache_control` breakpoint ownership on Anthropic | Use `/v1/compress` (no headroom transport) → pxpipe owns the one `ttl:'1h'` breakpoint; replay one real trace, assert 1 breakpoint, no 400 | **Resolved in design (§4.4)** — verify on a trace |
 | 2 | Region hand-off so nothing is double-compressed | pxpipe `keepSharp:()=>true` (slab-only) + headroom compresses the rest | **Resolved in design (§4.4)** — verify |
-| 3 | Servicing `headroom_retrieve` when pixroom owns transport | pixroom injects the tool + calls sidecar `/v1/retrieve*`; or share one CCR store (`HEADROOM_CCR_*`) | Spike |
+| 3 | Servicing `headroom_retrieve` when pinpoint owns transport | pinpoint injects the tool + calls sidecar `/v1/retrieve*`; or share one CCR store (`HEADROOM_CCR_*`) | Spike |
 | 4 | Sidecar lifecycle (spawn/health/degrade) from Node | Manage `headroom proxy` as a child process; `/health` + fallback | Spike |
 | 5 | Model-aware routing (pxpipe Fable-5 default vs all providers) | Optical route only on pxpipe-supported models; semantic always on | Design set — verify |
 | 6 | Unified savings math + tokenizer basis | One counterfactual row/request; Anthropic `count_tokens` as slab ground truth | Spike |
@@ -270,7 +270,7 @@ Default stance: **stay composed.**
 
 ## 11. License
 
-Compose-as-dependencies keeps obligations light. Ship pixroom under **Apache-2.0**
+Compose-as-dependencies keeps obligations light. Ship pinpoint under **Apache-2.0**
 (headroom's license; pxpipe's **MIT** is compatible and may be combined under
 Apache-2.0), with a `NOTICE` attributing both upstreams (and their bundled
 attributions, e.g. RTK). Revisit if we ever vendor source (§9).

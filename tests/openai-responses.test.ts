@@ -2,7 +2,7 @@ import http from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { afterEach, describe, expect, it } from 'vitest';
 
-import { createPixroom } from '../src/pixroom.js';
+import { createPinpoint } from '../src/pinpoint.js';
 import { createProxyServer, type ProxyServer } from '../src/proxy/server.js';
 import { closeTestServer } from './helpers/http.js';
 
@@ -48,7 +48,7 @@ afterEach(async () => {
 
 describe('OpenAI Responses support', () => {
   it('virtualizes exact function_call_output data with native input_text prefetch', async () => {
-    const runtime = createPixroom({
+    const runtime = createPinpoint({
       virtualContext: { enabled: true, queryFallback: true, minChars: 100, protectRecent: 1 },
       semantic: { enabled: false },
       optical: { enabled: false },
@@ -60,10 +60,10 @@ describe('OpenAI Responses support', () => {
 
     expect(routed.virtualized).toBe(true);
     expect(routed.virtualQueryToolNeeded).toBe(false);
-    expect(input[1]?.output).toContain('<<pixroom_virtual');
+    expect(input[1]?.output).toContain('<<pinpoint_virtual');
     expect(JSON.stringify(input[2]?.content)).toContain('user47@example.com');
     expect(JSON.stringify(input[2]?.content)).toContain('input_text');
-    expect(JSON.stringify(routed.body)).not.toContain('pixroom_query');
+    expect(JSON.stringify(routed.body)).not.toContain('pinpoint_query');
     await runtime.shutdown();
   });
 
@@ -99,12 +99,12 @@ describe('OpenAI Responses support', () => {
     });
 
     expect(await response.json()).toMatchObject({ output_text: 'user47@example.com' });
-    expect(JSON.stringify(forwarded)).toContain('<<pixroom_virtual');
+    expect(JSON.stringify(forwarded)).toContain('<<pinpoint_virtual');
     expect(JSON.stringify(forwarded)).toContain('user47@example.com');
   });
 
   it('optimizes a Responses body through the runtime integration pipeline', async () => {
-    const runtime = createPixroom({
+    const runtime = createPinpoint({
       semantic: { enabled: false },
       optical: { enabled: true, allowedModelBases: ['gpt-5'] },
       logLevel: 'silent',
@@ -161,7 +161,7 @@ describe('OpenAI Responses support', () => {
   });
 
   it('keeps unsupported Responses bodies byte-equivalent', async () => {
-    const runtime = createPixroom({
+    const runtime = createPinpoint({
       semantic: { enabled: false },
       optical: { enabled: true, allowedModelBases: ['gpt-5'] },
       logLevel: 'silent',

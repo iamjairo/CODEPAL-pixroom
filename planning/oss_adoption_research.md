@@ -1,4 +1,4 @@
-# OSS adoption research for Pixroom
+# OSS adoption research for Pinpoint
 
 _Snapshot: 2026-07-14._
 
@@ -46,13 +46,13 @@ Across these repositories, the common presentation and distribution surfaces wer
 - Candid limits may improve technical trust. OpenHands also shows that a large unmet need can generate attention before product readiness.
 - HN clearly amplified several technical launches, but Dify, Open WebUI, promptfoo, and SGLang show that one large HN event is not required for substantial adoption.
 
-## Application to Pixroom
+## Application to Pinpoint
 
 The observed patterns support these choices in the current repository:
 
 - Lead with exact context virtualization, not a broad "compression platform" category.
 - Put a receipt-backed static visual above the fold and add a short real terminal recording after independent replication.
-- Keep `pixroom demo` offline, deterministic, and useful without credentials.
+- Keep `pinpoint demo` offline, deterministic, and useful without credentials.
 - Put the supported-versus-pass-through table before architecture internals.
 - Keep provider usage, offline estimates, model quality, and simulations visibly separate.
 - Preserve the failed manifest-only QCV design and current high-concurrency latency limit.

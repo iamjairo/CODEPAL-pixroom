@@ -50,7 +50,7 @@
           "billedInput": 17727,
           "snippet": "BENCH_ECHO_7Q"
         },
-        "pixroom": {
+        "pinpoint": {
           "ok": true,
           "ms": 8083,
           "correct": true,
@@ -106,7 +106,7 @@
           "billedInput": 5207,
           "snippet": "2345"
         },
-        "pixroom": {
+        "pinpoint": {
           "ok": true,
           "ms": 8036,
           "correct": false,
@@ -162,7 +162,7 @@
           "billedInput": 10403,
           "snippet": "18"
         },
-        "pixroom": {
+        "pinpoint": {
           "ok": true,
           "ms": 17090,
           "correct": true,
@@ -218,7 +218,7 @@
           "billedInput": 10630,
           "snippet": "`OpticalCompressor`, `SemanticCompressor`"
         },
-        "pixroom": {
+        "pinpoint": {
           "ok": true,
           "ms": 16213,
           "correct": true,
@@ -248,7 +248,7 @@
           "output": 272,
           "totalInput": 43522,
           "billedInput": 12127,
-          "snippet": "`src/wrap/runner.ts` implements the `pixroom wrap` command: given a named coding agent, it starts the pixroom proxy and either launches the agent pointed at it, prints IDE config for it, or delegates "
+          "snippet": "`src/wrap/runner.ts` implements the `pinpoint wrap` command: given a named coding agent, it starts the pinpoint proxy and either launches the agent pointed at it, prints IDE config for it, or delegates "
         },
         "headroom-only": {
           "ok": true,
@@ -260,7 +260,7 @@
           "output": 302,
           "totalInput": 33726,
           "billedInput": 25050,
-          "snippet": "`src/wrap/runner.ts` implements the `pixroom wrap` command: given an agent name, it either starts the pixroom proxy and launches the agent pointed at it (or prints IDE configuration instructions), or,"
+          "snippet": "`src/wrap/runner.ts` implements the `pinpoint wrap` command: given an agent name, it either starts the pinpoint proxy and launches the agent pointed at it (or prints IDE configuration instructions), or,"
         },
         "pxpipe-only": {
           "ok": true,
@@ -272,9 +272,9 @@
           "output": 296,
           "totalInput": 30824,
           "billedInput": 11736,
-          "snippet": "It implements the `pixroom wrap` command's runner: given a target agent, it dispatches to the right composition strategy — launching the agent through a freshly started pixroom proxy, printing IDE pro"
+          "snippet": "It implements the `pinpoint wrap` command's runner: given a target agent, it dispatches to the right composition strategy — launching the agent through a freshly started pinpoint proxy, printing IDE pro"
         },
-        "pixroom": {
+        "pinpoint": {
           "ok": true,
           "ms": 16293,
           "correct": true,
@@ -284,7 +284,7 @@
           "output": 284,
           "totalInput": 30823,
           "billedInput": 10900,
-          "snippet": "`src/wrap/runner.ts` implements the `pixroom wrap` command's runner: it dispatches a named agent to the appropriate composition — launching the agent as a child process pointed at an ephemeral pixroom"
+          "snippet": "`src/wrap/runner.ts` implements the `pinpoint wrap` command's runner: it dispatches a named agent to the appropriate composition — launching the agent as a child process pointed at an ephemeral pinpoint"
         }
       }
     }

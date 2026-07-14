@@ -79,10 +79,10 @@ for (const target of localTargets(readme)) {
 const { summary, methodology } = receipt;
 const evidenceStrings = [
   integer.format(summary.directInputTokens),
-  integer.format(summary.pixroomInputTokens),
+  integer.format(summary.pinpointInputTokens),
   percentage(summary.inputSavingsFraction),
   `${summary.directCorrect}/${methodology.syntheticCorrectnessTasks}`,
-  `${summary.pixroomCorrect}/${methodology.syntheticCorrectnessTasks}`,
+  `${summary.pinpointCorrect}/${methodology.syntheticCorrectnessTasks}`,
 ];
 for (const value of evidenceStrings) {
   if (!readme.includes(value)) fail(`README is missing paid-receipt value: ${value}`);
@@ -98,26 +98,34 @@ if (/[—–“”]/.test(readme)) fail('README contains non-ASCII dash or quote
 const visibleReadme = readme.replace(/<!--[^]*?-->/g, '');
 const waitingForNpm = readme.includes('LAUNCH(npm)');
 if (waitingForNpm) {
-  if (!visibleReadme.includes('git clone https://github.com/CodePalAI/pixroom.git')) {
+  if (!visibleReadme.includes('git clone https://github.com/CodePalAI/pinpoint.git')) {
     fail('pre-npm README is missing the verified public clone command');
   }
   if (!visibleReadme.includes('npm install && npm link')) {
     fail('pre-npm README is missing the verified checkout CLI setup');
   }
-  if (!visibleReadme.includes('npm install /path/to/pixroom')) {
+  if (!visibleReadme.includes('npm install /path/to/pinpoint')) {
     fail('pre-npm README is missing the local-directory SDK install');
   }
-  for (const unavailable of ['npm install -g pixroom', 'npm install pixroom', 'npx pixroom demo']) {
+  for (const unavailable of [
+    'npm install -g @codepal/pinpoint',
+    'npm install @codepal/pinpoint',
+    'npx @codepal/pinpoint demo',
+  ]) {
     if (visibleReadme.includes(unavailable)) fail(`README advertises unpublished npm path: ${unavailable}`);
   }
-  if (visibleReadme.includes('git+https://github.com/CodePalAI/pixroom.git')) {
+  if (visibleReadme.includes('git+https://github.com/CodePalAI/pinpoint.git')) {
     fail('README advertises the unreliable npm Git-dependency path');
   }
 } else {
-  for (const required of ['npm install -g pixroom', 'npm install pixroom', 'npx pixroom demo']) {
+  for (const required of [
+    'npm install -g @codepal/pinpoint',
+    'npm install @codepal/pinpoint',
+    'npx @codepal/pinpoint demo',
+  ]) {
     if (!visibleReadme.includes(required)) fail(`release README is missing npm path: ${required}`);
   }
-  if (visibleReadme.includes('git+https://github.com/CodePalAI/pixroom.git')) {
+  if (visibleReadme.includes('git+https://github.com/CodePalAI/pinpoint.git')) {
     fail('release README still advertises Git installation');
   }
 }

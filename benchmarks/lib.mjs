@@ -127,7 +127,7 @@ export function buildPayloads(repoRoot) {
   ];
 }
 
-// ── Prose (RAG/chat) context — the region PIXROOM_SEMANTIC_PROSE adds ────────
+// ── Prose (RAG/chat) context — the region PINPOINT_SEMANTIC_PROSE adds ────────
 // A large plain-language block that lives in a USER text block. pxpipe images
 // only the system slab and the tool_result stage only touches tool_result blocks,
 // so this region is passed through raw by every config EXCEPT the prose path,
@@ -288,7 +288,7 @@ export function stripAnsi(s) {
 /** Extract the agent's actual answer from noisy wrap/proxy output. */
 export function extractAnswer(clean) {
   const NOISE =
-    /[╔╚║╗╝═┃●▪]|HEADROOM|Starting proxy|Proxy ready|Proxy on|Launching|COPILOT_|Logs:|Dashboard|Extra args|\brtk\b|Rust Token|pixroom wrap|delegating to headroom|Copilot compression|savings appear|Setting up|Downloading|installed at|instructions injected|Resume|^Changes\b/i;
+    /[╔╚║╗╝═┃●▪]|HEADROOM|Starting proxy|Proxy ready|Proxy on|Launching|COPILOT_|Logs:|Dashboard|Extra args|\brtk\b|Rust Token|pinpoint wrap|delegating to headroom|Copilot compression|savings appear|Setting up|Downloading|installed at|instructions injected|Resume|^Changes\b/i;
   const lines = clean
     .split('\n')
     .map((l) => l.trim())

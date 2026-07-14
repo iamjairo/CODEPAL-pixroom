@@ -1,7 +1,7 @@
-pixroom
-Copyright 2026 CodePal and pixroom contributors
+pinpoint
+Copyright 2026 CodePal and pinpoint contributors
 
-Pixroom is developed by CodePal (https://codepal.ai) and released as an
+Pinpoint is developed by CodePal (https://codepal.ai) and released as an
 open-source component of CodePal's internal LLM context-optimization work.
 
 This product includes two upstream open-source projects, consumed as
@@ -26,4 +26,4 @@ headroom (PyPI: headroom-ai)
 --------------------------------------------------------------------------------
 
 The MIT License of pxpipe is compatible with, and may be combined under, the
-Apache License, Version 2.0 under which pixroom is distributed.
+Apache License, Version 2.0 under which pinpoint is distributed.

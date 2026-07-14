@@ -1,4 +1,4 @@
-# Pixroom public launch checklist
+# Pinpoint public launch checklist
 
 This is the manual work that code cannot complete. Do the gates in order. A launch date is not a reason to skip one.
 
@@ -14,7 +14,7 @@ Breakout AI developer projects repeatedly reduce the path from claim to proof to
 - LiteLLM and mem0 led with a small primitive developers could paste into existing code.
 - Mature projects turn releases, model support, integrations, and benchmark updates into repeated launches rather than betting everything on one announcement.
 
-For Pixroom, that means: exact-context position, visible receipt, offline one-command win, explicit boundaries, then SDK and proxy depth.
+For Pinpoint, that means: exact-context position, visible receipt, offline one-command win, explicit boundaries, then SDK and proxy depth.
 
 ## Gate 1: independent evidence
 
@@ -30,8 +30,8 @@ Do not publish "no quality loss," "97% cheaper," "production proven," or a compe
 ## Gate 2: visual proof
 
 - [ ] Record a 15-25 second terminal demo at 1200x750 or larger, with a readable font and no shell history, username, file path, token, or notification visible.
-- [ ] Show `npx pixroom demo` after npm is live. Before npm, show the cloned-checkout install followed by `pixroom demo`.
-- [ ] Keep the recording to one story: 1,000 rows, query for ID 733, 13,821 to 171 estimated dataset tokens, exact email, zero model/network calls.
+- [ ] Show `npx @codepal/pinpoint demo` after npm is live. Before npm, show the cloned-checkout install followed by `pinpoint demo`.
+- [ ] Keep the recording to one story: 1,000 rows, query for ID 733, 13,821 to 172 estimated dataset tokens, exact email, zero model/network calls.
 - [ ] Export an MP4 for GitHub upload and a compressed GIF/WebP fallback under 8 MB.
 - [ ] Upload the MP4 by dragging it into a temporary GitHub issue comment, copy the `user-attachments` URL, then close the issue.
 - [ ] Replace `LAUNCH(demo-video)` in the README with the hosted video URL. Keep `assets/qcv-paid-pilot.svg` as the static preview.
@@ -41,13 +41,13 @@ Recommended tools: VHS for deterministic terminal capture, or Screen Studio/Quic
 
 ## Gate 3: public package and repository
 
-- [x] Make `CodePalAI/pixroom` public before publishing npm so provenance and repository links resolve. Verified public on 2026-07-14.
+- [x] Make `CodePalAI/pinpoint` public before publishing npm so provenance and repository links resolve. Verified public on 2026-07-14.
 - [ ] Confirm Apache-2.0 ownership, `NOTICE`, upstream attribution, and the security contact with counsel or the responsible owner.
 - [x] Add `NPM_TOKEN` to the `release` environment for the bootstrap publication. Verified 2026-07-14.
-- [ ] Publish GitHub Release `v0.1.0`; verify the release workflow publishes `pixroom@0.1.0` with provenance.
-- [ ] On a clean Node 18, 20, and 22 environment, run `npx pixroom@0.1.0 demo`, import every public subpath, and test `pixroom --help`.
-- [ ] Confirm `npm view pixroom version repository.url dist.integrity` points to this repository.
-- [ ] Replace all `LAUNCH(npm)` comments in the README. Switch install commands to `npx pixroom demo`, `npm install -g pixroom`, and `npm install pixroom`.
+- [ ] Publish GitHub Release `v0.1.0`; verify the release workflow publishes `@codepal/pinpoint@0.1.0` with provenance.
+- [ ] On a clean Node 18, 20, and 22 environment, run `npx @codepal/pinpoint@0.1.0 demo`, import every public subpath, and test `pinpoint --help`.
+- [ ] Confirm `npm view @codepal/pinpoint version repository.url dist.integrity` points to this repository.
+- [ ] Replace all `LAUNCH(npm)` comments in the README. Switch install commands to `npx @codepal/pinpoint demo`, `npm install -g @codepal/pinpoint`, and `npm install @codepal/pinpoint`.
 - [ ] Add npm version and weekly-download badges only after the registry data exists.
 - [ ] Create a signed `v0.1.0` tag and attach the npm tarball SHA-512/integrity value to the release notes.
 
@@ -59,8 +59,8 @@ Recommended tools: VHS for deterministic terminal capture, or Screen Studio/Quic
 - [x] Enable GitHub Discussions with `Q&A`, `Ideas`, and `Show and tell`. Verified 2026-07-14.
 - [ ] Add a `Benchmarks` Discussions category in the web UI; GitHub exposes no category-creation API.
 - [x] Add the Discussions link to the README. Verified 2026-07-14.
-- [x] Publish a welcome discussion with the demo, supported operations, current limits, and a request for sanitized traces and independent replications: [Discussion #2](https://github.com/CodePalAI/pixroom/discussions/2).
-- [ ] Pin [Discussion #2](https://github.com/CodePalAI/pixroom/discussions/2) in the web UI; GitHub exposes no pin-discussion API mutation.
+- [x] Publish a welcome discussion with the demo, supported operations, current limits, and a request for sanitized traces and independent replications: [Discussion #2](https://github.com/CodePalAI/pinpoint/discussions/2).
+- [ ] Pin [Discussion #2](https://github.com/CodePalAI/pinpoint/discussions/2) in the web UI; GitHub exposes no pin-discussion API mutation.
 - [ ] Create 5-10 scoped `good first issue` items before launch. Prefer protocol fixtures, docs, adapters, and adversarial cases over architecture rewrites.
 - [ ] Confirm bug, optimizer, and benchmark-replication issue forms work while logged out of the maintainer account.
 - [ ] Add a Code of Conduct only if CodePal is prepared to enforce it and names a private reporting channel.
@@ -77,7 +77,7 @@ Recommended tools: VHS for deterministic terminal capture, or Screen Studio/Quic
 ## Gate 6: launch sequence
 
 1. Publish the repository, npm package, release notes, and demo. Let links settle before promotion.
-2. Post a technical Show HN titled around the mechanism, not the percentage: `Show HN: Pixroom, exact local context virtualization for AI agents`.
+2. Post a technical Show HN titled around the mechanism, not the percentage: `Show HN: Pinpoint, exact local context virtualization for AI agents`.
 3. In the first paragraph, state the problem, two-task scope, offline command, and why this is not summarization.
 4. Share the mechanism and raw receipts in relevant technical communities where maintainers already participate. Do not cross-post generic launch copy.
 5. Publish a separate engineering article after launch covering the failed manifest-only design, exact prefetch repair, transaction boundary, and evidence taxonomy.

@@ -1,8 +1,8 @@
-// Arm B — live wrapped Copilot: baseline `copilot` vs `pixroom wrap copilot` on
+// Arm B — live wrapped Copilot: baseline `copilot` vs `pinpoint wrap copilot` on
 // the same prompts, using the real GitHub Copilot subscription (no API key).
 // Captures Copilot-reported tokens, the actual response, correctness, and latency.
-// pxpipe is N/A here (no Copilot-subscription transport); pixroom == headroom
-// (pixroom delegates copilot to the headroom backbone).
+// pxpipe is N/A here (no Copilot-subscription transport); pinpoint == headroom
+// (pinpoint delegates copilot to the headroom backbone).
 
 import { spawn } from 'node:child_process';
 import { mkdirSync, writeFileSync } from 'node:fs';
@@ -87,7 +87,7 @@ function summarize(r, check) {
 
 async function run() {
   const suite = copilotSuite(repoRoot);
-  const wrappedEnv = { ...process.env, PIXROOM_LOG: 'warn' };
+  const wrappedEnv = { ...process.env, PINPOINT_LOG: 'warn' };
 
   console.log(`probing model '${REQUESTED_MODEL}'...`);
   const picked = await probeModel();
@@ -111,7 +111,7 @@ async function run() {
     const baseline = summarize(baseR, item.check);
     console.log(`  in=${baseline.tokensIn} out=${baseline.tokensOut} correct=${baseline.correct} ${baseline.ms}ms`);
 
-    console.log(`[${item.id}] wrapped (pixroom→headroom)...`);
+    console.log(`[${item.id}] wrapped (pinpoint→headroom)...`);
     const wr = wrappedCmd(model, item.prompt);
     const wrapR = await runCmd(wr.cmd, wr.args, { cwd: repoRoot, env: wrappedEnv, timeoutMs: CALL_TIMEOUT_MS });
     const wrapped = summarize(wrapR, item.check);

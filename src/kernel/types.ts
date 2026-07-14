@@ -8,6 +8,7 @@ import type {
 /** Stable identifier owned by an integration package, not the runtime core. */
 export type IntegrationId = string;
 export type RuntimeMode = 'audit' | 'shadow' | 'optimize' | 'enforce';
+export type TransactionErrorCode = 'patch_failed' | 'validation_failed' | 'commit_failed';
 
 /** Coarse regions an integration may inspect or propose changing. */
 export type RegionKind =
@@ -93,8 +94,13 @@ export type ProposalCommit = (
   original: Readonly<RequestContext>,
 ) => void | Promise<void>;
 
-export interface TransactionResult {
-  readonly status: 'committed' | 'rolled-back';
-  readonly proposal: TransformProposal;
-  readonly error?: string;
-}
+export type TransactionResult =
+  | {
+      readonly status: 'committed';
+      readonly proposal: TransformProposal;
+    }
+  | {
+      readonly status: 'rolled-back';
+      readonly proposal: TransformProposal;
+      readonly error: TransactionErrorCode;
+    };

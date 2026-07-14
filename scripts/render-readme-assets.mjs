@@ -14,11 +14,11 @@ if (receipt.evidenceLevel !== 'live-controlled' || receipt.kind !== 'paid-paired
 const { summary, methodology, model, generatedAt } = receipt;
 const requiredNumbers = [
   summary.directInputTokens,
-  summary.pixroomInputTokens,
+  summary.pinpointInputTokens,
   summary.directCorrect,
-  summary.pixroomCorrect,
+  summary.pinpointCorrect,
   summary.directCostUSD,
-  summary.pixroomCostUSD,
+  summary.pinpointCostUSD,
   methodology.syntheticCorrectnessTasks,
   methodology.repetitions,
 ];
@@ -35,8 +35,8 @@ const escapeXml = (value) =>
 
 const svg = `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title description">
-  <title id="title">Pixroom paid QCV pilot</title>
-  <desc id="description">On two synthetic structured-context tasks with ${escapeXml(model)}, provider-reported input fell from ${integer.format(summary.directInputTokens)} to ${integer.format(summary.pixroomInputTokens)} tokens. Exact score changed from ${summary.directCorrect} of ${methodology.syntheticCorrectnessTasks} to ${summary.pixroomCorrect} of ${methodology.syntheticCorrectnessTasks}.</desc>
+  <title id="title">Pinpoint paid QCV pilot</title>
+  <desc id="description">On two synthetic structured-context tasks with ${escapeXml(model)}, provider-reported input fell from ${integer.format(summary.directInputTokens)} to ${integer.format(summary.pinpointInputTokens)} tokens. Exact score changed from ${summary.directCorrect} of ${methodology.syntheticCorrectnessTasks} to ${summary.pinpointCorrect} of ${methodology.syntheticCorrectnessTasks}.</desc>
   <defs>
     <pattern id="dots" width="24" height="24" patternUnits="userSpaceOnUse">
       <circle cx="2" cy="2" r="1" fill="#26313d"/>
@@ -49,7 +49,7 @@ const svg = `<?xml version="1.0" encoding="UTF-8"?>
   <rect width="1200" height="630" rx="24" fill="#0b0f14"/>
   <rect width="1200" height="630" rx="24" fill="url(#dots)" opacity="0.72"/>
 
-  <text x="64" y="62" fill="#58a6ff" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" font-weight="700" letter-spacing="2">PIXROOM / LIVE-CONTROLLED RECEIPT</text>
+  <text x="64" y="62" fill="#58a6ff" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" font-weight="700" letter-spacing="2">PINPOINT / LIVE-CONTROLLED RECEIPT</text>
   <text x="64" y="116" fill="#f4f7fb" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="36" font-weight="750">Same requests. Same model. Far less context.</text>
   <text x="64" y="151" fill="#9da9b6" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="19">Exact local prefetch replaced old JSON and log payloads with the answer needed now.</text>
 
@@ -65,14 +65,14 @@ const svg = `<?xml version="1.0" encoding="UTF-8"?>
     <text x="452" y="467" text-anchor="end" fill="#f4f7fb" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="20" font-weight="700">${cost(summary.directCostUSD)}</text>
 
     <rect x="716" y="190" width="420" height="304" rx="14" fill="#111f1a" stroke="#35d07f" stroke-width="2"/>
-    <text x="748" y="236" fill="#35d07f" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="17" font-weight="700" letter-spacing="1.6">WITH PIXROOM</text>
-    <text x="748" y="327" fill="#f4f7fb" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="78" font-weight="780">${integer.format(summary.pixroomInputTokens)}</text>
+    <text x="748" y="236" fill="#35d07f" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="17" font-weight="700" letter-spacing="1.6">WITH PINPOINT</text>
+    <text x="748" y="327" fill="#f4f7fb" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="78" font-weight="780">${integer.format(summary.pinpointInputTokens)}</text>
     <text x="751" y="361" fill="#a9b8af" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="20">provider input tokens</text>
     <line x1="748" y1="394" x2="1104" y2="394" stroke="#294c3b"/>
     <text x="748" y="434" fill="#c8d1dc" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="19">Exact score</text>
-    <text x="1104" y="434" text-anchor="end" fill="#f4f7fb" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="20" font-weight="700">${summary.pixroomCorrect}/${methodology.syntheticCorrectnessTasks}</text>
+    <text x="1104" y="434" text-anchor="end" fill="#f4f7fb" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="20" font-weight="700">${summary.pinpointCorrect}/${methodology.syntheticCorrectnessTasks}</text>
     <text x="748" y="467" fill="#c8d1dc" font-family="ui-sans-serif, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="19">Modeled cost</text>
-    <text x="1104" y="467" text-anchor="end" fill="#f4f7fb" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="20" font-weight="700">${cost(summary.pixroomCostUSD)}</text>
+    <text x="1104" y="467" text-anchor="end" fill="#f4f7fb" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="20" font-weight="700">${cost(summary.pinpointCostUSD)}</text>
   </g>
 
   <path d="M516 321 H668 M646 299 L668 321 L646 343" fill="none" stroke="#58a6ff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>

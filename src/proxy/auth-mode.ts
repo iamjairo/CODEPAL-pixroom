@@ -2,7 +2,7 @@
  * Auth-mode classifier — a faithful port of headroom's `classify_auth_mode`
  * (headroom/headroom/proxy/auth_mode.py).
  *
- * The client's auth posture decides how aggressive pixroom may be:
+ * The client's auth posture decides how aggressive pinpoint may be:
  *   - PAYG (API key): full pipeline, including lossy optical imaging.
  *   - OAuth / Subscription: stealth — the forwarded request must stay native,
  *     so the lossy optical stage is off by default and transport headers

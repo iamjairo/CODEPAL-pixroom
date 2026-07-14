@@ -10,7 +10,7 @@
  * region not retrieved saves its `savedFraction`; a retrieved region costs the
  * wasted compressed copy (−ratio), and the algebra collapses to `saved − regret`
  * (see benchmarks/adaptive.mjs). Both terms come from the persistent
- * {@link PolicyStore}. This is what turns pixroom from "two fixed engines on
+ * {@link PolicyStore}. This is what turns pinpoint from "two fixed engines on
  * disjoint regions" into a system that LEARNS the per-content-type modality
  * allocation from the model's own behavior — the cross-modal decision
  * headroom/pxpipe cannot make alone.

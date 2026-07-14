@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import http from 'node:http';
 import type { AddressInfo } from 'node:net';
-import { createPixroom } from '../src/pixroom.js';
+import { createPinpoint } from '../src/pinpoint.js';
 import { CCR_TOOL_NAME } from '../src/ccr/store.js';
 import { closeTestServer } from './helpers/http.js';
 
@@ -77,7 +77,7 @@ function bodyWithToolResult(content: string): Record<string, unknown> {
 describe('ContentRouter end-to-end', () => {
   it('compresses the semantic region, injects the retrieve tool, and stays reversible', async () => {
     const fake = await startFakeSidecar();
-    const px = createPixroom({
+    const px = createPinpoint({
       optical: { enabled: false },
       semantic: {
         enabled: true,
@@ -120,7 +120,7 @@ describe('ContentRouter end-to-end', () => {
 
   it('degrades to a safe pass-through when the sidecar is unreachable', async () => {
     const original = 'x'.repeat(3000);
-    const px = createPixroom({
+    const px = createPinpoint({
       optical: { enabled: false },
       semantic: {
         enabled: true,

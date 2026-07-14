@@ -5,7 +5,7 @@
  * lever `keepSharp: () => true`: pxpipe images the static system+tools slab (its
  * strongest, safest win — precisely the region headroom's I2 forbids mutating) while
  * keeping `reminder`/`tool_result` blocks as text for the semantic stage. pxpipe pins
- * the single Anthropic `ttl:'1h'` `cache_control` breakpoint; pixroom records that it
+ * the single Anthropic `ttl:'1h'` `cache_control` breakpoint; pinpoint records that it
  * owns it so nothing stacks a second injector (planning/end_product.md §4.4).
  *
  * OpenAI Chat Completions and Responses use pxpipe's public GPT transformer. They
@@ -87,7 +87,7 @@ export class OpticalCompressor implements Compressor {
       return passthroughResult(
         'optical',
         'stealth',
-        `lossy optical disabled on ${ctx.authMode} auth (set PIXROOM_OPTICAL_ON_SUBSCRIPTION=1 to override)`,
+        `lossy optical disabled on ${ctx.authMode} auth (set PINPOINT_OPTICAL_ON_SUBSCRIPTION=1 to override)`,
       );
     }
     this.ensureScope();

@@ -2,8 +2,8 @@ import http from 'node:http';
 
 import { describe, expect, it } from 'vitest';
 
-import { withPixroom as withPixroomAnthropic } from '../src/sdk/anthropic.js';
-import { withPixroom as withPixroomOpenAI } from '../src/sdk/openai.js';
+import { withPinpoint as withPinpointAnthropic } from '../src/sdk/anthropic.js';
+import { withPinpoint as withPinpointOpenAI } from '../src/sdk/openai.js';
 import type { ProcessorIntegration } from '../src/kernel/types.js';
 import { closeTestServer } from './helpers/http.js';
 
@@ -41,7 +41,7 @@ function markerIntegration(): ProcessorIntegration {
         regions: ['current-turn'],
         fidelity: 'lossless',
         cacheImpact: 'preserve',
-        patch: { replaceBody: { ...ctx.body, pixroom_marker: true } },
+        patch: { replaceBody: { ...ctx.body, pinpoint_marker: true } },
       };
     },
   };
@@ -90,7 +90,7 @@ describe('provider SDK wrappers', () => {
     });
     const originalBaseURL = `${upstream.baseURL}/gateway/anthropic`;
     const client = new TestProviderClient(originalBaseURL);
-    const wrapped = await withPixroomAnthropic(client, wrapperOptions);
+    const wrapped = await withPinpointAnthropic(client, wrapperOptions);
 
     try {
       const response = await wrapped.post('/v1/messages', {
@@ -101,16 +101,16 @@ describe('provider SDK wrappers', () => {
 
       expect(response.status).toBe(200);
       expect(received?.path).toBe('/gateway/anthropic/v1/messages');
-      expect(received?.body.pixroom_marker).toBe(true);
-      expect(wrapped.pixroom.stats().requests).toBe(1);
-      expect(wrapped.baseURL).toBe(wrapped.pixroom.baseURL);
+      expect(received?.body.pinpoint_marker).toBe(true);
+      expect(wrapped.pinpoint.stats().requests).toBe(1);
+      expect(wrapped.baseURL).toBe(wrapped.pinpoint.baseURL);
     } finally {
-      await wrapped.pixroom.close();
+      await wrapped.pinpoint.close();
       await upstream.close();
     }
 
     expect(client.baseURL).toBe(originalBaseURL);
-    expect(Reflect.has(client, 'pixroom')).toBe(false);
+    expect(Reflect.has(client, 'pinpoint')).toBe(false);
   });
 
   it('wraps OpenAI Responses calls without changing native SSE bytes', async () => {
@@ -122,7 +122,7 @@ describe('provider SDK wrappers', () => {
       response.end(stream);
     });
     const client = new TestProviderClient(`${upstream.baseURL}/v1`);
-    const wrapped = await withPixroomOpenAI(client, wrapperOptions);
+    const wrapped = await withPinpointOpenAI(client, wrapperOptions);
 
     try {
       const response = await wrapped.post('/responses', {
@@ -132,10 +132,10 @@ describe('provider SDK wrappers', () => {
       });
 
       expect(received?.path).toBe('/v1/responses');
-      expect(received?.body.pixroom_marker).toBe(true);
+      expect(received?.body.pinpoint_marker).toBe(true);
       expect(await response.text()).toBe(stream);
     } finally {
-      await wrapped.pixroom.close();
+      await wrapped.pinpoint.close();
       await upstream.close();
     }
   });

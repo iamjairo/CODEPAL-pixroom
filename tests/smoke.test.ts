@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { createPixroom } from '../src/pixroom.js';
+import { createPinpoint } from '../src/pinpoint.js';
 
 /**
  * Fidelity + honesty smoke tests (planning/end_product.md §7, Phase 3).
@@ -12,7 +12,7 @@ function bigSlab(): string {
 
 describe('smoke: fidelity + honest measurement', () => {
   it('never lossy-compresses byte-exact identifiers in recent (protected) turns', async () => {
-    const px = createPixroom({ semantic: { enabled: false }, optical: { enabled: true } });
+    const px = createPinpoint({ semantic: { enabled: false }, optical: { enabled: true } });
     const secret = 'sk-DEADBEEF0123456789abcdefCAFEBABE';
     const sha = 'a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0';
 
@@ -38,7 +38,7 @@ describe('smoke: fidelity + honest measurement', () => {
   });
 
   it('reports honest zero savings on sparse prose (no fabricated wins)', async () => {
-    const px = createPixroom({ semantic: { enabled: false }, optical: { enabled: true } });
+    const px = createPinpoint({ semantic: { enabled: false }, optical: { enabled: true } });
     const routed = await px.route('anthropic', 'claude-fable-5', {
       model: 'claude-fable-5',
       system: 'Be concise.', // far below the imaging threshold

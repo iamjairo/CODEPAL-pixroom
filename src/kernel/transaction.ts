@@ -3,6 +3,7 @@ import type {
   ContextPatch,
   ProposalCommit,
   ProposalValidation,
+  TransactionErrorCode,
   TransactionResult,
   TransformProposal,
 } from './types.js';
@@ -54,24 +55,42 @@ export async function transactProposal(
   validate?: ProposalValidation,
   commit?: ProposalCommit,
 ): Promise<TransactionResult> {
+  let candidate: RequestContext;
   try {
-    const candidate = cloneRequestContext(ctx);
+    candidate = cloneRequestContext(ctx);
     applyPatch(candidate, proposal.patch);
-    await validate?.(candidate, proposal);
-    await commit?.(candidate, proposal, ctx);
-
-    ctx.body = candidate.body;
-    ctx.reversible = candidate.reversible;
-    ctx.stages = candidate.stages;
-    ctx.opticalOwnsCacheControl = candidate.opticalOwnsCacheControl;
-    ctx.virtualQueryToolNeeded = candidate.virtualQueryToolNeeded;
-    ctx.virtualContextIds = candidate.virtualContextIds;
-    return { status: 'committed', proposal };
-  } catch (error) {
-    return {
-      status: 'rolled-back',
-      proposal,
-      error: error instanceof Error ? error.message : String(error),
-    };
+  } catch {
+    return rolledBack(proposal, 'patch_failed');
   }
+
+  try {
+    await validate?.(cloneRequestContext(candidate), structuredClone(proposal));
+  } catch {
+    return rolledBack(proposal, 'validation_failed');
+  }
+
+  try {
+    await commit?.(
+      cloneRequestContext(candidate),
+      structuredClone(proposal),
+      cloneRequestContext(ctx),
+    );
+  } catch {
+    return rolledBack(proposal, 'commit_failed');
+  }
+
+  ctx.body = candidate.body;
+  ctx.reversible = candidate.reversible;
+  ctx.stages = candidate.stages;
+  ctx.opticalOwnsCacheControl = candidate.opticalOwnsCacheControl;
+  ctx.virtualQueryToolNeeded = candidate.virtualQueryToolNeeded;
+  ctx.virtualContextIds = candidate.virtualContextIds;
+  return { status: 'committed', proposal };
+}
+
+function rolledBack(
+  proposal: TransformProposal,
+  error: TransactionErrorCode,
+): TransactionResult {
+  return { status: 'rolled-back', proposal, error };
 }

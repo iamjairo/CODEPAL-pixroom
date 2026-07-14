@@ -1,7 +1,7 @@
 /**
  * Anthropic Messages request helpers.
  *
- * pixroom's router hands each region to exactly one engine. This module isolates
+ * pinpoint's router hands each region to exactly one engine. This module isolates
  * the *semantic* region of an Anthropic request — the `tool_result` text blocks in
  * non-recent turns, and (opt-in) large plain-text prose in non-recent user turns —
  * so the headroom stage can compress them while pxpipe images the static
@@ -31,7 +31,7 @@ export function readModel(body: Record<string, unknown>): string | null {
 }
 
 /**
- * Flatten the static-slab text pixroom's optical stage owns — the `system` prompt
+ * Flatten the static-slab text pinpoint's optical stage owns — the `system` prompt
  * plus tool names/descriptions — into one string for content-type classification.
  * Cheap and lossy-for-classification-only; never used to mutate the request.
  */

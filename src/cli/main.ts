@@ -1,23 +1,23 @@
 /**
- * pixroom CLI (planning/end_product.md §6).
+ * pinpoint CLI (planning/end_product.md §6).
  *
- *   pixroom proxy              start the combined optical+semantic proxy
- *   pixroom export <paths…>    offline compress + honest savings report
- *   pixroom doctor             health: toolchain, pxpipe, headroom sidecar
- *   pixroom stats              query a running proxy's session savings
- *   pixroom mcp | wrap         distribution front doors (roadmap)
+ *   pinpoint proxy              start the combined optical+semantic proxy
+ *   pinpoint export <paths…>    offline compress + honest savings report
+ *   pinpoint doctor             health: toolchain, pxpipe, headroom sidecar
+ *   pinpoint stats              query a running proxy's session savings
+ *   pinpoint mcp | wrap         distribution front doors (roadmap)
  */
 
 import { readFileSync } from 'node:fs';
 import { basename } from 'node:path';
 
 import { createProxyServer } from '../proxy/server.js';
-import { createPixroom } from '../pixroom.js';
+import { createPinpoint } from '../pinpoint.js';
 import { runMcpServer } from '../mcp/server.js';
 import { runWrap, copilotPreflight } from '../wrap/runner.js';
 import { describeAgents, knownAgents } from '../wrap/agents.js';
 import { formatReport } from '../measurement/savings.js';
-import { loadConfig, type PixroomConfigOverrides } from '../config.js';
+import { loadConfig, type PinpointConfigOverrides } from '../config.js';
 import { replayCaptureFile } from '../capture/replay.js';
 import type { RuntimeMode } from '../kernel/types.js';
 
@@ -31,10 +31,10 @@ function version(): string {
   }
 }
 
-const HELP = `pixroom ${version()} — exact-context optimization runtime for agents
+const HELP = `pinpoint ${version()} — exact-context optimization runtime for agents
 
 USAGE
-  pixroom <command> [options]
+  pinpoint <command> [options]
 
 COMMANDS
   proxy [options]  Start the programmable optimization proxy. Options:
@@ -53,38 +53,38 @@ COMMANDS
   stats            Query a running proxy's session savings (GET /stats).
   integration      List active optimizer integrations and their capabilities.
   agent             List agent adapters and their actual interception level.
-  mcp              MCP server over stdio (tools: pixroom_compress / _retrieve / _stats).
-  wrap <agent>     Start pixroom (or delegate) and launch <agent> pointed at it.
+  mcp              MCP server over stdio (tools: pinpoint_compress / _retrieve / _stats).
+  wrap <agent>     Start pinpoint (or delegate) and launch <agent> pointed at it.
                    Agents: claude, codex, aider, goose, openhands, opencode, vibe,
                    copilot (uses your existing login, no API key); cursor/cline/
                    continue print IDE config. Args after '--' go to the agent.
   help             Show this help.
 
 COMMON ENV
-  PIXROOM_HOST / PIXROOM_PORT        listen interface / port (default 127.0.0.1:8788)
-  PIXROOM_MODE                       audit|shadow|optimize|enforce (default optimize)
-  PIXROOM_MODELS                     optical model scope CSV; 'off' disables; unset = pxpipe default
-  PIXROOM_OPTICAL / PIXROOM_SEMANTIC on/off master switches
-  PIXROOM_VIRTUAL_CONTEXT             exact QCV switch (default on; set 0 to disable)
-  PIXROOM_VIRTUAL_QUERY_FALLBACK      model-driven QCV continuation (default off)
-  PIXROOM_CAPTURE_PATH                durable JSONL decision capture (default off)
-  PIXROOM_CAPTURE_BODIES              include sensitive bodies for replay (default off)
-  PIXROOM_OTLP_ENDPOINT               OTLP/HTTP traces endpoint (default off)
-  PIXROOM_CCR_CONTINUATION             execute retrieve tools locally (default on)
-  PIXROOM_HEADROOM_URL               headroom sidecar base URL (default http://127.0.0.1:8787)
-  PIXROOM_HEADROOM_AUTOSPAWN         auto-start 'headroom proxy' if not reachable (default on)
-  PIXROOM_OPTICAL_ON_SUBSCRIPTION    allow lossy optical on oauth/subscription (default off)
-  PIXROOM_HEADROOM_BIN               headroom binary for 'wrap copilot' (else PATH / venv)
-  PIXROOM_COPILOT_MODEL              default model for 'wrap copilot' (default gpt-4o)
-  PIXROOM_LOG                        silent|error|warn|info|debug
+  PINPOINT_HOST / PINPOINT_PORT        listen interface / port (default 127.0.0.1:8788)
+  PINPOINT_MODE                       audit|shadow|optimize|enforce (default optimize)
+  PINPOINT_MODELS                     optical model scope CSV; 'off' disables; unset = pxpipe default
+  PINPOINT_OPTICAL / PINPOINT_SEMANTIC on/off master switches
+  PINPOINT_VIRTUAL_CONTEXT             exact QCV switch (default on; set 0 to disable)
+  PINPOINT_VIRTUAL_QUERY_FALLBACK      model-driven QCV continuation (default off)
+  PINPOINT_CAPTURE_PATH                durable JSONL decision capture (default off)
+  PINPOINT_CAPTURE_BODIES              include sensitive bodies for replay (default off)
+  PINPOINT_OTLP_ENDPOINT               OTLP/HTTP traces endpoint (default off)
+  PINPOINT_CCR_CONTINUATION             execute retrieve tools locally (default on)
+  PINPOINT_HEADROOM_URL               headroom sidecar base URL (default http://127.0.0.1:8787)
+  PINPOINT_HEADROOM_AUTOSPAWN         auto-start 'headroom proxy' if not reachable (default on)
+  PINPOINT_OPTICAL_ON_SUBSCRIPTION    allow lossy optical on oauth/subscription (default off)
+  PINPOINT_HEADROOM_BIN               headroom binary for 'wrap copilot' (else PATH / venv)
+  PINPOINT_COPILOT_MODEL              default model for 'wrap copilot' (default gpt-4o)
+  PINPOINT_LOG                        silent|error|warn|info|debug
 `;
 
 export type ProxyArgsResult =
-  | { readonly ok: true; readonly overrides: PixroomConfigOverrides }
+  | { readonly ok: true; readonly overrides: PinpointConfigOverrides }
   | { readonly ok: false; readonly error: string };
 
 export function parseProxyArgs(args: readonly string[]): ProxyArgsResult {
-  const overrides: PixroomConfigOverrides = {};
+  const overrides: PinpointConfigOverrides = {};
   for (let index = 0; index < args.length; index += 1) {
     const arg = args[index]!;
     if (arg === '--mode') {
@@ -125,7 +125,7 @@ async function cmdProxy(args: readonly string[]): Promise<void> {
   const server = createProxyServer(parsed.overrides);
   await server.listen();
   const shutdown = async (sig: string) => {
-    server.pixroom.log.info(`received ${sig}, shutting down`);
+    server.pinpoint.log.info(`received ${sig}, shutting down`);
     await server.close();
     process.exit(0);
   };
@@ -135,12 +135,12 @@ async function cmdProxy(args: readonly string[]): Promise<void> {
 
 async function cmdExport(paths: string[]): Promise<void> {
   if (paths.length === 0) {
-    console.error('usage: pixroom export <path> [path…]');
+    console.error('usage: pinpoint export <path> [path…]');
     process.exitCode = 1;
     return;
   }
-  const pixroom = createPixroom();
-  await pixroom.warmup();
+  const pinpoint = createPinpoint();
+  await pinpoint.warmup();
 
   // Treat the files as the static context slab so the always-available optical
   // engine images them offline (mirrors `pxpipe export`); the semantic stage also
@@ -154,16 +154,16 @@ async function cmdExport(paths: string[]): Promise<void> {
     messages: [{ role: 'user', content: [{ type: 'text', text: 'Summarize the attached context.' }] }],
   };
 
-  const routed = await pixroom.route('anthropic', 'claude-fable-5', body);
+  const routed = await pinpoint.route('anthropic', 'claude-fable-5', body);
   console.log(`files: ${paths.length}   input chars: ${combined.length}`);
   console.log(formatReport(routed.report));
   console.log(`\ncache_control owned by optical: ${routed.opticalOwnsCacheControl}`);
   console.log(`reversible originals registered: ${routed.reversible.length}`);
-  await pixroom.shutdown();
+  await pinpoint.shutdown();
 }
 
 export async function runQcvDemo(): Promise<string> {
-  const pixroom = createPixroom({
+  const pinpoint = createPinpoint({
     virtualContext: { enabled: true, queryFallback: false, minChars: 100, protectRecent: 0 },
     semantic: { enabled: false },
     optical: { enabled: false },
@@ -186,15 +186,15 @@ export async function runQcvDemo(): Promise<string> {
   };
 
   try {
-    const routed = await pixroom.route('anthropic', 'claude-haiku-4-5', body, 'payg');
+    const routed = await pinpoint.route('anthropic', 'claude-haiku-4-5', body, 'payg');
     const row = routed.report.rows.find((candidate) => candidate.stage === 'virtual');
     if (!row?.applied) throw new Error(`QCV demo did not apply: ${row?.reason ?? 'missing stage'}`);
     const savedPercent = row.tokensText > 0 ? (row.tokensSaved / row.tokensText) * 100 : 0;
     const serialized = JSON.stringify(routed.body);
     const exact = serialized.includes('user733@example.com');
-    const queryFallback = serialized.includes('"name":"pixroom_query"');
+    const queryFallback = serialized.includes('"name":"pinpoint_query"');
     return [
-      'pixroom QCV demo (offline)',
+      'pinpoint QCV demo (offline)',
       `dataset: 1,000 exact JSON rows (${JSON.stringify(rows).length.toLocaleString()} chars)`,
       `question: ${question}`,
       `dataset region: ${row.tokensText.toLocaleString()} -> ${row.tokensCompressed.toLocaleString()} estimated tokens (${savedPercent.toFixed(1)}% smaller)`,
@@ -203,7 +203,7 @@ export async function runQcvDemo(): Promise<string> {
       'network requests: 0',
     ].join('\n');
   } finally {
-    await pixroom.shutdown();
+    await pinpoint.shutdown();
   }
 }
 
@@ -213,11 +213,11 @@ async function cmdDemo(): Promise<void> {
 
 export async function runCaptureReplay(
   path: string,
-  overrides: PixroomConfigOverrides = {},
+  overrides: PinpointConfigOverrides = {},
 ): Promise<string> {
   const summary = await replayCaptureFile(path, overrides);
   return [
-    'pixroom capture replay (no provider calls)',
+    'pinpoint capture replay (no provider calls)',
     `records: ${summary.records.toLocaleString()}`,
     `replayable: ${summary.replayable.toLocaleString()}`,
     `matched transformed bodies: ${summary.matched.toLocaleString()}`,
@@ -230,7 +230,7 @@ export async function runCaptureReplay(
 
 async function cmdReplay(paths: string[]): Promise<void> {
   if (paths.length !== 1) {
-    console.error('usage: pixroom replay <capture.jsonl>');
+    console.error('usage: pinpoint replay <capture.jsonl>');
     process.exitCode = 1;
     return;
   }
@@ -243,7 +243,7 @@ async function cmdDoctor(rest: string[]): Promise<void> {
     return;
   }
   const cfg = loadConfig();
-  const lines: string[] = [`pixroom ${version()} doctor`, ''];
+  const lines: string[] = [`pinpoint ${version()} doctor`, ''];
   lines.push(`node:            ${process.version}`);
 
   let pxpipeOk = false;
@@ -255,8 +255,8 @@ async function cmdDoctor(rest: string[]): Promise<void> {
   }
   lines.push(`pxpipe-proxy:    ${pxpipeOk ? 'available (optical stage ready)' : 'MISSING — run npm install'}`);
 
-  const pixroom = createPixroom();
-  const { sidecar } = await pixroom.warmup();
+  const pinpoint = createPinpoint();
+  const { sidecar } = await pinpoint.warmup();
   lines.push(`headroom sidecar: ${sidecar} (${cfg.semantic.sidecarUrl})`);
   lines.push('');
   lines.push(`optical enabled:  ${cfg.optical.enabled}`);
@@ -273,11 +273,11 @@ async function cmdDoctor(rest: string[]): Promise<void> {
   lines.push('');
   lines.push(
     sidecar === 'unavailable'
-      ? 'note: semantic stage is degraded (optical still active). Install headroom-ai\n      (PyPI) or set PIXROOM_HEADROOM_URL to a running proxy to enable it.'
+      ? 'note: semantic stage is degraded (optical still active). Install headroom-ai\n      (PyPI) or set PINPOINT_HEADROOM_URL to a running proxy to enable it.'
       : 'enabled optimizer dependencies ready.',
   );
   console.log(lines.join('\n'));
-  await pixroom.shutdown();
+  await pinpoint.shutdown();
 }
 
 async function cmdStats(): Promise<void> {
@@ -288,8 +288,8 @@ async function cmdStats(): Promise<void> {
     if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
     console.log(await res.text());
   } catch (err) {
-    console.error(`could not reach a running pixroom proxy at ${url}: ${err instanceof Error ? err.message : String(err)}`);
-    console.error('start one with: pixroom proxy');
+    console.error(`could not reach a running pinpoint proxy at ${url}: ${err instanceof Error ? err.message : String(err)}`);
+    console.error('start one with: pinpoint proxy');
     process.exitCode = 1;
   }
 }
@@ -301,14 +301,14 @@ async function cmdMcp(): Promise<void> {
 async function cmdIntegration(args: string[]): Promise<void> {
   const action = args[0] ?? 'list';
   if (action !== 'list') {
-    console.error('usage: pixroom integration list');
+    console.error('usage: pinpoint integration list');
     process.exitCode = 1;
     return;
   }
 
-  const pixroom = createPixroom();
+  const pinpoint = createPinpoint();
   console.log('ID                  ORDER  FIDELITY    CACHE              REGIONS');
-  for (const integration of pixroom.integrations.ordered()) {
+  for (const integration of pinpoint.integrations.ordered()) {
     const capabilities = integration.capabilities;
     console.log(
       [
@@ -320,13 +320,13 @@ async function cmdIntegration(args: string[]): Promise<void> {
       ].join(' '),
     );
   }
-  await pixroom.shutdown();
+  await pinpoint.shutdown();
 }
 
 function cmdAgent(args: string[]): void {
   const action = args[0] ?? 'list';
   if (action !== 'list') {
-    console.error('usage: pixroom agent list');
+    console.error('usage: pinpoint agent list');
     process.exitCode = 1;
     return;
   }
@@ -340,9 +340,9 @@ function cmdAgent(args: string[]): void {
 
 function cmdDoctorCopilot(): void {
   const pf = copilotPreflight();
-  const lines: string[] = [`pixroom ${version()} doctor: copilot`, ''];
+  const lines: string[] = [`pinpoint ${version()} doctor: copilot`, ''];
   lines.push(
-    `headroom backbone: ${pf.headroomBin ? `OK  (${pf.headroomBin})` : 'MISSING — pipx install headroom-ai, or set PIXROOM_HEADROOM_BIN'}`,
+    `headroom backbone: ${pf.headroomBin ? `OK  (${pf.headroomBin})` : 'MISSING — pipx install headroom-ai, or set PINPOINT_HEADROOM_BIN'}`,
   );
   lines.push(
     `copilot CLI:       ${pf.copilotCli ? `OK  (${pf.copilotCli})` : 'MISSING — npm install -g @github/copilot'}`,
@@ -352,13 +352,13 @@ function cmdDoctorCopilot(): void {
       ? 'OK  (GITHUB_COPILOT_TOKEN set)'
       : 'read from Keychain at launch (allow the one-time prompt), or set GITHUB_COPILOT_TOKEN';
   lines.push(`copilot login:     ${token}`);
-  lines.push(`default model:     ${pf.model} (override with --model or PIXROOM_COPILOT_MODEL)`);
+  lines.push(`default model:     ${pf.model} (override with --model or PINPOINT_COPILOT_MODEL)`);
   lines.push('');
   const ready = Boolean(pf.headroomBin) && Boolean(pf.copilotCli);
   lines.push(
     ready
-      ? `ready → pixroom wrap copilot -- --model ${pf.model}`
-      : 'not ready — resolve the items above, then re-run `pixroom doctor copilot`.',
+      ? `ready → pinpoint wrap copilot -- --model ${pf.model}`
+      : 'not ready — resolve the items above, then re-run `pinpoint doctor copilot`.',
   );
   console.log(lines.join('\n'));
 }
@@ -366,13 +366,13 @@ function cmdDoctorCopilot(): void {
 async function cmdWrap(args: string[]): Promise<void> {
   const agent = args[0];
   if (!agent || agent === '-h' || agent === '--help') {
-    console.error('usage: pixroom wrap <agent> [--byok] [--context-tool] [-p PORT] [-v] [-- <agent args>]');
+    console.error('usage: pinpoint wrap <agent> [--byok] [--context-tool] [-p PORT] [-v] [-- <agent args>]');
     console.error(`agents: ${knownAgents().join(', ')}`);
     process.exitCode = agent ? 0 : 1;
     return;
   }
 
-  // Everything after `--` goes to the agent; pixroom flags come before it.
+  // Everything after `--` goes to the agent; pinpoint flags come before it.
   const dd = args.indexOf('--');
   const head = dd >= 0 ? args.slice(1, dd) : args.slice(1);
   const tail = dd >= 0 ? args.slice(dd + 1) : [];

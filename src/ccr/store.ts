@@ -1,7 +1,7 @@
 /**
  * Unified reversible store (CCR bridge).
  *
- * pixroom keeps both engines reversible through one store and one retrieval tool
+ * pinpoint keeps both engines reversible through one store and one retrieval tool
  * (planning/end_product.md §5.2):
  *   - pxpipe imaged blocks arrive as inline `recoverable` originals (text in hand).
  *   - headroom offloads arrive as CCR hashes whose originals live in the sidecar.

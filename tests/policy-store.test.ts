@@ -42,7 +42,7 @@ describe('PolicyStore', () => {
   });
 
   it('persists and reloads evidence atomically', () => {
-    const path = join(tmpdir(), `pxr-policy-${Date.now()}-${Math.random().toString(36).slice(2)}.json`);
+    const path = join(tmpdir(), `pinpoint-policy-${Date.now()}-${Math.random().toString(36).slice(2)}.json`);
     tmpFiles.push(path);
     const store = new PolicyStore(path).load();
     for (let i = 0; i < 5; i++) store.noteOffer('log', 'semantic');
@@ -58,7 +58,7 @@ describe('PolicyStore', () => {
   });
 
   it('tolerates a missing store file (cold start)', () => {
-    const store = new PolicyStore(join(tmpdir(), 'pxr-does-not-exist-xyz.json')).load();
+    const store = new PolicyStore(join(tmpdir(), 'pinpoint-does-not-exist-xyz.json')).load();
     expect(store.get('json', 'optical').offers).toBe(0);
   });
 

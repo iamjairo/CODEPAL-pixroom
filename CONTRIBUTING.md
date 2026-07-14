@@ -1,13 +1,13 @@
-# Contributing to pixroom
+# Contributing to pinpoint
 
-Pixroom is developed by [CodePal](https://codepal.ai) as an open-source part of its LLM optimization work. The project accepts focused fixes, protocol adapters, optimizer integrations, adversarial fixtures, and reproducible quality evidence. A smaller honest result is more useful than an unsupported compression headline.
+Pinpoint is developed by [CodePal](https://codepal.ai) as an open-source part of its LLM optimization work. The project accepts focused fixes, protocol adapters, optimizer integrations, adversarial fixtures, and reproducible quality evidence. A smaller honest result is more useful than an unsupported compression headline.
 
 ## Setup
 
 ```bash
 npm ci
 npm run typecheck
-PIXROOM_HEADROOM_AUTOSPAWN=0 npm test
+PINPOINT_HEADROOM_AUTOSPAWN=0 npm test
 npm run build
 ```
 
@@ -34,7 +34,7 @@ New optimizers must:
 
 Paid benchmarks are disabled unless `BENCH_ALLOW_PAID=1` and explicit request and dollar caps are set. Never commit API keys. Preserve failed designs and quality regressions as evidence rather than deleting them.
 
-External integration examples belong under `examples/integrations` and must import only published Pixroom subpaths. At least one test must run each example with built-ins disabled.
+External integration examples belong under `examples/integrations` and must import only published Pinpoint subpaths. At least one test must run each example with built-ins disabled.
 
 Capture fixtures must remain metadata-only or contain synthetic bodies. Never commit real body-enabled capture files.
 
@@ -42,7 +42,7 @@ Capture fixtures must remain metadata-only or contain synthetic bodies. Never co
 
 Update the version in `package.json` and `package-lock.json`, move the changelog entries under a dated version heading, and validate the package with `npm test` and `npm pack --dry-run`. Publish a GitHub Release whose tag is exactly `v<package version>`; `.github/workflows/release.yml` rejects mismatched tags and publishes the package to npm from the release commit.
 
-The first npm publication requires a granular npm token stored as the `NPM_TOKEN` secret in GitHub's `release` environment. After the package exists, configure its npm Trusted Publisher for organization `CodePalAI`, repository `pixroom`, workflow `release.yml`, environment `release`, and the `npm publish` action. Verify one OIDC release before deleting the bootstrap token. Releases from this public repository include npm provenance.
+The first npm publication requires a granular npm token stored as the `NPM_TOKEN` secret in GitHub's `release` environment. After the package exists, configure its npm Trusted Publisher for organization `CodePalAI`, repository `pinpoint`, workflow `release.yml`, environment `release`, and the `npm publish` action. Verify one OIDC release before deleting the bootstrap token. Releases from this public repository include npm provenance.
 
 ## Pull requests
 

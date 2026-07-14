@@ -1,20 +1,20 @@
 // Arm A — offline 3-way: identical Copilot-shaped payloads through pxpipe-only,
-// headroom-only, and pixroom (both). Measures effective input-token reduction with
+// headroom-only, and pinpoint (both). Measures effective input-token reduction with
 // one consistent basis. No model calls, no API key. Requires a headroom sidecar
-// (PIXROOM_HEADROOM_URL) for the semantic configs.
+// (PINPOINT_HEADROOM_URL) for the semantic configs.
 
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
-import { createPixroom } from '../dist/index.js';
+import { createPinpoint } from '../dist/index.js';
 import { buildPayloads, countTokens, effectiveTokens } from './lib.mjs';
 import { EVIDENCE } from './evidence.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(here, '..');
-const MODEL = process.env.PIXROOM_OPTICAL_BENCH_MODEL || 'claude-fable-5';
-const sidecarUrl = process.env.PIXROOM_HEADROOM_URL || 'http://127.0.0.1:8787';
+const MODEL = process.env.PINPOINT_OPTICAL_BENCH_MODEL || 'claude-fable-5';
+const sidecarUrl = process.env.PINPOINT_HEADROOM_URL || 'http://127.0.0.1:8787';
 
 const CONFIGS = {
   'pxpipe-only': { optical: { enabled: true }, semantic: { enabled: false } },
@@ -24,7 +24,7 @@ const CONFIGS = {
     // output as an older (compressible) turn, the steady-state agent scenario.
     semantic: { enabled: true, sidecarUrl, autoSpawn: false, protectRecent: 0 },
   },
-  pixroom: {
+  pinpoint: {
     optical: { enabled: true },
     semantic: { enabled: true, sidecarUrl, autoSpawn: false, protectRecent: 0 },
   },
@@ -58,7 +58,7 @@ async function run() {
     const entry = { name: p.name, description: p.description, baselineTokens, configs: {} };
 
     for (const [cfgName, overrides] of Object.entries(CONFIGS)) {
-      const px = createPixroom({ ...overrides, logLevel: 'silent' });
+      const px = createPinpoint({ ...overrides, logLevel: 'silent' });
       if (overrides.semantic?.enabled) {
         const { sidecar } = await px.warmup();
         sidecarStatus = sidecar;

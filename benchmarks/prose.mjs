@@ -1,4 +1,4 @@
-// Arm F — PROSE region: does PIXROOM_SEMANTIC_PROSE recover savings the other
+// Arm F — PROSE region: does PINPOINT_SEMANTIC_PROSE recover savings the other
 // configs leave on the table, without harming the tool_result/optical regions?
 //
 // Follows the same route as proof.mjs (headroom's benchmarking discipline):
@@ -22,7 +22,7 @@ import { homedir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
-import { createPixroom } from '../dist/index.js';
+import { createPinpoint } from '../dist/index.js';
 import { EVIDENCE } from './evidence.mjs';
 import {
   countTokens,
@@ -49,8 +49,8 @@ function isExec(p) {
 function locateHeadroom() {
   return (
     [
-      process.env.PIXROOM_HEADROOM_BIN,
-      join(homedir(), 'repos-pixroom', '.headroom-venv', 'bin', 'headroom'),
+      process.env.PINPOINT_HEADROOM_BIN,
+      join(homedir(), 'repos-pinpoint', '.headroom-venv', 'bin', 'headroom'),
     ]
       .filter(Boolean)
       .find(isExec) || 'headroom'
@@ -140,12 +140,12 @@ const CONFIGS = {
   'pxpipe-only': { optical: { enabled: true }, semantic: { enabled: false } },
   'headroom-tools': { optical: { enabled: false }, semantic: SEM(false) },
   'headroom+prose': { optical: { enabled: false }, semantic: SEM(true) },
-  'pixroom-default': { optical: { enabled: true }, semantic: SEM(false) },
-  'pixroom+prose': { optical: { enabled: true }, semantic: SEM(true) },
+  'pinpoint-default': { optical: { enabled: true }, semantic: SEM(false) },
+  'pinpoint+prose': { optical: { enabled: true }, semantic: SEM(true) },
 };
 
 async function measure(cfgOverrides, body) {
-  const px = createPixroom({ ...cfgOverrides, logLevel: 'silent' });
+  const px = createPinpoint({ ...cfgOverrides, logLevel: 'silent' });
   const routed = await px.route('anthropic', MODEL, structuredClone(body), 'payg');
   const tokens = effectiveTokens(routed.body, routed.report);
   const reversible = routed.reversible.length;
@@ -179,7 +179,7 @@ async function main() {
       cfgOut[name] = await measure(cfg, body);
     }
     const proseGainHeadroom = cfgOut['headroom-tools'].tokens - cfgOut['headroom+prose'].tokens;
-    const proseGainPixroom = cfgOut['pixroom-default'].tokens - cfgOut['pixroom+prose'].tokens;
+    const proseGainPinpoint = cfgOut['pinpoint-default'].tokens - cfgOut['pinpoint+prose'].tokens;
     const best = Math.min(...Object.values(cfgOut).map((v) => v.tokens));
     const entry = {
       name: sc.name,
@@ -188,8 +188,8 @@ async function main() {
       raw,
       configs: cfgOut,
       proseGainHeadroom,
-      proseGainPixroom,
-      fullStackIsBest: cfgOut['pixroom+prose'].tokens <= best + 2,
+      proseGainPinpoint,
+      fullStackIsBest: cfgOut['pinpoint+prose'].tokens <= best + 2,
     };
     results.scenarios.push(entry);
     const s = (n) => `${(((raw - n) / raw) * 100).toFixed(0)}%`;
@@ -198,19 +198,19 @@ async function main() {
         `   pxpipe=${cfgOut['pxpipe-only'].tokens}(${s(cfgOut['pxpipe-only'].tokens)})  ` +
         `hr-tools=${cfgOut['headroom-tools'].tokens}(${s(cfgOut['headroom-tools'].tokens)})  ` +
         `hr+prose=${cfgOut['headroom+prose'].tokens}(${s(cfgOut['headroom+prose'].tokens)})\n` +
-        `   pixroom=${cfgOut['pixroom-default'].tokens}(${s(cfgOut['pixroom-default'].tokens)})  ` +
-        `pixroom+prose=${cfgOut['pixroom+prose'].tokens}(${s(cfgOut['pixroom+prose'].tokens)})  ` +
-        `[prose Δ: hr=${proseGainHeadroom}t px=${proseGainPixroom}t]`,
+        `   pinpoint=${cfgOut['pinpoint-default'].tokens}(${s(cfgOut['pinpoint-default'].tokens)})  ` +
+        `pinpoint+prose=${cfgOut['pinpoint+prose'].tokens}(${s(cfgOut['pinpoint+prose'].tokens)})  ` +
+        `[prose Δ: hr=${proseGainHeadroom}t px=${proseGainPinpoint}t]`,
     );
   }
 
   const proseScenarios = results.scenarios.filter((e) => e.category === 'prose');
-  const proseHelps = proseScenarios.every((e) => e.proseGainPixroom > 2);
+  const proseHelps = proseScenarios.every((e) => e.proseGainPinpoint > 2);
   const fullStackBestOnMixed = results.scenarios
     .filter((e) => e.category === 'mixed')
     .every((e) => e.fullStackIsBest);
   const control = results.scenarios.find((e) => e.category === 'control');
-  const noHarm = control ? Math.abs(control.proseGainPixroom) <= 2 : true;
+  const noHarm = control ? Math.abs(control.proseGainPinpoint) <= 2 : true;
   results.verdict = { proseHelps, fullStackBestOnMixed, noHarm, kompress: ok };
   console.log(
     `\nVERDICT: prose-helps=${proseHelps}  full-stack-best-on-mixed=${fullStackBestOnMixed}  no-harm-on-control=${noHarm}`,

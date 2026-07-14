@@ -66,7 +66,7 @@ describe('transactProposal', () => {
       throw new Error('invalid provider shape');
     });
 
-    expect(result).toMatchObject({ status: 'rolled-back', error: 'invalid provider shape' });
+    expect(result).toMatchObject({ status: 'rolled-back', error: 'validation_failed' });
     expect(ctx).toEqual(original);
   });
 
@@ -89,7 +89,7 @@ describe('transactProposal', () => {
       throw new Error('external commit failed');
     });
 
-    expect(result).toMatchObject({ status: 'rolled-back', error: 'external commit failed' });
+    expect(result).toMatchObject({ status: 'rolled-back', error: 'commit_failed' });
     expect(ctx).toEqual(original);
   });
 });

@@ -88,7 +88,7 @@ export function virtualAnthropicToolResult(
     tool_use_id: call.id,
     content: allowed
       ? store.query(query)
-      : JSON.stringify({ error: 'invalid or unavailable pixroom_query input' }),
+      : JSON.stringify({ error: 'invalid or unavailable pinpoint_query input' }),
     is_error: !allowed,
   };
 }

@@ -11,7 +11,7 @@
       "raw": 18661,
       "headroom": 12536,
       "pxpipe": 15308,
-      "pixroom": 9183,
+      "pinpoint": 9183,
       "dominates": true,
       "strictWin": true
     },
@@ -22,7 +22,7 @@
       "raw": 18308,
       "headroom": 13415,
       "pxpipe": 14955,
-      "pixroom": 10062,
+      "pinpoint": 10062,
       "dominates": true,
       "strictWin": true
     },
@@ -33,7 +33,7 @@
       "raw": 12048,
       "headroom": 9198,
       "pxpipe": 8695,
-      "pixroom": 5845,
+      "pinpoint": 5845,
       "dominates": true,
       "strictWin": true
     },
@@ -44,7 +44,7 @@
       "raw": 4719,
       "headroom": 4719,
       "pxpipe": 1366,
-      "pixroom": 1366,
+      "pinpoint": 1366,
       "dominates": true,
       "strictWin": false
     },
@@ -55,7 +55,7 @@
       "raw": 20536,
       "headroom": 11537,
       "pxpipe": 20536,
-      "pixroom": 11537,
+      "pinpoint": 11537,
       "dominates": true,
       "strictWin": false
     }

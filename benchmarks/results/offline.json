@@ -59,7 +59,7 @@
             }
           ]
         },
-        "pixroom": {
+        "pinpoint": {
           "effectiveTokens": 9184,
           "savedTokens": 9478,
           "savedFraction": 0.5078769692423106,
@@ -141,7 +141,7 @@
             }
           ]
         },
-        "pixroom": {
+        "pinpoint": {
           "effectiveTokens": 10063,
           "savedTokens": 8246,
           "savedFraction": 0.45037959473482986,
@@ -223,7 +223,7 @@
             }
           ]
         },
-        "pixroom": {
+        "pinpoint": {
           "effectiveTokens": 5846,
           "savedTokens": 6203,
           "savedFraction": 0.5148145074280023,

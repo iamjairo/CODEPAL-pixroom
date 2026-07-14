@@ -1,6 +1,6 @@
-# Reproducing Pixroom's benchmark claims
+# Reproducing Pinpoint's benchmark claims
 
-Pixroom separates deterministic offline checks from paid model evidence. Do not use an offline token estimate as proof of provider billing or model quality.
+Pinpoint separates deterministic offline checks from paid model evidence. Do not use an offline token estimate as proof of provider billing or model quality.
 
 ## No-key checks
 
@@ -25,14 +25,14 @@ They do not establish live model quality, provider-reported usage, real-agent sa
 
 ## Independent paid pilot
 
-Use a clean machine or disposable environment. Record the operator, date, OS, CPU, Node version, Python version, Pixroom commit, Headroom version, exact model ID, and Anthropic SDK/API version with the receipt.
+Use a clean machine or disposable environment. Record the operator, date, OS, CPU, Node version, Python version, Pinpoint commit, Headroom version, exact model ID, and Anthropic SDK/API version with the receipt.
 
-Install the optional semantic sidecar used by the harness, then build Pixroom:
+Install the optional semantic sidecar used by the harness, then build Pinpoint:
 
 ```bash
 python3.13 -m venv .venv
 .venv/bin/pip install "headroom-ai>=0.31.0"
-export PIXROOM_HEADROOM_BIN="$PWD/.venv/bin/headroom"
+export PINPOINT_HEADROOM_BIN="$PWD/.venv/bin/headroom"
 npm ci
 npm run build
 npm run bench:anthropic:self-test

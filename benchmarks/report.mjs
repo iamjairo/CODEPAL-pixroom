@@ -39,13 +39,13 @@ function loadClaudeResults() {
   return list.sort((a, b) => (b.model.includes('fable') ? 1 : 0) - (a.model.includes('fable') ? 1 : 0));
 }
 
-out.push('# pixroom compression benchmark');
+out.push('# pinpoint compression benchmark');
 out.push('');
 out.push(`_Generated ${new Date().toISOString()}._`);
 out.push('');
 out.push(
   'Measures token consumption (and, for live arms, response correctness) ' +
-    'for **headroom-only** (semantic), **pxpipe-only** (optical), and **pixroom** (both), on the ' +
+    'for **headroom-only** (semantic), **pxpipe-only** (optical), and **pinpoint** (both), on the ' +
     'same prompts + system context. Results are separated by evidence level; simulations are not ' +
     'presented as product-performance evidence.',
 );
@@ -72,7 +72,7 @@ if (!proxyProfile) {
   out.push('');
   out.push(
     mdTable(
-      ['protocol', 'payload', 'concurrency', 'direct mean p95', 'pixroom mean p95', 'added p95'],
+      ['protocol', 'payload', 'concurrency', 'direct mean p95', 'pinpoint mean p95', 'added p95'],
       proxyProfile.comparisons.map((row) => [
         row.protocol ?? 'openai',
         `${row.payloadBytes} B`,
@@ -104,14 +104,14 @@ if (!isolatedProxyProfile) {
 } else {
   const cfg = isolatedProxyProfile.config;
   out.push(
-    `Evidence: ${inlineCode(isolatedProxyProfile.evidenceLevel)}. Load generator, Pixroom, and mock ` +
+    `Evidence: ${inlineCode(isolatedProxyProfile.evidenceLevel)}. Load generator, Pinpoint, and mock ` +
       `provider run in separate OS processes; ${cfg.requests} requests per arm, ${cfg.repetitions} ` +
       'repetitions, randomized arm order.',
   );
   out.push('');
   out.push(
     mdTable(
-      ['protocol', 'payload', 'concurrency', 'direct mean p95', 'pixroom mean p95', 'added p95'],
+      ['protocol', 'payload', 'concurrency', 'direct mean p95', 'pinpoint mean p95', 'added p95'],
       isolatedProxyProfile.comparisons.map((row) => [
         row.protocol,
         `${row.payloadBytes} B`,
@@ -152,8 +152,8 @@ out.push(
     'which only headroom implements. pxpipe has no Copilot transport.',
 );
 out.push(
-  '- **pixroom delegates Copilot to headroom** (optical can\'t help Copilot\'s models), so through ' +
-    'Copilot `pixroom` and `headroom` are the *same path*.',
+  '- **pinpoint delegates Copilot to headroom** (optical can\'t help Copilot\'s models), so through ' +
+    'Copilot `pinpoint` and `headroom` are the *same path*.',
 );
 out.push(
   '- **opus 4.8 is out of pxpipe\'s optical scope** (it reads dense renders poorly), so optical does ' +
@@ -170,9 +170,9 @@ out.push(
     'counts are not Anthropic-exact, but the cross-config comparison is apples-to-apples.',
 );
 out.push(
-  '- **Arm B — live wrapped Copilot:** baseline `copilot` vs `pixroom wrap copilot` on the real ' +
+  '- **Arm B — live wrapped Copilot:** baseline `copilot` vs `pinpoint wrap copilot` on the real ' +
     'subscription (no API key), measuring Copilot-reported tokens, the actual response, and correctness. ' +
-    'pxpipe is N/A; pixroom == headroom.',
+    'pxpipe is N/A; pinpoint == headroom.',
 );
 out.push('');
 
@@ -192,12 +192,12 @@ if (!offline) {
     out.push('');
     out.push(
       '> ⚠️ The headroom sidecar was unavailable, so the semantic stage degraded to pass-through. ' +
-        'headroom-only and the semantic half of pixroom show no savings. Start a headroom proxy and re-run.',
+        'headroom-only and the semantic half of pinpoint show no savings. Start a headroom proxy and re-run.',
     );
   }
   out.push('');
   const rows = [];
-  const totals = { base: 0, 'pxpipe-only': 0, 'headroom-only': 0, pixroom: 0 };
+  const totals = { base: 0, 'pxpipe-only': 0, 'headroom-only': 0, pinpoint: 0 };
   for (const p of offline.payloads) {
     const c = p.configs;
     rows.push([
@@ -205,10 +205,10 @@ if (!offline) {
       String(p.baselineTokens),
       `${c['pxpipe-only'].effectiveTokens} (${pct(c['pxpipe-only'].savedFraction)})`,
       `${c['headroom-only'].effectiveTokens} (${pct(c['headroom-only'].savedFraction)})`,
-      `**${c.pixroom.effectiveTokens} (${pct(c.pixroom.savedFraction)})**`,
+      `**${c.pinpoint.effectiveTokens} (${pct(c.pinpoint.savedFraction)})**`,
     ]);
     totals.base += p.baselineTokens;
-    for (const k of ['pxpipe-only', 'headroom-only', 'pixroom']) totals[k] += c[k].effectiveTokens;
+    for (const k of ['pxpipe-only', 'headroom-only', 'pinpoint']) totals[k] += c[k].effectiveTokens;
   }
   const tsaved = (k) => (totals.base > 0 ? (totals.base - totals[k]) / totals.base : 0);
   rows.push([
@@ -216,18 +216,18 @@ if (!offline) {
     `**${totals.base}**`,
     `**${totals['pxpipe-only']} (${pct(tsaved('pxpipe-only'))})**`,
     `**${totals['headroom-only']} (${pct(tsaved('headroom-only'))})**`,
-    `**${totals.pixroom} (${pct(tsaved('pixroom'))})**`,
+    `**${totals.pinpoint} (${pct(tsaved('pinpoint'))})**`,
   ]);
   out.push(
     mdTable(
-      ['payload', 'baseline tok', 'pxpipe-only', 'headroom-only', 'pixroom (both)'],
+      ['payload', 'baseline tok', 'pxpipe-only', 'headroom-only', 'pinpoint (both)'],
       rows,
     ),
   );
   out.push('');
   out.push(
     '**Reading it:** pxpipe images the static system+tools slab; headroom compresses the tool-result ' +
-      'content; pixroom does both and reduces the most. This is the composition thesis, measured.',
+      'content; pinpoint does both and reduces the most. This is the composition thesis, measured.',
   );
   out.push('');
   out.push(
@@ -237,11 +237,11 @@ if (!offline) {
   );
   out.push('');
   // Per-stage detail
-  out.push('<details><summary>Per-stage detail (pixroom config)</summary>');
+  out.push('<details><summary>Per-stage detail (pinpoint config)</summary>');
   out.push('');
   const srows = [];
   for (const p of offline.payloads) {
-    for (const s of p.configs.pixroom.stages) {
+    for (const s of p.configs.pinpoint.stages) {
       srows.push([
         p.name,
         s.stage,
@@ -275,7 +275,7 @@ if (!copilot) {
     out.push('> ⚠️ No requested/fallback model responded; treat live numbers as inconclusive.');
   }
   out.push('');
-  out.push('`baseline` = plain `copilot`; `wrapped` = `pixroom wrap copilot` (→ headroom subscription). pxpipe = **N/A**.');
+  out.push('`baseline` = plain `copilot`; `wrapped` = `pinpoint wrap copilot` (→ headroom subscription). pxpipe = **N/A**.');
   out.push('');
   const rows = [];
   let blCorrect = 0;
@@ -367,7 +367,7 @@ if (claudeResults.length === 0) {
   out.push(
     '`baseline` = native `claude`; the other three route Claude Code through each proxy via ' +
       '`ANTHROPIC_BASE_URL` (no API key). Ground-truth usage from `claude --output-format json`, including ' +
-      'the prompt-cache breakdown. Unlike Copilot, pxpipe and pixroom are the **real front door** here.',
+      'the prompt-cache breakdown. Unlike Copilot, pxpipe and pinpoint are the **real front door** here.',
   );
   out.push('');
   out.push(
@@ -384,7 +384,7 @@ if (claudeResults.length === 0) {
 out.push('');
 
 function renderClaudeArm(c) {
-  const cfgs = ['baseline', 'headroom-only', 'pxpipe-only', 'pixroom'];
+  const cfgs = ['baseline', 'headroom-only', 'pxpipe-only', 'pinpoint'];
   const num = (v) => (typeof v === 'number' ? v : null);
   const chg = (cfg) => {
     const rs = c.runs.filter(
@@ -402,7 +402,7 @@ function renderClaudeArm(c) {
   const correct = (cfg) => c.runs.filter((r) => r.results[cfg]?.correct).length;
 
   out.push(
-    `### \`${c.model}\` — optical ${c.opticalOnSubscription ? '**on** (PIXROOM_OPTICAL_ON_SUBSCRIPTION=1)' : 'off (subscription stealth default)'}`,
+    `### \`${c.model}\` — optical ${c.opticalOnSubscription ? '**on** (PINPOINT_OPTICAL_ON_SUBSCRIPTION=1)' : 'off (subscription stealth default)'}`,
   );
   out.push('');
   out.push('**Total input tokens** (cache-independent — the compression signal):');
@@ -434,12 +434,12 @@ function renderClaudeArm(c) {
   out.push('');
   const hr = chg('headroom-only');
   const px = chg('pxpipe-only');
-  const pr = chg('pixroom');
+  const pr = chg('pinpoint');
   out.push('**Findings:**');
   out.push('');
   out.push(
     `- Avg total-input **vs native** (− = fewer tokens; includes the proxy's request inflation): ` +
-      `headroom-only ${signed(hr)}, pxpipe-only ${signed(px)}, pixroom ${signed(pr)}.`,
+      `headroom-only ${signed(hr)}, pxpipe-only ${signed(px)}, pinpoint ${signed(pr)}.`,
   );
   if (px != null && px < -0.05) {
     out.push(
@@ -453,7 +453,7 @@ function renderClaudeArm(c) {
     );
   }
   out.push(
-    "- **pixroom ≈ pxpipe-only on total here** because these are single-shot sessions: the semantic stage's " +
+    "- **pinpoint ≈ pxpipe-only on total here** because these are single-shot sessions: the semantic stage's " +
       'targets (recent tool outputs) are protected by `protect_recent`, so only optical fires. The full ' +
       'composition win (optical + semantic) shows in **Arm A** (offline, `protect_recent=0`).',
   );
@@ -461,7 +461,7 @@ function renderClaudeArm(c) {
   if (
     math &&
     math.results.baseline?.correct &&
-    ['headroom-only', 'pxpipe-only', 'pixroom'].every((cf) => math.results[cf] && !math.results[cf].correct)
+    ['headroom-only', 'pxpipe-only', 'pinpoint'].every((cf) => math.results[cf] && !math.results[cf].correct)
   ) {
     out.push(
       '- **Correctness:** `math` was correct natively but **wrong through all three proxies** (incl. ' +
@@ -471,7 +471,7 @@ function renderClaudeArm(c) {
   } else {
     out.push(
       `- **Correctness:** baseline ${correct('baseline')}/${c.runs.length}, headroom ${correct('headroom-only')}/${c.runs.length}, ` +
-        `pxpipe ${correct('pxpipe-only')}/${c.runs.length}, pixroom ${correct('pixroom')}/${c.runs.length}.`,
+        `pxpipe ${correct('pxpipe-only')}/${c.runs.length}, pinpoint ${correct('pinpoint')}/${c.runs.length}.`,
     );
   }
   out.push('');
@@ -492,20 +492,20 @@ if (!directAnthropic) {
   out.push('');
   out.push(
     mdTable(
-      ['task', 'direct input', 'pixroom input', 'input reduction', 'direct answer', 'pixroom answer'],
+      ['task', 'direct input', 'pinpoint input', 'input reduction', 'direct answer', 'pinpoint answer'],
       directAnthropic.runs.map((run) => {
         const direct = run.results.direct;
-        const pixroom = run.results.pixroom;
+        const pinpoint = run.results.pinpoint;
         const directInput = direct.usage.input + direct.usage.cacheCreate + direct.usage.cacheRead;
-        const pixroomInput = pixroom.usage.input + pixroom.usage.cacheCreate + pixroom.usage.cacheRead;
-        const reduction = directInput > 0 ? (directInput - pixroomInput) / directInput : 0;
+        const pinpointInput = pinpoint.usage.input + pinpoint.usage.cacheCreate + pinpoint.usage.cacheRead;
+        const reduction = directInput > 0 ? (directInput - pinpointInput) / directInput : 0;
         return [
           run.id,
           String(directInput),
-          String(pixroomInput),
+          String(pinpointInput),
           pct(reduction),
           `${direct.correct ? '✓' : '✗'} ${inlineCode(direct.text)}`,
-          `${pixroom.correct ? '✓' : '✗'} ${inlineCode(pixroom.text)}`,
+          `${pinpoint.correct ? '✓' : '✗'} ${inlineCode(pinpoint.text)}`,
         ];
       }),
     ),
@@ -513,11 +513,11 @@ if (!directAnthropic) {
   out.push('');
   out.push(
     `**Result:** provider input ${summary.directInputTokens.toLocaleString()} → ` +
-      `${summary.pixroomInputTokens.toLocaleString()} (**${pct(summary.inputSavingsFraction)} lower**); ` +
-      `modeled billed cost $${summary.directCostUSD.toFixed(6)} → $${summary.pixroomCostUSD.toFixed(6)} ` +
+      `${summary.pinpointInputTokens.toLocaleString()} (**${pct(summary.inputSavingsFraction)} lower**); ` +
+      `modeled billed cost $${summary.directCostUSD.toFixed(6)} → $${summary.pinpointCostUSD.toFixed(6)} ` +
       `(**${pct(summary.costSavingsFraction)} lower**); quality ` +
       `${summary.directCorrect}/${directAnthropic.runs.length} → ` +
-      `${summary.pixroomCorrect}/${directAnthropic.runs.length}.`,
+      `${summary.pinpointCorrect}/${directAnthropic.runs.length}.`,
   );
   out.push('');
   out.push(
@@ -528,8 +528,8 @@ if (!directAnthropic) {
   out.push('');
   out.push(
     '> **Attribution:** optical was disabled because Haiku 4.5 is outside pxpipe\'s default model scope. ' +
-      'This arm therefore validates pixroom\'s headroom integration and paid measurement path, but the ' +
-      '**40.1% cost reduction is headroom-derived, not independent pixroom IP**. Pixroom\'s incremental ' +
+      'This arm therefore validates pinpoint\'s headroom integration and paid measurement path, but the ' +
+      '**40.1% cost reduction is headroom-derived, not independent pinpoint IP**. Pinpoint\'s incremental ' +
       'composition value is measured only in Arm A/E on a pxpipe-supported model.',
   );
   out.push('');
@@ -560,7 +560,7 @@ if (!proof) {
   out.push('');
   out.push(
     mdTable(
-      ['scenario', 'kind', 'raw', 'headroom-only', 'pxpipe-only', 'pixroom', 'vs best single'],
+      ['scenario', 'kind', 'raw', 'headroom-only', 'pxpipe-only', 'pinpoint', 'vs best single'],
       proof.scenarios.map((e) => {
         const s = (n) => `${(((e.raw - n) / e.raw) * 100).toFixed(0)}%`;
         return [
@@ -569,7 +569,7 @@ if (!proof) {
           String(e.raw),
           `${e.headroom} (${s(e.headroom)})`,
           `${e.pxpipe} (${s(e.pxpipe)})`,
-          `**${e.pixroom} (${s(e.pixroom)})**`,
+          `**${e.pinpoint} (${s(e.pinpoint)})**`,
           e.strictWin ? '**strict win**' : e.dominates ? 'ties best' : '⚠️ loses',
         ];
       }),
@@ -580,17 +580,17 @@ if (!proof) {
   if (mixed.length) {
     out.push(
       '**Why it works — additivity.** The engines compress **disjoint** regions (optical→static slab, ' +
-        'semantic→tool outputs) with no interaction, so pixroom\'s savings = optical savings + semantic ' +
+        'semantic→tool outputs) with no interaction, so pinpoint\'s savings = optical savings + semantic ' +
         'savings, exactly:',
     );
     out.push('');
     out.push(
       mdTable(
-        ['mixed scenario', 'optical Δtok', 'semantic Δtok', 'sum', 'pixroom Δtok', 'match'],
+        ['mixed scenario', 'optical Δtok', 'semantic Δtok', 'sum', 'pinpoint Δtok', 'match'],
         mixed.map((e) => {
           const opt = e.raw - e.pxpipe;
           const sem = e.raw - e.headroom;
-          const both = e.raw - e.pixroom;
+          const both = e.raw - e.pinpoint;
           return [e.name, String(opt), String(sem), String(opt + sem), String(both), opt + sem === both ? 'exact ✓' : String(both - (opt + sem))];
         }),
       ),
@@ -598,7 +598,7 @@ if (!proof) {
     out.push('');
   }
   out.push(
-    `**Corpus verdict:** \`dominates-all=${proof.verdict.dominatesAll}\` — on these five inputs, pixroom is not worse than the ` +
+    `**Corpus verdict:** \`dominates-all=${proof.verdict.dominatesAll}\` — on these five inputs, pinpoint is not worse than the ` +
       'better single transform and is strictly smaller on mixed workloads where ' +
       'both engines actually compress (JSON, logs, and current source text); it **ties** the better engine ' +
       'where only one region is compressible (slab-heavy → =pxpipe; tools-heavy → =headroom). The source ' +
@@ -614,7 +614,7 @@ if (!proof) {
 out.push('');
 
 // ── Arm F — prose region ───────────────────────────────────────────
-out.push('## Arm F — prose region (PIXROOM_SEMANTIC_PROSE)');
+out.push('## Arm F — prose region (PINPOINT_SEMANTIC_PROSE)');
 out.push('');
 if (!prose) {
   out.push('_Not run._');
@@ -629,7 +629,7 @@ if (!prose) {
       'prose token-drop), reversibly via CCR.',
   );
   out.push('');
-  const cols = ['pxpipe-only', 'headroom-tools', 'headroom+prose', 'pixroom-default', 'pixroom+prose'];
+  const cols = ['pxpipe-only', 'headroom-tools', 'headroom+prose', 'pinpoint-default', 'pinpoint+prose'];
   out.push(
     mdTable(
       ['scenario', 'kind', 'raw', ...cols, 'prose Δtok'],
@@ -643,9 +643,9 @@ if (!prose) {
           cell('pxpipe-only'),
           cell('headroom-tools'),
           cell('headroom+prose'),
-          cell('pixroom-default'),
-          `**${cell('pixroom+prose')}**`,
-          `px ${e.proseGainPixroom}t`,
+          cell('pinpoint-default'),
+          `**${cell('pinpoint+prose')}**`,
+          `px ${e.proseGainPinpoint}t`,
         ];
       }),
     ),
@@ -656,7 +656,7 @@ if (!prose) {
       `\`full-stack-best=${prose.verdict.fullStackBestOnMixed}\`, \`no-harm=${prose.verdict.noHarm}\`. On ` +
       'prose-heavy requests every non-prose config reduces the user prose by **0%** — it is the region ' +
       'pxpipe (slab-only) and the tool_result stage both skip. The prose path is the only one that touches ' +
-      'it, and it composes **additively** with optical + tool_result compression (`mixed-all`: pixroom+prose ' +
+      'it, and it composes **additively** with optical + tool_result compression (`mixed-all`: pinpoint+prose ' +
       'is best). On `control-tools` (no prose) the prose path is byte-identical to its baseline.',
   );
   out.push('');
@@ -666,7 +666,7 @@ if (!prose) {
       'prose redundancy: measured **directly** on varied prose, Kompress cuts **~6% (dense) / 15% (natural) ' +
       '/ 18% (redundant)** of prose tokens; the synthetic corpus here is moderately redundant (~21%). It is ' +
       '**opt-in** and needs the sidecar to have the Kompress tokenizer (`pip install transformers` — the ' +
-      'lightweight ONNX path, no torch); pixroom sends `compress_user_messages` automatically. Without ' +
+      'lightweight ONNX path, no torch); pinpoint sends `compress_user_messages` automatically. Without ' +
       'Kompress the sidecar no-ops prose and these rows tie their baselines.',
   );
 }
@@ -761,7 +761,7 @@ out.push(
   'QCV keeps exact large structured tool results in a bounded local content-addressed store. It sends a ' +
     'small typed manifest, deterministically materializes narrow answers for high-confidence explicit ' +
     'questions, and falls through when the safe default cannot answer. The experimental fallback exposes ' +
-    '`pixroom_query` only when explicitly enabled. ' +
+    '`pinpoint_query` only when explicitly enabled. ' +
     'Headroom and pxpipe remain fallbacks for regions QCV does not claim.',
 );
 out.push('');
@@ -776,7 +776,7 @@ if (!virtualContext) {
   out.push('');
   out.push(
     mdTable(
-      ['scenario', 'current pixroom', 'QCV initial', 'fallback continuation', 'QCV conservative total', 'further reduction', 'exact'],
+      ['scenario', 'current pinpoint', 'QCV initial', 'fallback continuation', 'QCV conservative total', 'further reduction', 'exact'],
       virtualContext.scenarios.map((scenario) => [
         scenario.name,
         String(scenario.currentTokens),
@@ -806,7 +806,7 @@ if (virtualContextNaive) {
   const failed = virtualContextNaive.summary;
   out.push(
     `**Rejected live design:** the first manifest-only pilot cut input ${pct(failed.inputSavingsFraction)} ` +
-      `but regressed quality ${failed.directCorrect}/${failed.tasks} → ${failed.pixroomCorrect}/${failed.tasks}. ` +
+      `but regressed quality ${failed.directCorrect}/${failed.tasks} → ${failed.pinpointCorrect}/${failed.tasks}. ` +
       `${virtualContextNaive.failure} The design was rejected, not averaged into the successful result.`,
   );
   out.push('');
@@ -828,7 +828,7 @@ if (!directAnthropicVirtual) {
       ['task', 'raw input', 'QCV input', 'reduction', 'raw answer', 'QCV answer'],
       directAnthropicVirtual.runs.map((run) => {
         const direct = run.results.direct;
-        const qcv = run.results.pixroom;
+        const qcv = run.results.pinpoint;
         const directInput = direct.usage.input + direct.usage.cacheCreate + direct.usage.cacheRead;
         const qcvInput = qcv.usage.input + qcv.usage.cacheCreate + qcv.usage.cacheRead;
         return [
@@ -845,11 +845,11 @@ if (!directAnthropicVirtual) {
   out.push('');
   out.push(
     `Provider input ${summary.directInputTokens.toLocaleString()} → ` +
-      `${summary.pixroomInputTokens.toLocaleString()} (**${pct(summary.inputSavingsFraction)} lower**); ` +
-      `modeled cost $${summary.directCostUSD.toFixed(6)} → $${summary.pixroomCostUSD.toFixed(6)} ` +
+      `${summary.pinpointInputTokens.toLocaleString()} (**${pct(summary.inputSavingsFraction)} lower**); ` +
+      `modeled cost $${summary.directCostUSD.toFixed(6)} → $${summary.pinpointCostUSD.toFixed(6)} ` +
       `(**${pct(summary.costSavingsFraction)} lower**); quality ` +
       `${summary.directCorrect}/${directAnthropicVirtual.runs.length} → ` +
-      `${summary.pixroomCorrect}/${directAnthropicVirtual.runs.length}. Actual four-call spend: ` +
+      `${summary.pinpointCorrect}/${directAnthropicVirtual.runs.length}. Actual four-call spend: ` +
       `$${directAnthropicVirtual.budget.observedUSD.toFixed(6)}.`,
   );
   out.push('');
@@ -857,18 +857,18 @@ if (!directAnthropicVirtual) {
     const ids = new Set(directAnthropicVirtual.runs.map((run) => run.id));
     const semanticRuns = directAnthropic.runs.filter((run) => ids.has(run.id));
     const semanticInput = semanticRuns.reduce((total, run) => {
-      const usage = run.results.pixroom.usage;
+      const usage = run.results.pinpoint.usage;
       return total + usage.input + usage.cacheCreate + usage.cacheRead;
     }, 0);
     const semanticCost = semanticRuns.reduce(
-      (total, run) => total + run.results.pixroom.costUSD,
+      (total, run) => total + run.results.pinpoint.costUSD,
       0,
     );
     out.push(
       `On the same fixture definitions, the earlier Headroom-only paid arm used ` +
         `${semanticInput.toLocaleString()} input tokens and $${semanticCost.toFixed(6)}. QCV used ` +
-        `${pct(1 - summary.pixroomInputTokens / semanticInput)} fewer input tokens and ` +
-        `${pct(1 - summary.pixroomCostUSD / semanticCost)} lower modeled cost than that semantic path. ` +
+        `${pct(1 - summary.pinpointInputTokens / semanticInput)} fewer input tokens and ` +
+        `${pct(1 - summary.pinpointCostUSD / semanticCost)} lower modeled cost than that semantic path. ` +
         'These are separate single-run pilots, so treat quality differences as directional.',
     );
     out.push('');
@@ -876,7 +876,7 @@ if (!directAnthropicVirtual) {
   out.push(
     '> Scope: the deterministic exact subset defaults on for first-party Anthropic Messages, OpenAI Chat, ' +
       'and OpenAI Responses PAYG traffic, including streaming responses. Ambiguous questions pass through ' +
-      'by default; `PIXROOM_VIRTUAL_QUERY_FALLBACK=1` separately enables the bounded Anthropic query tool ' +
+      'by default; `PINPOINT_VIRTUAL_QUERY_FALLBACK=1` separately enables the bounded Anthropic query tool ' +
       'for non-streaming requests. Subscription traffic passes through. N=2 is breakthrough-candidate ' +
       'evidence, not a universal claim.',
   );
@@ -943,32 +943,32 @@ out.push('');
 out.push('## Findings');
 out.push('');
 if (offline) {
-  const t = { base: 0, 'pxpipe-only': 0, 'headroom-only': 0, pixroom: 0 };
+  const t = { base: 0, 'pxpipe-only': 0, 'headroom-only': 0, pinpoint: 0 };
   for (const p of offline.payloads) {
     t.base += p.baselineTokens;
-    for (const k of ['pxpipe-only', 'headroom-only', 'pixroom']) t[k] += p.configs[k].effectiveTokens;
+    for (const k of ['pxpipe-only', 'headroom-only', 'pinpoint']) t[k] += p.configs[k].effectiveTokens;
   }
   const f = (k) => pct((t.base - t[k]) / t.base);
   out.push(
     `- **Offline (${offline.model}):** pxpipe-only ${f('pxpipe-only')}, headroom-only ${f('headroom-only')}, ` +
-      `**pixroom ${f('pixroom')}** overall input-token reduction. The two engines target disjoint regions ` +
+      `**pinpoint ${f('pinpoint')}** overall input-token reduction. The two engines target disjoint regions ` +
       '(optical→system slab, semantic→tool outputs), so composing them beats either alone.',
   );
 }
 if (copilot) {
   out.push(
     `- **Live Copilot (${copilot.effectiveModel}):** wrapping works end-to-end on the real subscription; ` +
-      'correctness is preserved. For Copilot specifically, pixroom\'s value is headroom\'s semantic engine ' +
+      'correctness is preserved. For Copilot specifically, pinpoint\'s value is headroom\'s semantic engine ' +
       '(optical is out of scope for these models).',
   );
 }
 if (claudeResults.find((c) => c.model.includes('fable'))) {
   out.push(
-    '- **Live Claude Code (fable-5):** optical genuinely engages — pxpipe/pixroom image the static slab for ' +
+    '- **Live Claude Code (fable-5):** optical genuinely engages — pxpipe/pinpoint image the static slab for ' +
       'a **net total-input cut vs native** despite the proxy\'s request inflation, correctness preserved ' +
       '(except a base-URL arithmetic quirk that hits *all* proxies, not compression). On opus (out of ' +
       'optical scope) the same proxying nets *more* tokens. The decisive subscription concern is the ' +
-      '**prompt cache**: aggressive/lossy restructuring interacts with Claude Code\'s cache, so pixroom ' +
+      '**prompt cache**: aggressive/lossy restructuring interacts with Claude Code\'s cache, so pinpoint ' +
       'goes stealth there. See Arm C; the full optical+semantic composition is Arm A.',
   );
 } else if (claudeResults.length) {
@@ -980,7 +980,7 @@ if (directAnthropic) {
     `- **Paid direct Anthropic (${directAnthropic.model}):** provider input fell ${pct(s.inputSavingsFraction)} ` +
       `and modeled cost fell ${pct(s.costSavingsFraction)}, with equal ${s.directCorrect}/${directAnthropic.runs.length} ` +
       'quality. This was a three-task, one-repetition pilot and used headroom semantic compression only, ' +
-      'so it validates the integration rather than independent pixroom value.',
+      'so it validates the integration rather than independent pinpoint value.',
   );
 }
 if (directAnthropicVirtual) {
@@ -989,7 +989,7 @@ if (directAnthropicVirtual) {
     `- **QCV paid pilot (${directAnthropicVirtual.model}):** input fell ${pct(s.inputSavingsFraction)}, ` +
       `modeled cost fell ${pct(s.costSavingsFraction)}, and exact score improved ` +
       `${s.directCorrect}/${directAnthropicVirtual.runs.length} → ` +
-      `${s.pixroomCorrect}/${directAnthropicVirtual.runs.length}. This is the first pixroom-owned ` +
+      `${s.pinpointCorrect}/${directAnthropicVirtual.runs.length}. This is the first pinpoint-owned ` +
       'optimizer result, but it remains a two-task, one-repetition pilot.',
   );
 }
@@ -1013,7 +1013,7 @@ if (proof) {
 if (prose) {
   out.push(
     '- **Prose (Arm F): fills the gap** — a large user-message prose block is compressed **0%** by ' +
-      'pxpipe, headroom-tools, and default pixroom, but `PIXROOM_SEMANTIC_PROSE=1` routes it to headroom\'s ' +
+      'pxpipe, headroom-tools, and default pinpoint, but `PINPOINT_SEMANTIC_PROSE=1` routes it to headroom\'s ' +
       'Kompress for a real, reversible cut (~6–21% of prose tokens by redundancy), **additive** with the ' +
       'optical + tool_result regions and a **no-op** when there\'s no prose.',
   );
@@ -1026,17 +1026,17 @@ if (rdFrontier || adaptive) {
 }
 out.push(
   '- **Right-sizing:** use optical where you control an Anthropic model in pxpipe\'s scope; use headroom ' +
-    '(semantic) everywhere, including Copilot; use pixroom to get both automatically where both apply.',
+    '(semantic) everywhere, including Copilot; use pinpoint to get both automatically where both apply.',
 );
 out.push('');
 out.push('## Reproduce');
 out.push('');
 out.push('```bash');
 out.push('npm run build');
-out.push('~/repos-pixroom/.headroom-venv/bin/headroom proxy --port 8787 &   # semantic sidecar');
+out.push('~/repos-pinpoint/.headroom-venv/bin/headroom proxy --port 8787 &   # semantic sidecar');
 out.push('node benchmarks/offline.mjs           # Arm A (3-way, offline)');
 out.push('BENCH_MODEL=claude-opus-4.8 node benchmarks/copilot.mjs   # Arm B (live Copilot)');
-out.push('PIXROOM_OPTICAL_ON_SUBSCRIPTION=1 BENCH_MODEL=claude-fable-5 node benchmarks/claude.mjs  # Arm C (live Claude 4-way, optical on)');
+out.push('PINPOINT_OPTICAL_ON_SUBSCRIPTION=1 BENCH_MODEL=claude-fable-5 node benchmarks/claude.mjs  # Arm C (live Claude 4-way, optical on)');
 out.push('node benchmarks/proof.mjs             # Arm E (constructed additivity check)');
 out.push('node benchmarks/prose.mjs             # Arm F (prose region, needs transformers in the sidecar)');
 out.push('node benchmarks/rd_frontier.mjs       # Arm G (simulated RD surface)');

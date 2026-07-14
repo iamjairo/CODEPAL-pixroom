@@ -1,4 +1,4 @@
-// Benchmark v2 — paired direct-vs-pixroom proxy overhead using a local network mock.
+// Benchmark v2 — paired direct-vs-pinpoint proxy overhead using a local network mock.
 // No provider calls, no API keys. Raw per-request samples are retained in the JSON
 // artifact so percentiles can be independently recomputed.
 
@@ -190,8 +190,8 @@ async function main() {
         for (const concurrency of concurrencies) {
           for (let repetition = 0; repetition < repetitions; repetition += 1) {
             const armOrder = (size + concurrency + repetition + protocol.length) % 2 === 0
-              ? ['direct', 'pixroom-noop']
-              : ['pixroom-noop', 'direct'];
+              ? ['direct', 'pinpoint-noop']
+              : ['pinpoint-noop', 'direct'];
             for (const arm of armOrder) {
               const url = arm === 'direct' ? mock.url : proxyUrl;
               const result = await runArm({ arm, url, body, concurrency, protocol });
@@ -224,7 +224,7 @@ async function main() {
             run.concurrency === concurrency,
         );
         const direct = cells.filter((run) => run.arm === 'direct');
-        const proxied = cells.filter((run) => run.arm === 'pixroom-noop');
+        const proxied = cells.filter((run) => run.arm === 'pinpoint-noop');
         const directP95 = direct.reduce((sum, run) => sum + run.latency.p95Ms, 0) / direct.length;
         const proxyP95 = proxied.reduce((sum, run) => sum + run.latency.p95Ms, 0) / proxied.length;
         comparisons.push({

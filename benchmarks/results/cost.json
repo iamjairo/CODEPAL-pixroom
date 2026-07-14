@@ -73,8 +73,8 @@
       "vsRaw": -0.3135301668806162
     },
     {
-      "key": "pixroom",
-      "label": "pixroom (optical slab + semantic tools)",
+      "key": "pinpoint",
+      "label": "pinpoint (optical slab + semantic tools)",
       "cacheSafe": true,
       "reversible": true,
       "slab": 0.04988,
@@ -85,9 +85,9 @@
   ],
   "verdict": {
     "netNegativeNaive": true,
-    "pixroomCheapest": true,
-    "pixroomBeatsCareful": true,
-    "pixroomReversible": true
+    "pinpointCheapest": true,
+    "pinpointBeatsCareful": true,
+    "pinpointReversible": true
   },
   "note": "Transparent cache-economics model; inputs grounded in Arm A reductions + Anthropic cache pricing. Live LLMLingua head-to-head deferred (needs torch)."
 }

@@ -1,21 +1,21 @@
 import {
   wrapProviderClient,
   type ProviderSdkClient,
-  type WrappedPixroomClient,
-  type WithPixroomOptions,
+  type WrappedPinpointClient,
+  type WithPinpointOptions,
 } from './client.js';
 
-/** Route an existing OpenAI SDK client through an embedded Pixroom runtime. */
-export function withPixroom<T extends ProviderSdkClient>(
+/** Route an existing OpenAI SDK client through an embedded Pinpoint runtime. */
+export function withPinpoint<T extends ProviderSdkClient>(
   client: T,
-  options: WithPixroomOptions = {},
-): Promise<WrappedPixroomClient<T>> {
+  options: WithPinpointOptions = {},
+): Promise<WrappedPinpointClient<T>> {
   return wrapProviderClient('openai', client, options);
 }
 
 export type {
-  PixroomClientHandle,
+  PinpointClientHandle,
   ProviderSdkClient,
-  WrappedPixroomClient,
-  WithPixroomOptions,
+  WrappedPinpointClient,
+  WithPinpointOptions,
 } from './client.js';

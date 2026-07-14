@@ -1,6 +1,6 @@
-// Arm D — live Claude Code 4-way (baseline / headroom-only / pxpipe-only / pixroom).
+// Arm D — live Claude Code 4-way (baseline / headroom-only / pxpipe-only / pinpoint).
 //
-// Claude Code uses ANTHROPIC_BASE_URL, so pxpipe and pixroom are the REAL front door
+// Claude Code uses ANTHROPIC_BASE_URL, so pxpipe and pinpoint are the REAL front door
 // here (no delegation) — the fair live comparison Copilot couldn't give us. We read
 // ground-truth token usage (incl. the prompt-cache breakdown) from `claude
 // --output-format json`, so we can see whether compression helps or BUSTS the cache.
@@ -24,15 +24,15 @@ const repoRoot = join(here, '..');
 const MODEL = process.env.BENCH_MODEL || 'claude-opus-4-8';
 const QUICK = process.env.BENCH_QUICK === '1';
 const CALL_TIMEOUT_MS = Number(process.env.BENCH_TIMEOUT_MS || 120000);
-// Claude Code is classified 'subscription' → pixroom optical is stealth-gated off by
-// default. Set PIXROOM_OPTICAL_ON_SUBSCRIPTION=1 to let optical engage (needed to show
+// Claude Code is classified 'subscription' → pinpoint optical is stealth-gated off by
+// default. Set PINPOINT_OPTICAL_ON_SUBSCRIPTION=1 to let optical engage (needed to show
 // the optical stage on a pxpipe-supported model like fable-5).
-const OPTICAL_ON_SUB = process.env.PIXROOM_OPTICAL_ON_SUBSCRIPTION || '0';
+const OPTICAL_ON_SUB = process.env.PINPOINT_OPTICAL_ON_SUBSCRIPTION || '0';
 const MODEL_SLUG = MODEL.replace(/[^a-z0-9]+/gi, '-');
 
 const HEADROOM_PORT = 8787;
 const PXPIPE_PORT = 8790;
-const PIXROOM_PORT = 8788;
+const PINPOINT_PORT = 8788;
 
 function isExec(p) {
   try {
@@ -44,8 +44,8 @@ function isExec(p) {
 }
 function locateHeadroom() {
   const c = [
-    process.env.PIXROOM_HEADROOM_BIN,
-    join(homedir(), 'repos-pixroom', '.headroom-venv', 'bin', 'headroom'),
+    process.env.PINPOINT_HEADROOM_BIN,
+    join(homedir(), 'repos-pinpoint', '.headroom-venv', 'bin', 'headroom'),
   ].filter(Boolean);
   return c.find(isExec) || 'headroom';
 }
@@ -177,7 +177,7 @@ const CONFIGS = [
   { name: 'baseline', baseUrl: null },
   { name: 'headroom-only', baseUrl: `http://127.0.0.1:${HEADROOM_PORT}` },
   { name: 'pxpipe-only', baseUrl: `http://127.0.0.1:${PXPIPE_PORT}` },
-  { name: 'pixroom', baseUrl: `http://127.0.0.1:${PIXROOM_PORT}` },
+  { name: 'pinpoint', baseUrl: `http://127.0.0.1:${PINPOINT_PORT}` },
 ];
 
 async function main() {
@@ -189,21 +189,21 @@ async function main() {
   startProxy(pxpipeBin, [], { PORT: String(PXPIPE_PORT) }, 'pxpipe');
   const hOk = await waitHealth(`http://127.0.0.1:${HEADROOM_PORT}`);
   const pOk = await waitPort(PXPIPE_PORT);
-  // pixroom proxy needs the headroom sidecar (8787) already up.
+  // pinpoint proxy needs the headroom sidecar (8787) already up.
   startProxy(
     'node',
     ['bin/cli.js', 'proxy'],
     {
-      PIXROOM_PORT: String(PIXROOM_PORT),
-      PIXROOM_HEADROOM_URL: `http://127.0.0.1:${HEADROOM_PORT}`,
-      PIXROOM_HEADROOM_AUTOSPAWN: '0',
-      PIXROOM_OPTICAL_ON_SUBSCRIPTION: OPTICAL_ON_SUB,
-      PIXROOM_LOG: 'warn',
+      PINPOINT_PORT: String(PINPOINT_PORT),
+      PINPOINT_HEADROOM_URL: `http://127.0.0.1:${HEADROOM_PORT}`,
+      PINPOINT_HEADROOM_AUTOSPAWN: '0',
+      PINPOINT_OPTICAL_ON_SUBSCRIPTION: OPTICAL_ON_SUB,
+      PINPOINT_LOG: 'warn',
     },
-    'pixroom',
+    'pinpoint',
   );
-  const pxOk = await waitHealth(`http://127.0.0.1:${PIXROOM_PORT}`);
-  console.log(`proxies: headroom=${hOk} pxpipe=${pOk} pixroom=${pxOk}`);
+  const pxOk = await waitHealth(`http://127.0.0.1:${PINPOINT_PORT}`);
+  console.log(`proxies: headroom=${hOk} pxpipe=${pOk} pinpoint=${pxOk}`);
 
   const suite = QUICK ? copilotSuite(repoRoot).slice(0, 1) : copilotSuite(repoRoot);
   const results = {

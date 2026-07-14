@@ -3,7 +3,7 @@ import type { OutputEventContext, OutputIntegration, ResponseEvent } from './typ
 
 /** Records model-initiated CCR retrievals from normalized tool-call events. */
 export class CcrRetrievalOutputIntegration implements OutputIntegration {
-  readonly id = 'pixroom.ccr-retrieval';
+  readonly id = 'pinpoint.ccr-retrieval';
   private readonly seen = new Map<string, Set<string>>();
 
   constructor(private readonly ccr: CcrStore) {}

@@ -22,17 +22,17 @@
           "tokens": 1348,
           "reversible": 0
         },
-        "pixroom-default": {
+        "pinpoint-default": {
           "tokens": 1713,
           "reversible": 0
         },
-        "pixroom+prose": {
+        "pinpoint+prose": {
           "tokens": 1348,
           "reversible": 0
         }
       },
       "proseGainHeadroom": 365,
-      "proseGainPixroom": 365,
+      "proseGainPinpoint": 365,
       "fullStackIsBest": true
     },
     {
@@ -53,17 +53,17 @@
           "tokens": 2387,
           "reversible": 0
         },
-        "pixroom-default": {
+        "pinpoint-default": {
           "tokens": 3019,
           "reversible": 0
         },
-        "pixroom+prose": {
+        "pinpoint+prose": {
           "tokens": 2387,
           "reversible": 0
         }
       },
       "proseGainHeadroom": 632,
-      "proseGainPixroom": 632,
+      "proseGainPinpoint": 632,
       "fullStackIsBest": true
     },
     {
@@ -84,17 +84,17 @@
           "tokens": 13875,
           "reversible": 0
         },
-        "pixroom-default": {
+        "pinpoint-default": {
           "tokens": 10878,
           "reversible": 0
         },
-        "pixroom+prose": {
+        "pinpoint+prose": {
           "tokens": 10522,
           "reversible": 0
         }
       },
       "proseGainHeadroom": 356,
-      "proseGainPixroom": 356,
+      "proseGainPinpoint": 356,
       "fullStackIsBest": true
     },
     {
@@ -115,17 +115,17 @@
           "tokens": 12539,
           "reversible": 0
         },
-        "pixroom-default": {
+        "pinpoint-default": {
           "tokens": 9186,
           "reversible": 0
         },
-        "pixroom+prose": {
+        "pinpoint+prose": {
           "tokens": 9186,
           "reversible": 0
         }
       },
       "proseGainHeadroom": 0,
-      "proseGainPixroom": 0,
+      "proseGainPinpoint": 0,
       "fullStackIsBest": true
     }
   ],

@@ -5,7 +5,7 @@
  * the model's behavior we tee that stream (bytes pass through unmodified — never
  * fail closed) and, at end-of-response, extract any `headroom_retrieve` tool calls
  * the model made. Each extracted id is a retrieval event: the model pulled back an
- * original pixroom had offloaded, i.e. a distortion observation for that engine.
+ * original pinpoint had offloaded, i.e. a distortion observation for that engine.
  *
  * This mirrors headroom's `proxy/handlers/streaming.py`
  * (`_record_ccr_feedback_from_response`) but stays observe-only: we record the
@@ -13,7 +13,7 @@
  * conversation. Actually resolving + injecting the original back into the stream is
  * a separate, larger agent-loop feature; recording is all the controller needs.
  *
- * Supports the four shapes pixroom fronts: Anthropic streaming SSE, Anthropic
+ * Supports the four shapes pinpoint fronts: Anthropic streaming SSE, Anthropic
  * non-stream JSON, OpenAI streaming SSE, and OpenAI non-stream JSON. Every parse is
  * wrapped in try/catch; malformed or oversized bodies are silently skipped.
  */

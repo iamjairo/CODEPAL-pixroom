@@ -408,8 +408,8 @@ function seededRandom(seed) {
 
 function locateHeadroom() {
   const candidates = [
-    process.env.PIXROOM_HEADROOM_BIN,
-    join(homedir(), 'repos-pixroom', '.headroom-venv', 'bin', 'headroom'),
+    process.env.PINPOINT_HEADROOM_BIN,
+    join(homedir(), 'repos-pinpoint', '.headroom-venv', 'bin', 'headroom'),
   ].filter(Boolean);
   for (const candidate of candidates) {
     try {
@@ -480,7 +480,7 @@ async function stopChild(child) {
   if (!child.killed) child.kill('SIGKILL');
 }
 
-async function startPixroom(sidecar) {
+async function startPinpoint(sidecar) {
   const proxy = createProxyServer({
     host: '127.0.0.1',
     port: 0,
@@ -523,13 +523,13 @@ function reportSummary(report) {
 async function preflightTasks(tasks, proxy, key, pricing) {
   const rows = [];
   for (const task of tasks) {
-    const routed = await proxy.pixroom.route(
+    const routed = await proxy.pinpoint.route(
       'anthropic',
       task.body.model,
       structuredClone(task.body),
       'payg',
     );
-    const [directTokens, pixroomTokens] = await Promise.all([
+    const [directTokens, pinpointTokens] = await Promise.all([
       countInputTokens(task.body, key),
       countInputTokens(routed.body, key),
     ]);
@@ -539,22 +539,22 @@ async function preflightTasks(tasks, proxy, key, pricing) {
     const virtualApplied = routed.report.rows.some(
       (row) => row.stage === 'virtual' && row.applied,
     );
-    const queryToolInjected = JSON.stringify(routed.body).includes('"name":"pixroom_query"');
+    const queryToolInjected = JSON.stringify(routed.body).includes('"name":"pinpoint_query"');
     const providerRequestBound = virtualApplied && queryToolInjected ? 2 : 1;
     rows.push({
       task,
       transformedBody: routed.body,
       directTokens,
-      pixroomTokens,
+      pinpointTokens,
       semanticApplied,
       virtualApplied,
       queryToolInjected,
       providerRequestBound,
-      eligible: (semanticApplied || virtualApplied) && pixroomTokens < directTokens,
-      inputSavingsFraction: directTokens > 0 ? 1 - pixroomTokens / directTokens : 0,
+      eligible: (semanticApplied || virtualApplied) && pinpointTokens < directTokens,
+      inputSavingsFraction: directTokens > 0 ? 1 - pinpointTokens / directTokens : 0,
       directWorstCaseUSD: worstCaseCost(task.body, directTokens, pricing),
-      pixroomWorstCaseUSD:
-        worstCaseCost(routed.body, Math.max(directTokens, pixroomTokens), pricing) *
+      pinpointWorstCaseUSD:
+        worstCaseCost(routed.body, Math.max(directTokens, pinpointTokens), pricing) *
         providerRequestBound,
       report: reportSummary(routed.report),
     });
@@ -566,7 +566,7 @@ function publicPreflight(row) {
   return {
     id: row.task.id,
     directInputTokens: row.directTokens,
-    pixroomInputTokens: row.pixroomTokens,
+    pinpointInputTokens: row.pinpointTokens,
     semanticApplied: row.semanticApplied,
     virtualApplied: row.virtualApplied,
     queryToolInjected: row.queryToolInjected,
@@ -574,7 +574,7 @@ function publicPreflight(row) {
     eligible: row.eligible,
     inputSavingsFraction: row.inputSavingsFraction,
     directWorstCaseUSD: row.directWorstCaseUSD,
-    pixroomWorstCaseUSD: row.pixroomWorstCaseUSD,
+    pinpointWorstCaseUSD: row.pinpointWorstCaseUSD,
     report: row.report,
   };
 }
@@ -638,7 +638,7 @@ async function runBenchmark({ model, key, pricing }) {
   const sidecar = await startHeadroom(key);
   let proxyRuntime;
   try {
-    proxyRuntime = await startPixroom(sidecar);
+    proxyRuntime = await startPinpoint(sidecar);
     const tasks = buildTasks(model).filter(
       (task) => TASK_FILTER.size === 0 || TASK_FILTER.has(task.id),
     );
@@ -646,7 +646,7 @@ async function runBenchmark({ model, key, pricing }) {
     const preflight = await preflightTasks(tasks, proxyRuntime.proxy, key, pricing);
     const eligible = preflight.filter((row) => row.eligible);
     const projectedUSD = eligible.reduce(
-      (total, row) => total + row.directWorstCaseUSD + row.pixroomWorstCaseUSD,
+      (total, row) => total + row.directWorstCaseUSD + row.pinpointWorstCaseUSD,
       0,
     );
     const preflightArtifact = {
@@ -672,7 +672,7 @@ async function runBenchmark({ model, key, pricing }) {
     );
     for (const row of preflight) {
       console.log(
-        `preflight ${row.task.id}: ${row.directTokens} -> ${row.pixroomTokens} ` +
+        `preflight ${row.task.id}: ${row.directTokens} -> ${row.pinpointTokens} ` +
           `(${(row.inputSavingsFraction * 100).toFixed(1)}%) eligible=${row.eligible}`,
       );
     }
@@ -702,7 +702,7 @@ async function runBenchmark({ model, key, pricing }) {
     const random = seededRandom(readInteger('BENCH_SEED', 202606));
     const runs = [];
     for (const row of eligible) {
-      const order = random() < 0.5 ? ['direct', 'pixroom'] : ['pixroom', 'direct'];
+      const order = random() < 0.5 ? ['direct', 'pinpoint'] : ['pinpoint', 'direct'];
       const results = {};
       for (const arm of order) {
         const result = await callMessage({
@@ -712,7 +712,7 @@ async function runBenchmark({ model, key, pricing }) {
           budget,
           label: `${row.task.id}:${arm}`,
           boundInputTokens:
-            arm === 'direct' ? row.directTokens : Math.max(row.directTokens, row.pixroomTokens),
+            arm === 'direct' ? row.directTokens : Math.max(row.directTokens, row.pinpointTokens),
           pricing,
           providerRequestBound: arm === 'direct' ? 1 : row.providerRequestBound,
         });
@@ -737,12 +737,12 @@ async function runBenchmark({ model, key, pricing }) {
     }
 
     const direct = runs.map((run) => run.results.direct);
-    const pixroom = runs.map((run) => run.results.pixroom);
+    const pinpoint = runs.map((run) => run.results.pinpoint);
     const sum = (items, select) => items.reduce((total, item) => total + select(item), 0);
     const directInput = sum(direct, (item) => item.usage.input + item.usage.cacheCreate + item.usage.cacheRead);
-    const pixroomInput = sum(pixroom, (item) => item.usage.input + item.usage.cacheCreate + item.usage.cacheRead);
+    const pinpointInput = sum(pinpoint, (item) => item.usage.input + item.usage.cacheCreate + item.usage.cacheRead);
     const directCost = sum(direct, (item) => item.costUSD);
-    const pixroomCost = sum(pixroom, (item) => item.costUSD);
+    const pinpointCost = sum(pinpoint, (item) => item.costUSD);
     const artifact = {
       evidenceLevel: EVIDENCE.LIVE_CONTROLLED,
       kind: 'paid-paired-pilot',
@@ -755,20 +755,20 @@ async function runBenchmark({ model, key, pricing }) {
         syntheticCorrectnessTasks: runs.length,
         randomizedArmOrder: true,
         retries: 0,
-        pixroom: VIRTUAL_CONTEXT
+        pinpoint: VIRTUAL_CONTEXT
           ? 'virtual exact prefetch enabled with at most one hidden query fallback, semantic fallback, optical disabled'
           : 'semantic enabled, prose enabled, optical disabled, protectRecent=1',
         limitation: 'Controlled pilot only; not statistical or agentic competitor evidence.',
       },
       summary: {
         directCorrect: direct.filter((item) => item.correct).length,
-        pixroomCorrect: pixroom.filter((item) => item.correct).length,
+        pinpointCorrect: pinpoint.filter((item) => item.correct).length,
         directInputTokens: directInput,
-        pixroomInputTokens: pixroomInput,
-        inputSavingsFraction: directInput > 0 ? 1 - pixroomInput / directInput : 0,
+        pinpointInputTokens: pinpointInput,
+        inputSavingsFraction: directInput > 0 ? 1 - pinpointInput / directInput : 0,
         directCostUSD: directCost,
-        pixroomCostUSD: pixroomCost,
-        costSavingsFraction: directCost > 0 ? 1 - pixroomCost / directCost : 0,
+        pinpointCostUSD: pinpointCost,
+        costSavingsFraction: directCost > 0 ? 1 - pinpointCost / directCost : 0,
       },
       budget: budget.snapshot(),
       runs,
@@ -780,7 +780,7 @@ async function runBenchmark({ model, key, pricing }) {
     );
     console.log(
       `summary: quality ${artifact.summary.directCorrect}/${runs.length} -> ` +
-        `${artifact.summary.pixroomCorrect}/${runs.length}; input savings ` +
+        `${artifact.summary.pinpointCorrect}/${runs.length}; input savings ` +
         `${(artifact.summary.inputSavingsFraction * 100).toFixed(1)}%; cost savings ` +
         `${(artifact.summary.costSavingsFraction * 100).toFixed(1)}%`,
     );

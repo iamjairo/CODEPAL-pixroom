@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import http from 'node:http';
 import type { AddressInfo } from 'node:net';
-import { createPixroom } from '../src/pixroom.js';
+import { createPinpoint } from '../src/pinpoint.js';
 import { CCR_TOOL_NAME } from '../src/ccr/store.js';
 import { closeTestServer } from './helpers/http.js';
 
@@ -88,7 +88,7 @@ function conversation(oldProse: string, recentProse: string): Record<string, unk
 describe('semantic prose region (includeUserProse)', () => {
   it('compresses non-recent user prose, protects the recent turn, and stays reversible', async () => {
     const fake = await startFakeSidecar();
-    const px = createPixroom({
+    const px = createPinpoint({
       optical: { enabled: false },
       semantic: {
         enabled: true,
@@ -128,7 +128,7 @@ describe('semantic prose region (includeUserProse)', () => {
 
   it('leaves user prose byte-exact when includeUserProse is off (default)', async () => {
     const fake = await startFakeSidecar();
-    const px = createPixroom({
+    const px = createPinpoint({
       optical: { enabled: false },
       semantic: {
         enabled: true,
@@ -159,7 +159,7 @@ describe('semantic prose region (includeUserProse)', () => {
 
   it('compresses tool_result and user prose together in one round-trip', async () => {
     const fake = await startFakeSidecar();
-    const px = createPixroom({
+    const px = createPinpoint({
       optical: { enabled: false },
       semantic: {
         enabled: true,

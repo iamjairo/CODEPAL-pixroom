@@ -96,20 +96,20 @@ describe('wrap agent registry', () => {
 });
 
 describe('copilot preflight', () => {
-  it('defaults the model to gpt-4o (override with PIXROOM_COPILOT_MODEL)', () => {
-    const saved = process.env.PIXROOM_COPILOT_MODEL;
-    delete process.env.PIXROOM_COPILOT_MODEL;
+  it('defaults the model to gpt-4o (override with PINPOINT_COPILOT_MODEL)', () => {
+    const saved = process.env.PINPOINT_COPILOT_MODEL;
+    delete process.env.PINPOINT_COPILOT_MODEL;
     try {
       expect(copilotPreflight().model).toBe('gpt-4o');
     } finally {
-      if (saved !== undefined) process.env.PIXROOM_COPILOT_MODEL = saved;
+      if (saved !== undefined) process.env.PINPOINT_COPILOT_MODEL = saved;
     }
   });
 });
 
 /** Create a temp dir with fake `headroom`/`copilot` execs; return paths + cleanup. */
 function fakeBin(): { dir: string; headroom: string; argsFile: string; restore: () => void } {
-  const dir = mkdtempSync(join(tmpdir(), 'pxr-wrap-'));
+  const dir = mkdtempSync(join(tmpdir(), 'pinpoint-wrap-'));
   const argsFile = join(dir, 'args.txt');
   const headroom = join(dir, 'headroom');
   writeFileSync(headroom, `#!/bin/sh\nprintf '%s\\n' "$*" > "${argsFile}"\nexit 0\n`);
@@ -120,11 +120,11 @@ function fakeBin(): { dir: string; headroom: string; argsFile: string; restore: 
 
   const saved = {
     PATH: process.env.PATH,
-    PIXROOM_HEADROOM_BIN: process.env.PIXROOM_HEADROOM_BIN,
+    PINPOINT_HEADROOM_BIN: process.env.PINPOINT_HEADROOM_BIN,
     GITHUB_COPILOT_TOKEN: process.env.GITHUB_COPILOT_TOKEN,
   };
   process.env.PATH = `${dir}:${saved.PATH ?? ''}`;
-  process.env.PIXROOM_HEADROOM_BIN = headroom;
+  process.env.PINPOINT_HEADROOM_BIN = headroom;
   process.env.GITHUB_COPILOT_TOKEN = 'test-token';
 
   const restore = () => {

@@ -24,7 +24,7 @@ function readJson(req: http.IncomingMessage): Promise<Record<string, unknown>> {
 }
 
 describe('virtual-context proxy continuation', () => {
-  it('executes pixroom_query locally and returns the final model response with aggregate usage', async () => {
+  it('executes pinpoint_query locally and returns the final model response with aggregate usage', async () => {
     const forwarded: Record<string, unknown>[] = [];
     const upstream = http.createServer((req, res) => {
       void readJson(req).then((body) => {
@@ -41,7 +41,7 @@ describe('virtual-context proxy continuation', () => {
                 {
                   type: 'tool_use',
                   id: 'toolu_query',
-                  name: 'pixroom_query',
+                  name: 'pinpoint_query',
                   input: {
                     id,
                     op: 'json_select',
@@ -123,8 +123,8 @@ describe('virtual-context proxy continuation', () => {
 
     expect(response.status).toBe(200);
     expect(forwarded).toHaveLength(2);
-    expect(JSON.stringify(forwarded[0])).toContain('<<pixroom_virtual');
-    expect(JSON.stringify(forwarded[0])).toContain('"name":"pixroom_query"');
+    expect(JSON.stringify(forwarded[0])).toContain('<<pinpoint_virtual');
+    expect(JSON.stringify(forwarded[0])).toContain('"name":"pinpoint_query"');
     expect(JSON.stringify(forwarded[0])).not.toContain('user73@example.com');
     const continuationMessages = forwarded[1].messages as Array<Record<string, unknown>>;
     const toolResultMessage = continuationMessages.at(-1)!;
@@ -146,7 +146,7 @@ describe('virtual-context proxy continuation', () => {
           const id = JSON.stringify(body).match(/vctx_[a-f0-9]+/)?.[0];
           res.end(JSON.stringify({
             content: [
-              { type: 'tool_use', id: 'q1', name: 'pixroom_query', input: { id, op: 'schema' } },
+              { type: 'tool_use', id: 'q1', name: 'pinpoint_query', input: { id, op: 'schema' } },
               { type: 'tool_use', id: 'c1', name: 'client_tool', input: {} },
             ],
             stop_reason: 'tool_use',
@@ -197,7 +197,7 @@ describe('virtual-context proxy continuation', () => {
       usage: { input_tokens: 300, output_tokens: 8 },
     });
     expect(forwarded).toHaveLength(2);
-    expect(JSON.stringify(forwarded[0])).toContain('<<pixroom_virtual');
+    expect(JSON.stringify(forwarded[0])).toContain('<<pinpoint_virtual');
     expect(forwarded[1]).toEqual(original);
   });
 
@@ -207,13 +207,13 @@ describe('virtual-context proxy continuation', () => {
       void readJson(req).then((body) => {
         forwarded.push(body);
         res.writeHead(200, { 'content-type': 'application/json' });
-        if (JSON.stringify(body).includes('<<pixroom_virtual')) {
+        if (JSON.stringify(body).includes('<<pinpoint_virtual')) {
           const id = JSON.stringify(body).match(/vctx_[a-f0-9]+/)?.[0];
           res.end(JSON.stringify({
             content: [{
               type: 'tool_use',
               id: `query-${forwarded.length}`,
-              name: 'pixroom_query',
+              name: 'pinpoint_query',
               input: { id, op: 'schema' },
             }],
             stop_reason: 'tool_use',
@@ -286,7 +286,7 @@ describe('virtual-context proxy continuation', () => {
           const id = JSON.stringify(body).match(/vctx_[a-f0-9]+/)?.[0];
           res.end(JSON.stringify({
             content: [{
-              type: 'tool_use', id: 'query', name: 'pixroom_query',
+              type: 'tool_use', id: 'query', name: 'pinpoint_query',
               input: { id, op: 'schema' },
             }],
             stop_reason: 'tool_use',
@@ -333,6 +333,75 @@ describe('virtual-context proxy continuation', () => {
 
     expect(await response.json()).toMatchObject({
       content: [{ text: 'transport fallback' }],
+      usage: { input_tokens: 250, output_tokens: 6 },
+    });
+    expect(forwarded).toHaveLength(3);
+    expect(forwarded[2]).toEqual(original);
+  });
+
+  it('replays the original request after a continuation error response', async () => {
+    const forwarded: Record<string, unknown>[] = [];
+    const upstream = http.createServer((req, res) => {
+      void readJson(req).then((body) => {
+        forwarded.push(body);
+        if (forwarded.length === 2) {
+          res.writeHead(503, { 'content-type': 'application/json' });
+          res.end(JSON.stringify({ error: { message: 'hidden round unavailable' } }));
+          return;
+        }
+        res.writeHead(200, { 'content-type': 'application/json' });
+        if (forwarded.length === 1) {
+          const id = JSON.stringify(body).match(/vctx_[a-f0-9]+/)?.[0];
+          res.end(JSON.stringify({
+            content: [{
+              type: 'tool_use', id: 'query', name: 'pinpoint_query',
+              input: { id, op: 'schema' },
+            }],
+            stop_reason: 'tool_use',
+            usage: { input_tokens: 50, output_tokens: 4 },
+          }));
+          return;
+        }
+        res.end(JSON.stringify({
+          content: [{ type: 'text', text: 'error fallback' }],
+          stop_reason: 'end_turn',
+          usage: { input_tokens: 200, output_tokens: 2 },
+        }));
+      });
+    });
+    upstreams.push(upstream);
+    await new Promise<void>((resolve) => upstream.listen(0, '127.0.0.1', resolve));
+    const upstreamPort = (upstream.address() as AddressInfo).port;
+    const proxy = createProxyServer({
+      port: 0,
+      upstreams: { anthropic: `http://127.0.0.1:${upstreamPort}` },
+      virtualContext: { enabled: true, queryFallback: true, minChars: 100, protectRecent: 0 },
+      semantic: { enabled: false },
+      optical: { enabled: false },
+      logLevel: 'silent',
+    });
+    proxies.push(proxy);
+    const { port } = await proxy.listen();
+    const rows = Array.from({ length: 40 }, (_, id) => ({ id, value: `value-${id}` }));
+    const original = {
+      model: 'claude-haiku-4-5',
+      max_tokens: 16,
+      messages: [
+        { role: 'assistant', content: [{ type: 'tool_use', id: 'data', name: 'read', input: {} }] },
+        { role: 'user', content: [{ type: 'tool_result', tool_use_id: 'data', content: JSON.stringify(rows) }] },
+        { role: 'user', content: 'Analyze unusual values.' },
+      ],
+    };
+
+    const response = await fetch(`http://127.0.0.1:${port}/v1/messages`, {
+      method: 'POST',
+      headers: { 'x-api-key': 'test', 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
+      body: JSON.stringify(original),
+    });
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toMatchObject({
+      content: [{ text: 'error fallback' }],
       usage: { input_tokens: 250, output_tokens: 6 },
     });
     expect(forwarded).toHaveLength(3);

@@ -311,4 +311,63 @@ describe('OpenAI server-side CCR continuation', () => {
     expect(JSON.stringify(result)).not.toContain('headroom_retrieve');
     expect(result.usage).toEqual({ input_tokens: 130, output_tokens: 7, total_tokens: 137 });
   });
+
+  it('replays the original streaming Responses request after a continuation error response', async () => {
+    const forwarded: Record<string, unknown>[] = [];
+    const port = await proxyFor(
+      http.createServer((request, response) => {
+        void readJson(request).then((body) => {
+          forwarded.push(body);
+          if (forwarded.length === 2) {
+            response.writeHead(503, { 'content-type': 'application/json' });
+            response.end(JSON.stringify({ error: { message: 'hidden round unavailable' } }));
+            return;
+          }
+          response.writeHead(200, { 'content-type': 'application/json' });
+          response.end(JSON.stringify(
+            forwarded.length === 1
+              ? {
+                  id: 'resp_retrieve',
+                  object: 'response',
+                  output: [{
+                    type: 'function_call',
+                    id: 'fc_1',
+                    call_id: 'call_1',
+                    name: 'headroom_retrieve',
+                    arguments: '{"id":"rec_openai_test"}',
+                  }],
+                  usage: { input_tokens: 100, output_tokens: 5, total_tokens: 105 },
+                }
+              : {
+                  id: 'resp_replay',
+                  object: 'response',
+                  status: 'completed',
+                  output: [{
+                    type: 'message',
+                    role: 'assistant',
+                    content: [{ type: 'output_text', text: 'stream error fallback' }],
+                  }],
+                  usage: { input_tokens: 30, output_tokens: 2, total_tokens: 32 },
+                },
+          ));
+        });
+      }),
+    );
+    const original = { model: 'gpt-5', stream: true, input: 'Use compressed context.' };
+
+    const response = await fetch(`http://127.0.0.1:${port}/v1/responses`, {
+      method: 'POST',
+      headers: { authorization: 'Bearer test', 'content-type': 'application/json' },
+      body: JSON.stringify(original),
+    });
+    const text = await response.text();
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get('content-type')).toContain('text/event-stream');
+    expect(text).toContain('stream error fallback');
+    expect(text).not.toContain('hidden round unavailable');
+    expect(text).not.toContain('headroom_retrieve');
+    expect(forwarded).toHaveLength(3);
+    expect(forwarded[2]).toEqual(original);
+  });
 });

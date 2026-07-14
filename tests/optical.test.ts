@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { createPixroom } from '../src/pixroom.js';
+import { createPinpoint } from '../src/pinpoint.js';
 import { serializeBody } from '../src/anthropic.js';
 
 /** A dense, static, prose-like system slab — the kind pxpipe images. */
@@ -9,7 +9,7 @@ function bigSystemText(): string {
 
 describe('optical stage (real pxpipe, in-process)', () => {
   it('passes through unsupported models', async () => {
-    const px = createPixroom({ semantic: { enabled: false }, optical: { enabled: true } });
+    const px = createPinpoint({ semantic: { enabled: false }, optical: { enabled: true } });
     const routed = await px.route('anthropic', 'gpt-4', {
       model: 'gpt-4',
       system: bigSystemText(),
@@ -22,7 +22,7 @@ describe('optical stage (real pxpipe, in-process)', () => {
   });
 
   it('images the static slab on a supported model (system folded into an image)', async () => {
-    const px = createPixroom({ semantic: { enabled: false }, optical: { enabled: true } });
+    const px = createPinpoint({ semantic: { enabled: false }, optical: { enabled: true } });
     const routed = await px.route('anthropic', 'claude-fable-5', {
       model: 'claude-fable-5',
       system: bigSystemText(),
@@ -40,13 +40,13 @@ describe('optical stage (real pxpipe, in-process)', () => {
   });
 
   it('pins exactly one cache_control breakpoint on a Claude-Code-shaped request (§4.4)', async () => {
-    const px = createPixroom({ semantic: { enabled: false }, optical: { enabled: true } });
+    const px = createPinpoint({ semantic: { enabled: false }, optical: { enabled: true } });
     const routed = await px.route('anthropic', 'claude-fable-5', {
       model: 'claude-fable-5',
       system: [{ type: 'text', text: bigSystemText(), cache_control: { type: 'ephemeral' } }],
       messages: [{ role: 'user', content: [{ type: 'text', text: 'Please help.' }] }],
     });
-    // pxpipe (via pixroom) owns the single Anthropic breakpoint — no breakpoint war.
+    // pxpipe (via pinpoint) owns the single Anthropic breakpoint — no breakpoint war.
     expect(routed.opticalOwnsCacheControl).toBe(true);
     const serialized = new TextDecoder().decode(serializeBody(routed.body));
     expect((serialized.match(/cache_control/g) ?? []).length).toBe(1);
@@ -54,7 +54,7 @@ describe('optical stage (real pxpipe, in-process)', () => {
   });
 
   it('skips lossy optical on subscription auth (stealth)', async () => {
-    const px = createPixroom({ semantic: { enabled: false }, optical: { enabled: true } });
+    const px = createPinpoint({ semantic: { enabled: false }, optical: { enabled: true } });
     const routed = await px.route(
       'anthropic',
       'claude-fable-5',
@@ -74,7 +74,7 @@ describe('optical stage (real pxpipe, in-process)', () => {
   });
 
   it('images on subscription when explicitly opted in', async () => {
-    const px = createPixroom({
+    const px = createPinpoint({
       semantic: { enabled: false },
       optical: { enabled: true, allowOnSubscription: true },
     });

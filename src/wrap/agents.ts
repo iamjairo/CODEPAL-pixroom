@@ -1,11 +1,11 @@
 /**
- * Agent registry for `pixroom wrap` (planning/end_product.md §6).
+ * Agent registry for `pinpoint wrap` (planning/end_product.md §6).
  *
- * Each agent declares how pixroom routes it to the right composition:
- *   - `launch`   — pixroom is the front door: start the pixroom proxy and launch
+ * Each agent declares how pinpoint routes it to the right composition:
+ *   - `launch`   — pinpoint is the front door: start the pinpoint proxy and launch
  *                  the agent with base-URL env vars pointing at it.
  *   - `delegate` — hand the whole flow to the headroom backbone (copilot: its
- *                  subscription-OAuth transport is headroom's, and pixroom's
+ *                  subscription-OAuth transport is headroom's, and pinpoint's
  *                  lossy optical can't help copilot's models anyway).
  *   - `print`    — IDE extensions that can't be spawned: start the proxy and
  *                  print the config the user pastes in.
@@ -14,15 +14,15 @@
  * (providers/{claude,codex,aider,opencode,mistral_vibe,copilot}).
  */
 
-/** An agent pixroom launches with base-URL env vars pointing at its proxy. */
+/** An agent pinpoint launches with base-URL env vars pointing at its proxy. */
 export interface LaunchAgent {
   readonly kind: 'launch';
   readonly command: string;
-  /** Env vars that point the agent at the pixroom proxy (`baseUrl` = http://host:port). */
+  /** Env vars that point the agent at the pinpoint proxy (`baseUrl` = http://host:port). */
   env(baseUrl: string): Record<string, string>;
 }
 
-/** An agent whose transport pixroom delegates to the headroom backbone. */
+/** An agent whose transport pinpoint delegates to the headroom backbone. */
 export interface DelegateAgent {
   readonly kind: 'delegate';
   readonly to: 'headroom';
@@ -30,7 +30,7 @@ export interface DelegateAgent {
   readonly subcommand: string;
 }
 
-/** An IDE extension pixroom can't spawn — it prints config for the running proxy. */
+/** An IDE extension pinpoint can't spawn — it prints config for the running proxy. */
 export interface PrintAgent {
   readonly kind: 'print';
   readonly displayName: string;
@@ -73,7 +73,7 @@ export class AgentRegistry {
 const v1 = (base: string): string => `${base}/v1`;
 
 export const WRAP_AGENTS: Record<string, WrapAgent> = {
-  // ── Anthropic / OpenAI CLIs pixroom fronts directly ──────────────────────
+  // ── Anthropic / OpenAI CLIs pinpoint fronts directly ──────────────────────
   claude: {
     kind: 'launch',
     command: 'claude',

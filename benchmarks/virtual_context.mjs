@@ -2,14 +2,14 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { createPixroom } from '../dist/index.js';
+import { createPinpoint } from '../dist/index.js';
 import { continueVirtualAnthropicTurn } from '../dist/virtual-context/anthropic.js';
 import { EVIDENCE } from './evidence.mjs';
 import { buildPayloads, countTokens, effectiveTokens } from './lib.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(here, '..');
-const sidecarUrl = process.env.PIXROOM_HEADROOM_URL || 'http://127.0.0.1:8787';
+const sidecarUrl = process.env.PINPOINT_HEADROOM_URL || 'http://127.0.0.1:8787';
 
 const QUERIES = {
   'json-data': {
@@ -59,13 +59,13 @@ async function run() {
       { role: 'assistant', content: 'The dataset is loaded.' },
       { role: 'user', content: QUERIES[payload.name].question },
     ];
-    const current = createPixroom({
+    const current = createPinpoint({
       virtualContext: { enabled: false },
       semantic: { enabled: true, sidecarUrl, autoSpawn: false, protectRecent: 0 },
       optical: { enabled: true },
       logLevel: 'silent',
     });
-    const virtual = createPixroom({
+    const virtual = createPinpoint({
       virtualContext: { enabled: true, protectRecent: 0, minChars: 1_000 },
       semantic: { enabled: true, sidecarUrl, autoSpawn: false, protectRecent: 0 },
       optical: { enabled: true },
@@ -93,7 +93,7 @@ async function run() {
         {
           type: 'tool_use',
           id: `toolu_${payload.name}`,
-          name: 'pixroom_query',
+          name: 'pinpoint_query',
           input: query,
         },
       ],

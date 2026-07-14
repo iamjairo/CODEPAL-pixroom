@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 
-export const VIRTUAL_QUERY_TOOL_NAME = 'pixroom_query';
+export const VIRTUAL_QUERY_TOOL_NAME = 'pinpoint_query';
 
 type JsonPrimitive = string | number | boolean | null;
 type JsonRecord = Record<string, unknown>;
@@ -218,7 +218,7 @@ export class VirtualContextStore {
       ? `Use ${VIRTUAL_QUERY_TOOL_NAME} with this id for bounded access.`
       : 'Relevant exact results are attached to the current live turn when safely derivable.';
     return (
-      `<<pixroom_virtual id=${descriptor.id} kind=${descriptor.kind} ` +
+      `<<pinpoint_virtual id=${descriptor.id} kind=${descriptor.kind} ` +
       `items=${descriptor.items} bytes=${descriptor.bytes} fields=${fieldText} ` +
       `query=${queryFallback ? 'available' : 'disabled'}>>\n` +
       `Exact content is stored locally. ${access}`
@@ -416,7 +416,7 @@ export function virtualQueryToolSchema(): Record<string, unknown> {
   return {
     name: VIRTUAL_QUERY_TOOL_NAME,
     description:
-      'Query exact structured or line-oriented content stored behind a <<pixroom_virtual ...>> manifest. ' +
+      'Query exact structured or line-oriented content stored behind a <<pinpoint_virtual ...>> manifest. ' +
       'Use this instead of guessing or requesting the entire original.',
     input_schema: {
       type: 'object',

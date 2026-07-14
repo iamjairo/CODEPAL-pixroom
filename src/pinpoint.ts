@@ -1,11 +1,11 @@
 /**
- * pixroom core assembly — wires config, logger, the headroom sidecar, both
+ * pinpoint core assembly — wires config, logger, the headroom sidecar, both
  * compressor stages, the unified CCR store, and the ContentRouter into one object.
  * This is the embeddable core the SDK, proxy, MCP, and CLI all build on
  * (planning/end_product.md §6).
  */
 
-import { loadConfig, type PixroomConfig, type PixroomConfigOverrides } from './config.js';
+import { loadConfig, type PinpointConfig, type PinpointConfigOverrides } from './config.js';
 import { CaptureWriter } from './capture/store.js';
 import { OtlpHttpExporter } from './telemetry/otlp.js';
 import { createLogger, type Logger } from './logger.js';
@@ -42,8 +42,8 @@ export interface SessionStats {
   virtualApplied: number;
 }
 
-export interface Pixroom {
-  readonly config: PixroomConfig;
+export interface Pinpoint {
+  readonly config: PinpointConfig;
   readonly log: Logger;
   readonly router: ContentRouter;
   readonly ccr: CcrStore;
@@ -82,15 +82,15 @@ export interface Pixroom {
 
 export interface RuntimeOptions {
   /** Existing environment/config override surface. */
-  readonly config?: PixroomConfigOverrides;
+  readonly config?: PinpointConfigOverrides;
   /** Additional request-side optimizer integrations. */
   readonly integrations?: readonly ProcessorIntegration[];
   /** Disable pxpipe/headroom registration to build a standalone custom runtime. */
   readonly includeBuiltinIntegrations?: boolean;
 }
 
-/** Generic integration-host assembly. `createPixroom` is the built-in compatibility facade. */
-export function createRuntime(options: RuntimeOptions = {}): Pixroom {
+/** Generic integration-host assembly. `createPinpoint` is the built-in compatibility facade. */
+export function createRuntime(options: RuntimeOptions = {}): Pinpoint {
   const config = loadConfig(options.config);
   const log = createLogger(config.logLevel);
   const capture = new CaptureWriter(config.capture, (error) =>
@@ -265,6 +265,6 @@ export function createRuntime(options: RuntimeOptions = {}): Pixroom {
   };
 }
 
-export function createPixroom(overrides: PixroomConfigOverrides = {}): Pixroom {
+export function createPinpoint(overrides: PinpointConfigOverrides = {}): Pinpoint {
   return createRuntime({ config: overrides });
 }

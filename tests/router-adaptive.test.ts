@@ -2,7 +2,7 @@ import { describe, it, expect, afterEach } from 'vitest';
 import { existsSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { createPixroom } from '../src/pixroom.js';
+import { createPinpoint } from '../src/pinpoint.js';
 import { PolicyStore } from '../src/policy/store.js';
 
 const PROSE_SYSTEM = Array.from(
@@ -27,7 +27,7 @@ afterEach(() => {
 
 describe('ContentRouter adaptive cross-modal control', () => {
   it('keeps today\'s behavior at cold start (optical runs, decision = cold-start)', async () => {
-    const px = createPixroom({
+    const px = createPinpoint({
       adaptive: { enabled: true },
       semantic: { enabled: false },
       optical: { enabled: true },
@@ -43,7 +43,7 @@ describe('ContentRouter adaptive cross-modal control', () => {
   });
 
   it('defers optical for a slab type it has learned to over-retrieve', async () => {
-    const path = join(tmpdir(), `pxr-adaptive-${Date.now()}-${Math.random().toString(36).slice(2)}.json`);
+    const path = join(tmpdir(), `pinpoint-adaptive-${Date.now()}-${Math.random().toString(36).slice(2)}.json`);
     tmpFiles.push(path);
 
     // Pre-seed evidence: optical is bad for prose (high regret, low savings),
@@ -57,7 +57,7 @@ describe('ContentRouter adaptive cross-modal control', () => {
     store.noteSaved('prose', 'semantic', 0.5);
     store.save();
 
-    const px = createPixroom({
+    const px = createPinpoint({
       adaptive: { enabled: true, storePath: path },
       semantic: { enabled: false },
       optical: { enabled: true },
@@ -74,7 +74,7 @@ describe('ContentRouter adaptive cross-modal control', () => {
   });
 
   it('leaves routing untouched when the adaptive path is off (no decision attached)', async () => {
-    const px = createPixroom({ semantic: { enabled: false }, optical: { enabled: true } });
+    const px = createPinpoint({ semantic: { enabled: false }, optical: { enabled: true } });
     const routed = await px.route('anthropic', 'claude-fable-5', proseRequest(), 'payg');
     expect(routed.adaptive).toBeUndefined();
     await px.shutdown();

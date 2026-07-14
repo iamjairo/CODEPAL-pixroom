@@ -1,10 +1,10 @@
 /**
- * pixroom core types — the locked uniform compressor interface.
+ * pinpoint core types — the locked uniform compressor interface.
  *
  * Every compression stage (optical = pxpipe, semantic = headroom) implements the
  * same contract: it runs over a {@link RequestContext}, is a safe no-op rather than
  * a throw when it cannot help, and always reports an honest {@link Counterfactual}
- * plus any {@link ReversibleHandle}s it produced. This is what lets pixroom prove
+ * plus any {@link ReversibleHandle}s it produced. This is what lets pinpoint prove
  * end-to-end savings in one shape and keep offloaded regions reversible
  * through one store.
  *
@@ -12,7 +12,7 @@
  * planning/pxpipe_integration.md §10.5 / planning/headroom_integration.md §10.4.
  */
 
-/** Upstream providers pixroom can front. */
+/** Upstream providers pinpoint can front. */
 export type Provider = 'anthropic' | 'openai';
 
 /** Which engine owns a region / produced a result. */
@@ -60,7 +60,7 @@ export type CompressionReason =
 /**
  * A reversible handle to original content offloaded during compression. Both
  * engines' handles are registered into the single CCR store so `headroom_retrieve`
- * (or pixroom's local bridge) can return either engine's originals verbatim.
+ * (or pinpoint's local bridge) can return either engine's originals verbatim.
  */
 export interface ReversibleHandle {
   /** CCR hash (headroom) or `rec_…` id (pxpipe emitRecoverable). */
@@ -170,7 +170,7 @@ export interface SavingsReport {
   readonly rows: readonly SavingsRow[];
   /** Σ tokensText across stages (the "all-text" baseline). */
   readonly tokensTextTotal: number;
-  /** Σ tokensCompressed across stages (what pixroom actually sends). */
+  /** Σ tokensCompressed across stages (what pinpoint actually sends). */
   readonly tokensCompressedTotal: number;
   /** tokensTextTotal - tokensCompressedTotal. May be negative — reported as-is. */
   readonly tokensSavedTotal: number;

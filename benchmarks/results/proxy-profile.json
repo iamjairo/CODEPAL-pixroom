@@ -147,10 +147,10 @@
       "payloadBytes": 1024,
       "repetition": 0,
       "armOrder": [
-        "pixroom-noop",
+        "pinpoint-noop",
         "direct"
       ],
-      "arm": "pixroom-noop",
+      "arm": "pinpoint-noop",
       "concurrency": 1,
       "requests": 150,
       "errors": 0,
@@ -330,7 +330,7 @@
       "payloadBytes": 1024,
       "repetition": 0,
       "armOrder": [
-        "pixroom-noop",
+        "pinpoint-noop",
         "direct"
       ],
       "arm": "direct",
@@ -514,7 +514,7 @@
       "repetition": 1,
       "armOrder": [
         "direct",
-        "pixroom-noop"
+        "pinpoint-noop"
       ],
       "arm": "direct",
       "concurrency": 1,
@@ -697,9 +697,9 @@
       "repetition": 1,
       "armOrder": [
         "direct",
-        "pixroom-noop"
+        "pinpoint-noop"
       ],
-      "arm": "pixroom-noop",
+      "arm": "pinpoint-noop",
       "concurrency": 1,
       "requests": 150,
       "errors": 0,
@@ -879,10 +879,10 @@
       "payloadBytes": 1024,
       "repetition": 2,
       "armOrder": [
-        "pixroom-noop",
+        "pinpoint-noop",
         "direct"
       ],
-      "arm": "pixroom-noop",
+      "arm": "pinpoint-noop",
       "concurrency": 1,
       "requests": 150,
       "errors": 0,
@@ -1062,7 +1062,7 @@
       "payloadBytes": 1024,
       "repetition": 2,
       "armOrder": [
-        "pixroom-noop",
+        "pinpoint-noop",
         "direct"
       ],
       "arm": "direct",
@@ -1246,7 +1246,7 @@
       "repetition": 0,
       "armOrder": [
         "direct",
-        "pixroom-noop"
+        "pinpoint-noop"
       ],
       "arm": "direct",
       "concurrency": 10,
@@ -1429,9 +1429,9 @@
       "repetition": 0,
       "armOrder": [
         "direct",
-        "pixroom-noop"
+        "pinpoint-noop"
       ],
-      "arm": "pixroom-noop",
+      "arm": "pinpoint-noop",
       "concurrency": 10,
       "requests": 150,
       "errors": 0,
@@ -1611,10 +1611,10 @@
       "payloadBytes": 1024,
       "repetition": 1,
       "armOrder": [
-        "pixroom-noop",
+        "pinpoint-noop",
         "direct"
       ],
-      "arm": "pixroom-noop",
+      "arm": "pinpoint-noop",
       "concurrency": 10,
       "requests": 150,
       "errors": 0,
@@ -1794,7 +1794,7 @@
       "payloadBytes": 1024,
       "repetition": 1,
       "armOrder": [
-        "pixroom-noop",
+        "pinpoint-noop",
         "direct"
       ],
       "arm": "direct",
@@ -1978,7 +1978,7 @@
       "repetition": 2,
       "armOrder": [
         "direct",
-        "pixroom-noop"
+        "pinpoint-noop"
       ],
       "arm": "direct",
       "concurrency": 10,
@@ -2161,9 +2161,9 @@
       "repetition": 2,
       "armOrder": [
         "direct",
-        "pixroom-noop"
+        "pinpoint-noop"
       ],
-      "arm": "pixroom-noop",
+      "arm": "pinpoint-noop",
       "concurrency": 10,
       "requests": 150,
       "errors": 0,
@@ -2344,7 +2344,7 @@
       "repetition": 0,
       "armOrder": [
         "direct",
-        "pixroom-noop"
+        "pinpoint-noop"
       ],
       "arm": "direct",
       "concurrency": 100,
@@ -2527,9 +2527,9 @@
       "repetition": 0,
       "armOrder": [
         "direct",
-        "pixroom-noop"
+        "pinpoint-noop"
       ],
-      "arm": "pixroom-noop",
+      "arm": "pinpoint-noop",
       "concurrency": 100,
       "requests": 150,
       "errors": 0,
@@ -2709,10 +2709,10 @@
       "payloadBytes": 1024,
       "repetition": 1,
       "armOrder": [
-        "pixroom-noop",
+        "pinpoint-noop",
         "direct"
       ],
-      "arm": "pixroom-noop",
+      "arm": "pinpoint-noop",
       "concurrency": 100,
       "requests": 150,
       "errors": 0,
@@ -2892,7 +2892,7 @@
       "payloadBytes": 1024,
       "repetition": 1,
       "armOrder": [
-        "pixroom-noop",
+        "pinpoint-noop",
         "direct"
       ],
       "arm": "direct",
@@ -3076,7 +3076,7 @@
       "repetition": 2,
       "armOrder": [
         "direct",
-        "pixroom-noop"
+        "pinpoint-noop"
       ],
       "arm": "direct",
       "concurrency": 100,
@@ -3259,9 +3259,9 @@
       "repetition": 2,
       "armOrder": [
         "direct",
-        "pixroom-noop"
+        "pinpoint-noop"
       ],
-      "arm": "pixroom-noop",
+      "arm": "pinpoint-noop",
       "concurrency": 100,
       "requests": 150,
       "errors": 0,
@@ -3441,10 +3441,10 @@
       "payloadBytes": 102400,
       "repetition": 0,
       "armOrder": [
-        "pixroom-noop",
+        "pinpoint-noop",
         "direct"
       ],
-      "arm": "pixroom-noop",
+      "arm": "pinpoint-noop",
       "concurrency": 1,
       "requests": 150,
       "errors": 0,
@@ -3624,7 +3624,7 @@
       "payloadBytes": 102400,
       "repetition": 0,
       "armOrder": [
-        "pixroom-noop",
+        "pinpoint-noop",
         "direct"
       ],
       "arm": "direct",
@@ -3808,7 +3808,7 @@
       "repetition": 1,
       "armOrder": [
         "direct",
-        "pixroom-noop"
+        "pinpoint-noop"
       ],
       "arm": "direct",
       "concurrency": 1,
@@ -3991,9 +3991,9 @@
       "repetition": 1,
       "armOrder": [
         "direct",
-        "pixroom-noop"
+        "pinpoint-noop"
       ],
-      "arm": "pixroom-noop",
+      "arm": "pinpoint-noop",
       "concurrency": 1,
       "requests": 150,
       "errors": 0,
@@ -4173,10 +4173,10 @@
       "payloadBytes": 102400,
       "repetition": 2,
       "armOrder": [
-        "pixroom-noop",
+        "pinpoint-noop",
         "direct"
       ],
-      "arm": "pixroom-noop",
+      "arm": "pinpoint-noop",
       "concurrency": 1,
       "requests": 150,
       "errors": 0,
@@ -4356,7 +4356,7 @@
       "payloadBytes": 102400,
       "repetition": 2,
       "armOrder": [
-        "pixroom-noop",
+        "pinpoint-noop",
         "direct"
       ],
       "arm": "direct",
@@ -4540,7 +4540,7 @@
       "repetition": 0,
       "armOrder": [
         "direct",
-        "pixroom-noop"
+        "pinpoint-noop"
       ],
       "arm": "direct",
       "concurrency": 10,
@@ -4723,9 +4723,9 @@
       "repetition": 0,
       "armOrder": [
         "direct",
-        "pixroom-noop"
+        "pinpoint-noop"
       ],
-      "arm": "pixroom-noop",
+      "arm": "pinpoint-noop",
       "concurrency": 10,
       "requests": 150,
       "errors": 0,
@@ -4905,10 +4905,10 @@
       "payloadBytes": 102400,
       "repetition": 1,
       "armOrder": [
-        "pixroom-noop",
+        "pinpoint-noop",
         "direct"
       ],
-      "arm": "pixroom-noop",
+      "arm": "pinpoint-noop",
       "concurrency": 10,
       "requests": 150,
       "errors": 0,
@@ -5088,7 +5088,7 @@
       "payloadBytes": 102400,
       "repetition": 1,
       "armOrder": [
-        "pixroom-noop",
+        "pinpoint-noop",
         "direct"
       ],
       "arm": "direct",
@@ -5272,7 +5272,7 @@
       "repetition": 2,
       "armOrder": [
         "direct",
-        "pixroom-noop"
+        "pinpoint-noop"
       ],
       "arm": "direct",
       "concurrency": 10,
@@ -5455,9 +5455,9 @@
       "repetition": 2,
       "armOrder": [
         "direct",
-        "pixroom-noop"
+        "pinpoint-noop"
       ],
-      "arm": "pixroom-noop",
+      "arm": "pinpoint-noop",
       "concurrency": 10,
       "requests": 150,
       "errors": 0,
@@ -5638,7 +5638,7 @@
       "repetition": 0,
       "armOrder": [
         "direct",
-        "pixroom-noop"
+        "pinpoint-noop"
       ],
       "arm": "direct",
       "concurrency": 100,
@@ -5821,9 +5821,9 @@
       "repetition": 0,
       "armOrder": [
         "direct",
-        "pixroom-noop"
+        "pinpoint-noop"
       ],
-      "arm": "pixroom-noop",
+      "arm": "pinpoint-noop",
       "concurrency": 100,
       "requests": 150,
       "errors": 0,
@@ -6003,10 +6003,10 @@
       "payloadBytes": 102400,
       "repetition": 1,
       "armOrder": [
-        "pixroom-noop",
+        "pinpoint-noop",
         "direct"
       ],
-      "arm": "pixroom-noop",
+      "arm": "pinpoint-noop",
       "concurrency": 100,
       "requests": 150,
       "errors": 0,
@@ -6186,7 +6186,7 @@
       "payloadBytes": 102400,
       "repetition": 1,
       "armOrder": [
-        "pixroom-noop",
+        "pinpoint-noop",
         "direct"
       ],
       "arm": "direct",
@@ -6370,7 +6370,7 @@
       "repetition": 2,
       "armOrder": [
         "direct",
-        "pixroom-noop"
+        "pinpoint-noop"
       ],
       "arm": "direct",
       "concurrency": 100,
@@ -6553,9 +6553,9 @@
       "repetition": 2,
       "armOrder": [
         "direct",
-        "pixroom-noop"
+        "pinpoint-noop"
       ],
-      "arm": "pixroom-noop",
+      "arm": "pinpoint-noop",
       "concurrency": 100,
       "requests": 150,
       "errors": 0,
@@ -6736,7 +6736,7 @@
       "repetition": 0,
       "armOrder": [
         "direct",
-        "pixroom-noop"
+        "pinpoint-noop"
       ],
       "arm": "direct",
       "concurrency": 1,
@@ -6919,9 +6919,9 @@
       "repetition": 0,
       "armOrder": [
         "direct",
-        "pixroom-noop"
+        "pinpoint-noop"
       ],
-      "arm": "pixroom-noop",
+      "arm": "pinpoint-noop",
       "concurrency": 1,
       "requests": 150,
       "errors": 0,
@@ -7101,10 +7101,10 @@
       "payloadBytes": 1024,
       "repetition": 1,
       "armOrder": [
-        "pixroom-noop",
+        "pinpoint-noop",
         "direct"
       ],
-      "arm": "pixroom-noop",
+      "arm": "pinpoint-noop",
       "concurrency": 1,
       "requests": 150,
       "errors": 0,
@@ -7284,7 +7284,7 @@
       "payloadBytes": 1024,
       "repetition": 1,
       "armOrder": [
-        "pixroom-noop",
+        "pinpoint-noop",
         "direct"
       ],
       "arm": "direct",
@@ -7468,7 +7468,7 @@
       "repetition": 2,
       "armOrder": [
         "direct",
-        "pixroom-noop"
+        "pinpoint-noop"
       ],
       "arm": "direct",
       "concurrency": 1,
@@ -7651,9 +7651,9 @@
       "repetition": 2,
       "armOrder": [
         "direct",
-        "pixroom-noop"
+        "pinpoint-noop"
       ],
-      "arm": "pixroom-noop",
+      "arm": "pinpoint-noop",
       "concurrency": 1,
       "requests": 150,
       "errors": 0,
@@ -7833,10 +7833,10 @@
       "payloadBytes": 1024,
       "repetition": 0,
       "armOrder": [
-        "pixroom-noop",
+        "pinpoint-noop",
         "direct"
       ],
-      "arm": "pixroom-noop",
+      "arm": "pinpoint-noop",
       "concurrency": 10,
       "requests": 150,
       "errors": 0,
@@ -8016,7 +8016,7 @@
       "payloadBytes": 1024,
       "repetition": 0,
       "armOrder": [
-        "pixroom-noop",
+        "pinpoint-noop",
         "direct"
       ],
       "arm": "direct",
@@ -8200,7 +8200,7 @@
       "repetition": 1,
       "armOrder": [
         "direct",
-        "pixroom-noop"
+        "pinpoint-noop"
       ],
       "arm": "direct",
       "concurrency": 10,
@@ -8383,9 +8383,9 @@
       "repetition": 1,
       "armOrder": [
         "direct",
-        "pixroom-noop"
+        "pinpoint-noop"
       ],
-      "arm": "pixroom-noop",
+      "arm": "pinpoint-noop",
       "concurrency": 10,
       "requests": 150,
       "errors": 0,
@@ -8565,10 +8565,10 @@
       "payloadBytes": 1024,
       "repetition": 2,
       "armOrder": [
-        "pixroom-noop",
+        "pinpoint-noop",
         "direct"
       ],
-      "arm": "pixroom-noop",
+      "arm": "pinpoint-noop",
       "concurrency": 10,
       "requests": 150,
       "errors": 0,
@@ -8748,7 +8748,7 @@
       "payloadBytes": 1024,
       "repetition": 2,
       "armOrder": [
-        "pixroom-noop",
+        "pinpoint-noop",
         "direct"
       ],
       "arm": "direct",
@@ -8931,10 +8931,10 @@
       "payloadBytes": 1024,
       "repetition": 0,
       "armOrder": [
-        "pixroom-noop",
+        "pinpoint-noop",
         "direct"
       ],
-      "arm": "pixroom-noop",
+      "arm": "pinpoint-noop",
       "concurrency": 100,
       "requests": 150,
       "errors": 0,
@@ -9114,7 +9114,7 @@
       "payloadBytes": 1024,
       "repetition": 0,
       "armOrder": [
-        "pixroom-noop",
+        "pinpoint-noop",
         "direct"
       ],
       "arm": "direct",
@@ -9298,7 +9298,7 @@
       "repetition": 1,
       "armOrder": [
         "direct",
-        "pixroom-noop"
+        "pinpoint-noop"
       ],
       "arm": "direct",
       "concurrency": 100,
@@ -9481,9 +9481,9 @@
       "repetition": 1,
       "armOrder": [
         "direct",
-        "pixroom-noop"
+        "pinpoint-noop"
       ],
-      "arm": "pixroom-noop",
+      "arm": "pinpoint-noop",
       "concurrency": 100,
       "requests": 150,
       "errors": 0,
@@ -9663,10 +9663,10 @@
       "payloadBytes": 1024,
       "repetition": 2,
       "armOrder": [
-        "pixroom-noop",
+        "pinpoint-noop",
         "direct"
       ],
-      "arm": "pixroom-noop",
+      "arm": "pinpoint-noop",
       "concurrency": 100,
       "requests": 150,
       "errors": 0,
@@ -9846,7 +9846,7 @@
       "payloadBytes": 1024,
       "repetition": 2,
       "armOrder": [
-        "pixroom-noop",
+        "pinpoint-noop",
         "direct"
       ],
       "arm": "direct",
@@ -10030,7 +10030,7 @@
       "repetition": 0,
       "armOrder": [
         "direct",
-        "pixroom-noop"
+        "pinpoint-noop"
       ],
       "arm": "direct",
       "concurrency": 1,
@@ -10213,9 +10213,9 @@
       "repetition": 0,
       "armOrder": [
         "direct",
-        "pixroom-noop"
+        "pinpoint-noop"
       ],
-      "arm": "pixroom-noop",
+      "arm": "pinpoint-noop",
       "concurrency": 1,
       "requests": 150,
       "errors": 0,
@@ -10395,10 +10395,10 @@
       "payloadBytes": 102400,
       "repetition": 1,
       "armOrder": [
-        "pixroom-noop",
+        "pinpoint-noop",
         "direct"
       ],
-      "arm": "pixroom-noop",
+      "arm": "pinpoint-noop",
       "concurrency": 1,
       "requests": 150,
       "errors": 0,
@@ -10578,7 +10578,7 @@
       "payloadBytes": 102400,
       "repetition": 1,
       "armOrder": [
-        "pixroom-noop",
+        "pinpoint-noop",
         "direct"
       ],
       "arm": "direct",
@@ -10762,7 +10762,7 @@
       "repetition": 2,
       "armOrder": [
         "direct",
-        "pixroom-noop"
+        "pinpoint-noop"
       ],
       "arm": "direct",
       "concurrency": 1,
@@ -10945,9 +10945,9 @@
       "repetition": 2,
       "armOrder": [
         "direct",
-        "pixroom-noop"
+        "pinpoint-noop"
       ],
-      "arm": "pixroom-noop",
+      "arm": "pinpoint-noop",
       "concurrency": 1,
       "requests": 150,
       "errors": 0,
@@ -11127,10 +11127,10 @@
       "payloadBytes": 102400,
       "repetition": 0,
       "armOrder": [
-        "pixroom-noop",
+        "pinpoint-noop",
         "direct"
       ],
-      "arm": "pixroom-noop",
+      "arm": "pinpoint-noop",
       "concurrency": 10,
       "requests": 150,
       "errors": 0,
@@ -11310,7 +11310,7 @@
       "payloadBytes": 102400,
       "repetition": 0,
       "armOrder": [
-        "pixroom-noop",
+        "pinpoint-noop",
         "direct"
       ],
       "arm": "direct",
@@ -11494,7 +11494,7 @@
       "repetition": 1,
       "armOrder": [
         "direct",
-        "pixroom-noop"
+        "pinpoint-noop"
       ],
       "arm": "direct",
       "concurrency": 10,
@@ -11677,9 +11677,9 @@
       "repetition": 1,
       "armOrder": [
         "direct",
-        "pixroom-noop"
+        "pinpoint-noop"
       ],
-      "arm": "pixroom-noop",
+      "arm": "pinpoint-noop",
       "concurrency": 10,
       "requests": 150,
       "errors": 0,
@@ -11859,10 +11859,10 @@
       "payloadBytes": 102400,
       "repetition": 2,
       "armOrder": [
-        "pixroom-noop",
+        "pinpoint-noop",
         "direct"
       ],
-      "arm": "pixroom-noop",
+      "arm": "pinpoint-noop",
       "concurrency": 10,
       "requests": 150,
       "errors": 0,
@@ -12042,7 +12042,7 @@
       "payloadBytes": 102400,
       "repetition": 2,
       "armOrder": [
-        "pixroom-noop",
+        "pinpoint-noop",
         "direct"
       ],
       "arm": "direct",
@@ -12225,10 +12225,10 @@
       "payloadBytes": 102400,
       "repetition": 0,
       "armOrder": [
-        "pixroom-noop",
+        "pinpoint-noop",
         "direct"
       ],
-      "arm": "pixroom-noop",
+      "arm": "pinpoint-noop",
       "concurrency": 100,
       "requests": 150,
       "errors": 0,
@@ -12408,7 +12408,7 @@
       "payloadBytes": 102400,
       "repetition": 0,
       "armOrder": [
-        "pixroom-noop",
+        "pinpoint-noop",
         "direct"
       ],
       "arm": "direct",
@@ -12592,7 +12592,7 @@
       "repetition": 1,
       "armOrder": [
         "direct",
-        "pixroom-noop"
+        "pinpoint-noop"
       ],
       "arm": "direct",
       "concurrency": 100,
@@ -12775,9 +12775,9 @@
       "repetition": 1,
       "armOrder": [
         "direct",
-        "pixroom-noop"
+        "pinpoint-noop"
       ],
-      "arm": "pixroom-noop",
+      "arm": "pinpoint-noop",
       "concurrency": 100,
       "requests": 150,
       "errors": 0,
@@ -12957,10 +12957,10 @@
       "payloadBytes": 102400,
       "repetition": 2,
       "armOrder": [
-        "pixroom-noop",
+        "pinpoint-noop",
         "direct"
       ],
-      "arm": "pixroom-noop",
+      "arm": "pinpoint-noop",
       "concurrency": 100,
       "requests": 150,
       "errors": 0,
@@ -13140,7 +13140,7 @@
       "payloadBytes": 102400,
       "repetition": 2,
       "armOrder": [
-        "pixroom-noop",
+        "pinpoint-noop",
         "direct"
       ],
       "arm": "direct",

@@ -1,4 +1,4 @@
-import { estimateTokens } from 'pixroom';
+import { estimateTokens } from '@codepal/pinpoint';
 
 function compactJson(text) {
   try {

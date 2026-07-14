@@ -53,7 +53,7 @@ async function ccrToolResult(
   };
 }
 
-/** Continue only when every provider tool call is owned by Pixroom. */
+/** Continue only when every provider tool call is owned by Pinpoint. */
 export async function continueInternalAnthropicTurn(
   request: Readonly<Record<string, unknown>>,
   response: Readonly<Record<string, unknown>>,

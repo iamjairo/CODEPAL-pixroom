@@ -1,5 +1,5 @@
 /**
- * pixroom proxy — the Node front door (planning/end_product.md §4.2–§4.3).
+ * pinpoint proxy — the Node front door (planning/end_product.md §4.2–§4.3).
  *
  * Owns upstream transport, streaming, and (via the optical stage) the single
  * Anthropic `cache_control` breakpoint. For transformable POSTs it parses the body,
@@ -8,7 +8,7 @@
  * neither engine rewrites model output. On any transform error it forwards the
  * ORIGINAL body, so the proxy never fails closed.
  *
- * API keys are forwarded from the client to the upstream; pixroom holds none, and
+ * API keys are forwarded from the client to the upstream; pinpoint holds none, and
  * the headroom sidecar (loopback `/v1/compress`) never sees keys or the response.
  */
 
@@ -16,8 +16,8 @@ import http from 'node:http';
 import https from 'node:https';
 import { randomUUID } from 'node:crypto';
 
-import type { PixroomConfigOverrides } from '../config.js';
-import { createRuntime, type Pixroom, type RuntimeOptions } from '../pixroom.js';
+import type { PinpointConfigOverrides } from '../config.js';
+import { createRuntime, type Pinpoint, type RuntimeOptions } from '../pinpoint.js';
 import { readModel } from '../anthropic.js';
 import { CcrRetrievalOutputIntegration } from '../output/ccr.js';
 import { OutputIntegrationRegistry } from '../output/registry.js';
@@ -295,7 +295,7 @@ function openAiChatJsonToSse(response: Readonly<Record<string, unknown>>): Buffe
 }
 
 export interface ProxyServer {
-  readonly pixroom: Pixroom;
+  readonly pinpoint: Pinpoint;
   listen(): Promise<{ host: string; port: number }>;
   close(): Promise<void>;
 }
@@ -307,15 +307,15 @@ export interface ProxyServerOptions {
 }
 
 export function createProxyServer(
-  overrides: PixroomConfigOverrides = {},
+  overrides: PinpointConfigOverrides = {},
   options: ProxyServerOptions = {},
 ): ProxyServer {
-  const pixroom = createRuntime({ config: overrides, ...options.runtime });
-  const { config, log } = pixroom;
+  const pinpoint = createRuntime({ config: overrides, ...options.runtime });
+  const { config, log } = pinpoint;
   const protocols = options.protocols ?? createBuiltinProtocolRegistry();
   const outputs = new OutputIntegrationRegistry((id, error) =>
     log.warn(`output integration ${id} degraded: ${error}`),
-  ).register(new CcrRetrievalOutputIntegration(pixroom.ccr));
+  ).register(new CcrRetrievalOutputIntegration(pinpoint.ccr));
   for (const integration of options.outputIntegrations ?? []) outputs.register(integration);
   const httpAgent = new http.Agent({ keepAlive: true, maxSockets: 256, maxFreeSockets: 64 });
   const httpsAgent = new https.Agent({ keepAlive: true, maxSockets: 256, maxFreeSockets: 64 });
@@ -325,7 +325,7 @@ export function createProxyServer(
       log.error(`unhandled proxy error: ${err instanceof Error ? err.message : String(err)}`);
       if (!res.headersSent) {
         res.writeHead(500, { 'content-type': 'application/json' });
-        res.end(JSON.stringify({ error: { type: 'pixroom_error', message: 'internal error' } }));
+        res.end(JSON.stringify({ error: { type: 'pinpoint_error', message: 'internal error' } }));
       }
     });
   });
@@ -339,7 +339,7 @@ export function createProxyServer(
 
     const protocol = protocols.match({ method: req.method, pathname });
     const provider = protocol?.provider ?? detectProvider(pathname, req.headers);
-    const inspection = protocol ? pixroom.requestInspection(provider) : 'none';
+    const inspection = protocol ? pinpoint.requestInspection(provider) : 'none';
     const knownLength = contentLength(req.headers);
     const inspectRequest =
       inspection !== 'none' &&
@@ -383,7 +383,7 @@ export function createProxyServer(
           protocol.validateRequest(parsed);
           const model = readModel(parsed);
           const authMode = classifyAuthMode(req.headers);
-          const routed = await pixroom.route(
+          const routed = await pinpoint.route(
             provider,
             model,
             parsed,
@@ -553,6 +553,10 @@ export function createProxyServer(
       const contentType = upstream.headers['content-type'];
       const isJson = (Array.isArray(contentType) ? contentType[0] : contentType)?.includes('application/json');
       if (upstream.statusCode < 200 || upstream.statusCode >= 300) {
+        if (responses.length > 0) {
+          replayOriginal = true;
+          replayReason = 'continuation returned a non-success response';
+        }
         break;
       }
       if (encoding != null || !isJson) {
@@ -576,8 +580,8 @@ export function createProxyServer(
         requestBody,
         parsed,
         {
-          ccr: pixroom.ccr,
-          virtualContext: pixroom.virtualContext,
+          ccr: pinpoint.ccr,
+          virtualContext: pinpoint.virtualContext,
           allowedVirtualIds: allowedIds,
           allowedCcrIds,
         },
@@ -719,7 +723,13 @@ export function createProxyServer(
       const encoding = upstream.headers['content-encoding'];
       const contentType = upstream.headers['content-type'];
       const isJson = (Array.isArray(contentType) ? contentType[0] : contentType)?.includes('application/json');
-      if (upstream.statusCode < 200 || upstream.statusCode >= 300) break;
+      if (upstream.statusCode < 200 || upstream.statusCode >= 300) {
+        if (responses.length > 0) {
+          replayOriginal = true;
+          replayReason = 'continuation returned a non-success response';
+        }
+        break;
+      }
       if (encoding != null || !isJson) {
         replayOriginal = true;
         replayReason = 'local continuation returned an uninspectable response';
@@ -740,7 +750,7 @@ export function createProxyServer(
       const continuation = await continueInternalOpenAiTurn(
         requestBody,
         parsed,
-        pixroom.ccr,
+        pinpoint.ccr,
         allowedCcrIds,
       );
       if (!continuation) {
@@ -843,7 +853,7 @@ export function createProxyServer(
           const encoding = upstream.headers['content-encoding'];
           const observe =
             encoding == null &&
-            (pixroom.ccr.hasOffloaded() || (options.outputIntegrations?.length ?? 0) > 0);
+            (pinpoint.ccr.hasOffloaded() || (options.outputIntegrations?.length ?? 0) > 0);
           if (observe) {
             const eventContext = { exchangeId, provider, protocolId, pathname: pathAndQuery };
             const contentType = upstream.headers['content-type'];
@@ -895,16 +905,16 @@ export function createProxyServer(
       status: 'ok',
       mode: config.mode,
       optical: { enabled: config.optical.enabled },
-      semantic: { enabled: config.semantic.enabled, sidecar: pixroom.sidecar.status, url: pixroom.sidecar.url },
+      semantic: { enabled: config.semantic.enabled, sidecar: pinpoint.sidecar.status, url: pinpoint.sidecar.url },
       virtualContext: {
         enabled: config.virtualContext.enabled,
         queryFallback: config.virtualContext.queryFallback,
-        datasets: pixroom.virtualContext.size,
-        bytes: pixroom.virtualContext.bytes,
+        datasets: pinpoint.virtualContext.size,
+        bytes: pinpoint.virtualContext.bytes,
       },
-      capture: { enabled: pixroom.capture.enabled, ...pixroom.capture.stats() },
-      telemetry: { enabled: pixroom.telemetry.enabled, ...pixroom.telemetry.stats() },
-      integrations: pixroom.integrations.list().map((integration) => ({
+      capture: { enabled: pinpoint.capture.enabled, ...pinpoint.capture.stats() },
+      telemetry: { enabled: pinpoint.telemetry.enabled, ...pinpoint.telemetry.stats() },
+      integrations: pinpoint.integrations.list().map((integration) => ({
         id: integration.id,
         version: integration.version,
         regions: integration.capabilities.regions,
@@ -922,9 +932,9 @@ export function createProxyServer(
     res.end(
       JSON.stringify(
         {
-          ...pixroom.stats(),
-          capture: pixroom.capture.stats(),
-          telemetry: pixroom.telemetry.stats(),
+          ...pinpoint.stats(),
+          capture: pinpoint.capture.stats(),
+          telemetry: pinpoint.telemetry.stats(),
         },
         null,
         2,
@@ -933,17 +943,17 @@ export function createProxyServer(
   }
 
   return {
-    pixroom,
+    pinpoint,
     async listen() {
-      await pixroom.warmup();
+      await pinpoint.warmup();
       await new Promise<void>((resolve) => server.listen(config.port, config.host, resolve));
       const address = server.address();
       const port = typeof address === 'object' && address != null ? address.port : config.port;
-      log.info(`pixroom proxy listening on http://${config.host}:${port}`);
+      log.info(`pinpoint proxy listening on http://${config.host}:${port}`);
       log.info(`  mode: ${config.mode}`);
       log.info(`  anthropic → ${config.upstreams.anthropic}`);
       log.info(`  openai    → ${config.upstreams.openai}`);
-      log.info(`  semantic sidecar: ${pixroom.sidecar.status} (${pixroom.sidecar.url})`);
+      log.info(`  semantic sidecar: ${pinpoint.sidecar.status} (${pinpoint.sidecar.url})`);
       return { host: config.host, port };
     },
     async close() {
@@ -954,7 +964,7 @@ export function createProxyServer(
       await closePromise;
       httpAgent.destroy();
       httpsAgent.destroy();
-      await pixroom.shutdown();
+      await pinpoint.shutdown();
     },
   };
 }

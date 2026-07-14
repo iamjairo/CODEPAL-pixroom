@@ -1,17 +1,17 @@
 import { describe, it, expect } from 'vitest';
-import { createPixroom } from '../src/pixroom.js';
+import { createPinpoint } from '../src/pinpoint.js';
 
 /**
  * Live integration against a REAL headroom sidecar. Skipped unless
- * PIXROOM_LIVE_SIDECAR is set to the sidecar base URL, e.g.:
+ * PINPOINT_LIVE_SIDECAR is set to the sidecar base URL, e.g.:
  *
  *   headroom proxy --port 8787
- *   PIXROOM_LIVE_SIDECAR=http://127.0.0.1:8787 npx vitest run tests/live-sidecar.test.ts
+ *   PINPOINT_LIVE_SIDECAR=http://127.0.0.1:8787 npx vitest run tests/live-sidecar.test.ts
  *
  * This is the roadmap's "confirm the CCR interplay on a real trace" validation
  * (planning/end_product.md §7, Phase 2/3).
  */
-const LIVE = process.env.PIXROOM_LIVE_SIDECAR;
+const LIVE = process.env.PINPOINT_LIVE_SIDECAR;
 const suite = LIVE ? describe : describe.skip;
 
 function bigJsonToolResult(): string {
@@ -33,7 +33,7 @@ function bigSlab(): string {
 
 suite('live headroom sidecar (real /v1/compress + CCR)', () => {
   it('compresses a JSON tool_result through the real engine', async () => {
-    const px = createPixroom({
+    const px = createPinpoint({
       optical: { enabled: false },
       semantic: {
         enabled: true,
@@ -70,7 +70,7 @@ suite('live headroom sidecar (real /v1/compress + CCR)', () => {
   });
 
   it('composes BOTH engines on one request: optical images the slab, semantic compresses the tool_result', async () => {
-    const px = createPixroom({
+    const px = createPinpoint({
       optical: { enabled: true },
       semantic: {
         enabled: true,

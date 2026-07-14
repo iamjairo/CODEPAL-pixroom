@@ -1,5 +1,5 @@
 name: Benchmark replication
-description: Submit an independent Pixroom benchmark run with raw receipts and environment metadata.
+description: Submit an independent Pinpoint benchmark run with raw receipts and environment metadata.
 title: "replication: "
 labels: [benchmark, replication]
 body:
@@ -10,7 +10,7 @@ body:
   - type: input
     id: commit
     attributes:
-      label: Pixroom commit
+      label: Pinpoint commit
       description: Full Git SHA used for the run.
     validations:
       required: true
@@ -32,7 +32,7 @@ body:
     id: commands
     attributes:
       label: Commands and configuration
-      description: Include seeds, task filters, caps, repetitions, and all relevant BENCH_* and PIXROOM_* variables. Remove secrets.
+      description: Include seeds, task filters, caps, repetitions, and all relevant BENCH_* and PINPOINT_* variables. Remove secrets.
     validations:
       required: true
   - type: textarea
@@ -60,5 +60,5 @@ body:
           required: true
         - label: I labeled offline estimates separately from provider-reported usage and live correctness.
           required: true
-        - label: I disclosed any relationship with CodePal or the Pixroom maintainers.
+        - label: I disclosed any relationship with CodePal or the Pinpoint maintainers.
           required: true

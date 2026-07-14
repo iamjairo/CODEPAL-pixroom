@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { createRuntime } from '../src/pixroom.js';
+import { createRuntime } from '../src/pinpoint.js';
 import { createSecretRedactionIntegration } from '../examples/integrations/redact-secrets.mjs';
 import { createJsonToolMinifierIntegration } from '../examples/integrations/json-tool-minifier.mjs';
 

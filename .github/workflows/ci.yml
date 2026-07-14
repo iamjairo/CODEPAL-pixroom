@@ -22,8 +22,8 @@ jobs:
       matrix:
         node: [18, 20, 22]
     env:
-      PIXROOM_HEADROOM_AUTOSPAWN: "0"
-      PIXROOM_LOG: silent
+      PINPOINT_HEADROOM_AUTOSPAWN: "0"
+      PINPOINT_LOG: silent
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

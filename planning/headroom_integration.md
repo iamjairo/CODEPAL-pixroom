@@ -1,13 +1,13 @@
 # headroom Integration
 
-> Part of the **pixroom** planning set. Read alongside:
+> Part of the **pinpoint** planning set. Read alongside:
 > - [`end_product.md`](./end_product.md) — the unified plan this feeds into.
 > - [`pxpipe_integration.md`](./pxpipe_integration.md) — the optical-compression half.
 >
 > **Scope of this document:** a source-level investigation of
 > [`headroomlabs-ai/headroom`](https://github.com/headroomlabs-ai/headroom)
 > (repo also known upstream as `chopratejas/headroom`) and the concrete plan for
-> folding its capabilities into pixroom. This is the **semantic / content-aware
+> folding its capabilities into pinpoint. This is the **semantic / content-aware
 > compression** half of the merge.
 
 ---
@@ -34,7 +34,7 @@ Two facts dominate the merge and were confirmed from source:
    **lossy** and *images the system prompt*. → They are **complementary**, and
    they partition a request almost perfectly (see §11).
 
-For pixroom, headroom is the **semantic engine and the orchestration/distribution
+For pinpoint, headroom is the **semantic engine and the orchestration/distribution
 backbone**; pxpipe is the **optical stage** that fills exactly the gap headroom
 refuses to touch.
 
@@ -77,7 +77,7 @@ The dispatcher. It detects content type (a **magika** ML detector + regex, with
 a **native Rust detector** behind a circuit breaker), handles **mixed content by
 splitting** into sections, routes each section to the best compressor, and
 **reassembles** with routing metadata. This is conceptually the exact router
-pixroom needs — pxpipe just becomes one more route.
+pinpoint needs — pxpipe just becomes one more route.
 
 ### 2.2 Compressors (`transforms/`)
 | Compressor | Content | Notes |
@@ -184,12 +184,12 @@ dry-run savings plan; `.get_stats()`. Per-call knobs (`headroom_mode`,
 Tools: **`headroom_compress`**, **`headroom_retrieve`**, **`headroom_stats`** —
 for Claude Code / Cursor / any MCP host.
 
-### 4.4 Proxy routes (and the stateless seam pixroom uses)
+### 4.4 Proxy routes (and the stateless seam pinpoint uses)
 Transport: `/v1/chat/completions`, `/v1/messages`, `/v1/responses`
 (Codex/gpt-5.4+ via WebSocket), plus `/stats`, `/metrics`, `/health`,
 `/dashboard`.
 
-**Stateless compression seam (key for pixroom):**
+**Stateless compression seam (key for pinpoint):**
 - `POST /v1/compress` (loopback-only) → `handle_compress`. Body
   `{"messages":[...], "model":"...", "config":{}}`; returns `{messages,
   tokens_before, tokens_after, tokens_saved, compression_ratio,
@@ -248,7 +248,7 @@ the proxy; MCP-native via `headroom mcp install`.
   `CLAUDE.local.md` (default, gitignored) / `CLAUDE.md` / `AGENTS.md` / `GEMINI.md`.
 
 **Takeaway:** headroom's measurement is a superset of pxpipe's counterfactual
-idea and can be pixroom's unified measurement layer (§ [`end_product.md`](./end_product.md)).
+idea and can be pinpoint's unified measurement layer (§ [`end_product.md`](./end_product.md)).
 
 ---
 
@@ -281,10 +281,10 @@ factsheet + `emitRecoverable` — the two reversibility models should **unify**
 ## 9. Strengths to take / constraints to respect
 
 **Take:**
-- **ContentRouter** — the multi-type routing pixroom needs (pxpipe = one more route).
+- **ContentRouter** — the multi-type routing pinpoint needs (pxpipe = one more route).
 - **CCR** — a mature, cross-provider, reversible store + retrieval tool + MCP.
 - **`wrap <agent>` + MCP + multi-provider proxy** — best-in-class distribution/UX.
-- **Measurement/learning** (holdout, TOIN, output-shaper) — reusable as pixroom's.
+- **Measurement/learning** (holdout, TOIN, output-shaper) — reusable as pinpoint's.
 - **Rust core direction** — the long-term home for a single native engine.
 - **Memory + SharedContext**, `headroom learn` — features pxpipe has no analog for.
 
@@ -302,42 +302,42 @@ factsheet + `emitRecoverable` — the two reversibility models should **unify**
 
 ## 10. Integration plan — the headroom side of the merge
 
-### 10.1 Role in pixroom
+### 10.1 Role in pinpoint
 headroom is the **semantic compression engine** *and* the **orchestration +
 distribution backbone**: its ContentRouter, CCR store, multi-provider proxy,
-`wrap`, and MCP become pixroom's spine. pxpipe plugs in as the **optical route**
+`wrap`, and MCP become pinpoint's spine. pxpipe plugs in as the **optical route**
 for the static slab that headroom deliberately won't mutate (§11).
 
 ### 10.2 Embedding strategy (recommended)
 **Consume headroom as a pinned dependency; do not fork.** Three access modes,
-pick per pixroom's core language (decided in [`end_product.md`](./end_product.md) §4):
+pick per pinpoint's core language (decided in [`end_product.md`](./end_product.md) §4):
 - **Python in-process** — `from headroom import compress` (+ `HeadroomClient`,
   CCR, ContentRouter). Best fidelity/coverage; requires a Python core.
 - **Proxy sidecar over HTTP** — run `headroom proxy`, talk to it (exactly how
-  headroom's own TS SDK works). Language-agnostic; the natural fit if pixroom's
+  headroom's own TS SDK works). Language-agnostic; the natural fit if pinpoint's
   orchestrator is Node/TS.
-- **Rust crates** — link `crates/headroom-core` directly (long-term, if pixroom
+- **Rust crates** — link `crates/headroom-core` directly (long-term, if pinpoint
   builds a Rust core alongside a ported pxpipe renderer).
 
 ### 10.3 Staying current with upstream ("always get the best")
-- Keep `~/repos-pixroom/headroom` as a **read-only tracking clone**.
+- Keep `~/repos-pinpoint/headroom` as a **read-only tracking clone**.
 - **Pin** `headroom-ai` (PyPI) / `headroom-ai` (npm) exact versions; automate
   update detection (Renovate/Dependabot + release-`v*`/PyPI watch).
-- **Gate every bump** behind pixroom's fidelity + savings smoke tests.
+- **Gate every bump** behind pinpoint's fidelity + savings smoke tests.
 - Prefer the **public `compress()` / proxy / MCP contracts** over internal modules
   (internals churn daily; the Rust port is in flight).
-- Record adopted versions + patches in pixroom `UPSTREAM.md` / `PATCHES.md`.
+- Record adopted versions + patches in pinpoint `UPSTREAM.md` / `PATCHES.md`.
 
 ### 10.4 Concrete steps (when implementation starts)
-1. Stand up headroom as pixroom's semantic backbone (in-process Python **or**
+1. Stand up headroom as pinpoint's semantic backbone (in-process Python **or**
    sidecar proxy, per §10.2 / [`end_product.md`](./end_product.md)).
-2. Wrap headroom behind pixroom's uniform `SemanticCompressor` adapter
+2. Wrap headroom behind pinpoint's uniform `SemanticCompressor` adapter
    (`compress()` + profitability + counterfactual + reversible handle) — mirror
    of pxpipe's `OpticalCompressor` (see [`pxpipe_integration.md`](./pxpipe_integration.md) §10.5).
 3. Make **CCR the unified reversible store**: register pxpipe's imaged-block
    originals into the CCR store so `headroom_retrieve` returns them too.
-4. Adopt **`wrap` + MCP** as pixroom's front door; extend the agent matrix.
-5. Use headroom's savings tracker/holdout as pixroom's measurement layer.
+4. Adopt **`wrap` + MCP** as pinpoint's front door; extend the agent matrix.
+5. Use headroom's savings tracker/holdout as pinpoint's measurement layer.
 
 ### 10.5 Risks & mitigations
 | Risk | Mitigation |
@@ -362,7 +362,7 @@ pick per pixroom's core language (decided in [`end_product.md`](./end_product.md
 | Language | TypeScript (tiny, pure-JS) | Python + Rust (heavy) |
 | Distribution | `npx` proxy | `wrap`/MCP/proxy/library |
 
-**The clean partition (pixroom MVP):** pxpipe handles **only the static
+**The clean partition (pinpoint MVP):** pxpipe handles **only the static
 system/tool-docs slab** (its strongest, safest win, on its supported models) —
 precisely the region headroom's I2 forbids mutating. headroom handles
 **everything else** (tool_results, history, logs, JSON, code, RAG, search) with

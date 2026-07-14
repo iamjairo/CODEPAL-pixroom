@@ -1,12 +1,12 @@
 # pxpipe Integration
 
-> Part of the **pixroom** planning set. Read alongside:
+> Part of the **pinpoint** planning set. Read alongside:
 > - [`end_product.md`](./end_product.md) — the unified vision this plan serves.
 > - [`headroom_integration.md`](./headroom_integration.md) — the semantic-compression half (next phase).
 >
 > **Scope of this document:** a source-level investigation of
 > [`teamchong/pxpipe`](https://github.com/teamchong/pxpipe) and the concrete plan
-> for folding its capabilities into pixroom. This is the **optical / pixel
+> for folding its capabilities into pinpoint. This is the **optical / pixel
 > compression** half of the merge. Cross-references to the headroom side are
 > marked _(see [`headroom_integration.md`](./headroom_integration.md))_ and are
 > intentionally left open until that investigation runs.
@@ -22,11 +22,11 @@ amount of text inside it, so dense text (~3 chars/token as text) becomes far
 cheaper as pixels. It is lossy — a deliberate, measured trade — and it protects
 byte-exact data (IDs, hashes) by keeping it as text.
 
-For pixroom, pxpipe is the **optical compressor**: one content-type-specialized
+For pinpoint, pxpipe is the **optical compressor**: one content-type-specialized
 stage in a unified compression pipeline. It is the cleaner of the two upstreams
 to embed (tiny dependency surface, pure-JS runtime, documented subpath exports,
 runtime-agnostic proxy core), and its packaging is the model we lean toward for
-pixroom's own embedding story _(final decision in [`end_product.md`](./end_product.md))_.
+pinpoint's own embedding story _(final decision in [`end_product.md`](./end_product.md))_.
 
 ---
 
@@ -97,9 +97,9 @@ Canonical source: `src/core/transform.ts` (2237 lines, the heart). Design doc:
 
 ## 3. Repository & module map
 
-The parts pixroom cares about (ignoring `eval/`, `bench/`, `demo/`):
+The parts pinpoint cares about (ignoring `eval/`, `bench/`, `demo/`):
 
-| Path | Role | pixroom relevance |
+| Path | Role | pinpoint relevance |
 |---|---|---|
 | `src/core/transform.ts` | Anthropic Messages transformer (the heart) | **Core optical compressor** |
 | `src/core/render.ts` + `atlas*.ts` + `png.ts` | Text→PNG renderer, glyph atlases, PNG encoder | **The rendering engine** |
@@ -137,14 +137,14 @@ Two functions matter most for embedding:
 - **`renderTextToImages(text, opts)`** — the clean, documented render primitive
   (cols, shrink, multiCol, reflow, style, maxHeightPx → `{ pages, droppedChars,
   pixels }`). This is the surface SDK consumers _should_ use instead of reaching
-  into `render.ts`. **This is pixroom's most reusable single function.**
+  into `render.ts`. **This is pinpoint's most reusable single function.**
 - **`transformAnthropicMessages({ body, model, options })`** — model gate +
   machine-readable `reason` (`applied` / `unsupported_model` / `not_profitable`
   / `image_limit` / …) + a `cache.ownsCacheControl` flag that **prevents a host
   from stacking a second cache-control injector.** Designed for embedding into a
-  larger proxy — exactly pixroom's use case.
+  larger proxy — exactly pinpoint's use case.
 
-Fidelity knobs on `TransformOptions` we will surface in pixroom:
+Fidelity knobs on `TransformOptions` we will surface in pinpoint:
 `keepSharp(block)` (pin a block as text), `emitRecoverable` (return originals of
 imaged blocks for byte-exact restore), `compress` (master switch),
 `historyAmortizationHorizon`, `charsPerToken`.
@@ -191,7 +191,7 @@ honest, reproducible savings.
 `claude-fable-5` only because it reads dense renders well (100/100 on novel
 arithmetic; 13/15 verbatim hex vs **0/15 on Opus 4.8** on identical pages).
 Opus 4.7/4.8, GPT 5.5, `gpt-5.6-sol`, and Grok are **opt-in** — each failed
-exact-recall pilots at production density. pixroom **must preserve this
+exact-recall pilots at production density. pinpoint **must preserve this
 opt-in-per-model posture** rather than silently imaging weak readers.
 
 ---
@@ -213,9 +213,9 @@ observed cache state** (`cr > 0` is the only warm/cold signal), so savings are
 never fabricated from cache assumptions. Savings can go **negative** and are
 reported honestly, never floored.
 
-**Takeaway for pixroom:** the gate + measurement design is a model to reuse.
+**Takeaway for pinpoint:** the gate + measurement design is a model to reuse.
 Any compressor in the unified pipeline (optical or semantic) should carry its
-own profitability gate and log a counterfactual, so pixroom can prove
+own profitability gate and log a counterfactual, so pinpoint can prove
 end-to-end savings the same way.
 
 ---
@@ -233,17 +233,17 @@ pxpipe is **lossy by design**, and it is unusually honest about it
 - Accuracy is **monotonic in pixels-per-glyph** and bounded by the API resample
   ceiling — a **capacity bound** no font/color/layout trick removes.
 
-Mitigations pxpipe ships (all reusable in pixroom):
+Mitigations pxpipe ships (all reusable in pinpoint):
 
 1. **Factsheet** (`factsheet.ts`): extract exact identifiers (SHAs, numbers,
    paths) and ride them alongside as **text**.
 2. **Recent turns stay text** — only cache-stable bulk / old history is imaged.
 3. **`keepSharp(block)`** — caller pins byte-exact blocks as text.
 4. **`emitRecoverable`** — return originals so a stateful harness can restore
-   verbatim content (pixroom's bridge to headroom's reversible-store idea —
+   verbatim content (pinpoint's bridge to headroom's reversible-store idea —
    _see [`headroom_integration.md`](./headroom_integration.md) §CCR_).
 
-> **Design rule for pixroom:** optical compression is for token-dense,
+> **Design rule for pinpoint:** optical compression is for token-dense,
 > gist-recallable bulk. Byte-exact data must never depend on OCR. This rule
 > shapes the content router _(see [`end_product.md`](./end_product.md) §Router)_.
 
@@ -272,8 +272,8 @@ Mitigations pxpipe ships (all reusable in pixroom):
 
 ## 10. Integration plan — the pxpipe side of the merge
 
-### 10.1 Role in pixroom
-pxpipe becomes the **`optical` compressor stage** in pixroom's content-aware
+### 10.1 Role in pinpoint
+pxpipe becomes the **`optical` compressor stage** in pinpoint's content-aware
 pipeline: content router detects "cache-stable, token-dense, gist-recallable
 bulk" → routes to the optical stage → pxpipe renders it → factsheet + recent
 turns preserved as text. Semantic compressors (headroom) handle JSON/AST/prose
@@ -286,8 +286,8 @@ fork, wherever the public exports suffice:
 
 - Use `pxpipe-proxy/transform` (`renderTextToImages`, `transformAnthropicMessages`)
   and `pxpipe-proxy/applicability` directly.
-- Wrap pxpipe's `createProxy` inside pixroom's proxy, or call the transform
-  functions inline from pixroom's own content router.
+- Wrap pxpipe's `createProxy` inside pinpoint's proxy, or call the transform
+  functions inline from pinpoint's own content router.
 - Pin an exact version; treat the subpath exports as the stable contract.
 
 **Fall back to a vendored git subtree** only for capabilities not exposed via
@@ -298,39 +298,39 @@ repo via `UPSTREAM.md` / `check-upstream-pin`).
 
 ### 10.3 Cross-language reality
 pxpipe is TypeScript; headroom is Python/Rust (with a TS SDK). This is **the**
-architectural decision for pixroom and is deferred to
+architectural decision for pinpoint and is deferred to
 [`end_product.md`](./end_product.md). Two viable shapes:
 - **TS-first core** (adopt pxpipe wholesale; call headroom's TS SDK / shell out
   to its CLI / talk to its proxy over HTTP), or
-- **Polyglot pipeline** (pixroom orchestrates both as subprocess/HTTP stages).
+- **Polyglot pipeline** (pinpoint orchestrates both as subprocess/HTTP stages).
 
 pxpipe's clean packaging makes it easy to embed **either way** — it does not
 force the decision.
 
 ### 10.4 Staying current with upstream ("always get the best")
-- Keep `~/repos-pixroom/pxpipe` as a **read-only tracking clone** (`origin` =
+- Keep `~/repos-pinpoint/pxpipe` as a **read-only tracking clone** (`origin` =
   upstream) for source review and vendoring.
-- **Pin** `pxpipe-proxy` in pixroom's `package.json`; automate update checks
+- **Pin** `pxpipe-proxy` in pinpoint's `package.json`; automate update checks
   (Dependabot/Renovate or a `check-upstream-pin`-style script) that watch npm +
   the `v*` tags.
 - On each bump: re-run the fidelity/savings smoke tests (§10.5) before adopting,
   because pxpipe's model-read behavior changes with model releases.
-- Record adopted version + any local patches in a pixroom `UPSTREAM.md`.
+- Record adopted version + any local patches in a pinpoint `UPSTREAM.md`.
 
 ### 10.5 Concrete steps (when implementation starts)
-1. Add `pxpipe-proxy` (pinned) to the pixroom CLI package.
+1. Add `pxpipe-proxy` (pinned) to the pinpoint CLI package.
 2. Build a thin `OpticalCompressor` adapter over `renderTextToImages` /
-   `transformAnthropicMessages` exposing pixroom's uniform compressor interface
+   `transformAnthropicMessages` exposing pinpoint's uniform compressor interface
    (`compress()` + profitability gate + counterfactual + reversible handle).
    **Slab-only partition lever:** pass `options.keepSharp = () => true` —
    `keepSharp` is consulted only on `reminder`/`tool_result` blocks, so returning
    `true` keeps those as text (for headroom) while the static system+tools slab
    still images. This is the §10.1 partition via pxpipe's stable public API.
-3. Port pxpipe's `count_tokens` counterfactual into pixroom's measurement layer
+3. Port pxpipe's `count_tokens` counterfactual into pinpoint's measurement layer
    so optical + semantic stages report savings identically.
-4. Wire `keepSharp` / `emitRecoverable` into pixroom's reversible store
+4. Wire `keepSharp` / `emitRecoverable` into pinpoint's reversible store
    (headroom-CCR bridge).
-5. Preserve the one-breakpoint + model-scope invariants: pixroom + pxpipe **own**
+5. Preserve the one-breakpoint + model-scope invariants: pinpoint + pxpipe **own**
    the single Anthropic `cache_control` breakpoint; headroom is called via its
    stateless `/v1/compress` (no transport, no breakpoint relocation) so the two
    never fight over it (see [`end_product.md`](./end_product.md) §4.4).
@@ -352,7 +352,7 @@ force the decision.
 
 - Language/runtime of the unified core (TS vs polyglot) → [`end_product.md`](./end_product.md).
 - How optical vs semantic compressors are sequenced/selected → router design in [`end_product.md`](./end_product.md).
-- Whether pixroom's reversible store subsumes both pxpipe `emitRecoverable` and headroom CCR → [`headroom_integration.md`](./headroom_integration.md).
+- Whether pinpoint's reversible store subsumes both pxpipe `emitRecoverable` and headroom CCR → [`headroom_integration.md`](./headroom_integration.md).
 - Distribution UX: adopt headroom-style `wrap <agent>` + MCP over pxpipe's zero-flag proxy? → [`end_product.md`](./end_product.md).
 
 ---

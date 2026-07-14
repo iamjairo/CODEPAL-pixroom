@@ -1,5 +1,5 @@
-import type { PixroomConfigOverrides } from '../config.js';
-import { createPixroom } from '../pixroom.js';
+import type { PinpointConfigOverrides } from '../config.js';
+import { createPinpoint } from '../pinpoint.js';
 import { hashCaptureBody, readCaptureFile } from './store.js';
 
 export interface ReplaySummary {
@@ -14,10 +14,10 @@ export interface ReplaySummary {
 
 export async function replayCaptureFile(
   path: string,
-  overrides: PixroomConfigOverrides = {},
+  overrides: PinpointConfigOverrides = {},
 ): Promise<ReplaySummary> {
   const records = readCaptureFile(path);
-  const runtime = createPixroom({
+  const runtime = createPinpoint({
     ...overrides,
     capture: { ...overrides.capture, path: '' },
   });

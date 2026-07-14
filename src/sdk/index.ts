@@ -1,8 +1,8 @@
-export { withPixroom as withPixroomAnthropic } from './anthropic.js';
-export { withPixroom as withPixroomOpenAI } from './openai.js';
+export { withPinpoint as withPinpointAnthropic } from './anthropic.js';
+export { withPinpoint as withPinpointOpenAI } from './openai.js';
 export type {
-  PixroomClientHandle,
+  PinpointClientHandle,
   ProviderSdkClient,
-  WrappedPixroomClient,
-  WithPixroomOptions,
+  WrappedPinpointClient,
+  WithPinpointOptions,
 } from './client.js';
