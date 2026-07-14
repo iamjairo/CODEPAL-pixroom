@@ -20,6 +20,18 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
+    "./anthropic": {
+      "types": "./dist/sdk/anthropic.d.ts",
+      "import": "./dist/sdk/anthropic.js"
+    },
+    "./openai": {
+      "types": "./dist/sdk/openai.d.ts",
+      "import": "./dist/sdk/openai.js"
+    },
+    "./sdk": {
+      "types": "./dist/sdk/index.d.ts",
+      "import": "./dist/sdk/index.js"
+    },
     "./proxy": {
       "types": "./dist/proxy/server.d.ts",
       "import": "./dist/proxy/server.js"

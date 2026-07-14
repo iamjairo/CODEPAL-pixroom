@@ -9,6 +9,15 @@
 export { createPixroom, createRuntime } from './pixroom.js';
 export type { Pixroom, RuntimeOptions, SessionStats } from './pixroom.js';
 
+export { withPixroom as withPixroomAnthropic } from './sdk/anthropic.js';
+export { withPixroom as withPixroomOpenAI } from './sdk/openai.js';
+export type {
+  PixroomClientHandle,
+  ProviderSdkClient,
+  WrappedPixroomClient,
+  WithPixroomOptions,
+} from './sdk/client.js';
+
 export { createProxyServer } from './proxy/server.js';
 export type { ProxyServer, ProxyServerOptions } from './proxy/server.js';
 
