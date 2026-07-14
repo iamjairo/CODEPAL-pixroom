@@ -38,6 +38,12 @@ External integration examples belong under `examples/integrations` and must impo
 
 Capture fixtures must remain metadata-only or contain synthetic bodies. Never commit real body-enabled capture files.
 
+## Releases
+
+Update the version in `package.json` and `package-lock.json`, move the changelog entries under a dated version heading, and validate the package with `npm test` and `npm pack --dry-run`. Publish a GitHub Release whose tag is exactly `v<package version>`; `.github/workflows/release.yml` rejects mismatched tags and publishes the package to npm from the release commit.
+
+The first npm publication requires a granular npm token stored as the `NPM_TOKEN` secret in GitHub's `release` environment. After the package exists, configure its npm Trusted Publisher for organization `CodePalAI`, repository `pixroom`, workflow `release.yml`, environment `release`, and the `npm publish` action. Verify one OIDC release before deleting the bootstrap token. Releases from this public repository include npm provenance.
+
 ## Pull requests
 
 Keep changes scoped, document configuration changes, and include the command used to validate them. Run `npm pack --dry-run` when changing exports, CLI behavior, or package metadata. Security issues follow [`SECURITY.md`](./SECURITY.md), not the public issue tracker.

@@ -4,8 +4,11 @@ All notable changes are documented here. This project follows semantic versionin
 
 ## Unreleased
 
+## 0.1.0 - 2026-07-14
+
 ### Added
 
+- GitHub Release-driven publication to the npm registry.
 - Query-Backed Context Virtualization (QCV) for exact historical JSON, log, and source tool results.
 - Deterministic exact current-question prefetch with cache-stable historical manifests across exact selectors.
 - Optional bounded Anthropic `pixroom_query` continuation with aggregate usage accounting.

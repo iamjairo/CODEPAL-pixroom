@@ -1,8 +1,8 @@
 <h1 align="center">Pixroom</h1>
 
-<p align="center"><strong>Stop paying your LLM to reread giant tool outputs.</strong></p>
+<p align="center"><strong>Your agent asked for one value. Stop sending the other 22,613 tokens.</strong></p>
 
-<p align="center">A local proxy for coding agents and LLM apps. Pixroom cuts repeated input before it leaves your machine while keeping exact data available when the model needs it.</p>
+<p align="center">Pixroom is a local context optimizer for coding agents and LLM apps. It replaces old JSON, logs, and source output with the exact answer needed now, then sends everything else to the same model unchanged.</p>
 
 <p align="center">An open-source part of the internal LLM optimization system developed at <a href="https://codepal.ai"><strong>CodePal</strong></a>.</p>
 
@@ -28,11 +28,11 @@
 
 ---
 
-## Cut repeated tool output by up to 97.4%
+## 22,614 tokens in. 594 tokens out. Exact answer intact.
 
-LLM agents often resend thousands of lines of old JSON, logs, source code, and tool output on every turn. Those input tokens cost money and consume context space even when the model needs only one row or count.
+LLM agents routinely resend thousands of lines of old JSON, logs, source code, and tool output on every turn. The model may need one row. It gets billed for the whole pile.
 
-Pixroom sits between your app and the provider. You keep the same model, SDK, and response format.
+Pixroom sits between your app and the provider. The full data stays in bounded local memory; supported lookups and counts are computed exactly on your machine. You keep the same model, SDK, and response format.
 
 In controlled paid Haiku 4.5 pilots, measured against sending the same requests directly to the LLM:
 
@@ -45,10 +45,10 @@ Estimated cost, calculated from provider-reported tokens and published prices, f
 
 ## Start in 30 seconds
 
-You need Node.js 18 or newer and Git. Pixroom is not on the npm registry yet, so install the current release directly from GitHub:
+You need Node.js 18 or newer. Install the current release from npm:
 
 ```bash
-npm install -g git+https://github.com/CodePalAI/pixroom.git
+npm install -g pixroom
 pixroom demo
 ```
 
@@ -98,7 +98,7 @@ pixroom demo
 Install Pixroom in your app, alongside the provider SDK you already use:
 
 ```bash
-npm install git+https://github.com/CodePalAI/pixroom.git
+npm install pixroom
 ```
 
 Wrap an Anthropic client:
