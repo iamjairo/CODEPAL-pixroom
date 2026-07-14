@@ -22,10 +22,9 @@
        <a href="#safety-and-privacy">Safety</a> ·
        <a href="./benchmarks/REPORT.md">Benchmarks</a> ·
        <a href="./llms.txt">LLM index</a> ·
+       <a href="https://github.com/CodePalAI/pixroom/discussions">Community</a> ·
        <a href="https://codepal.ai">CodePal.ai</a>
 </p>
-
-<!-- LAUNCH(community): After enabling GitHub Discussions, add `Community` to the nav and Community section. -->
 
 <p align="center"><sub>Local by default | No Pixroom account | Works with your existing provider credentials</sub></p>
 
@@ -68,18 +67,6 @@ model-driven fallback: not needed
 network requests: 0
 ```
 
-<details>
-<summary><strong>Installing from a cloned checkout</strong></summary>
-
-```bash
-git clone https://github.com/CodePalAI/pixroom.git
-cd pixroom
-npm install && npm link
-pixroom demo
-```
-
-</details>
-
 ## Why not summarize it?
 
 Summaries are useful when the model needs the gist. They are a bad primitive for exact IDs, counts, paths, and rows.
@@ -91,6 +78,19 @@ Summaries are useful when the model needs the gist. They are a bad primitive for
 | **Pixroom exact path** | A stable dataset reference plus the exact requested slice | **Yes, for supported operations** | Large old JSON, logs, and source output |
 
 If a question is ambiguous, unsupported, or unsafe to answer locally, Pixroom leaves the original result alone. Optional compression integrations can handle other request regions without touching the bytes owned by the exact path.
+
+### How Pixroom fits
+
+These techniques solve different parts of the context problem and can coexist:
+
+| Technique | Primary job | Relationship to Pixroom |
+|---|---|---|
+| Provider prompt caching | Discounts repeated byte-identical prefixes | Pixroom keeps stable dataset references across supported exact turns so caches can still help |
+| Provider compaction | Shortens conversation history inside one provider | Pixroom intercepts large provider tool results before the request and works across Anthropic and OpenAI protocols |
+| Text or image compression | Reduces general prose, code, or static context | Pixroom composes pinned [Headroom](https://github.com/headroomlabs-ai/headroom) and [pxpipe](https://github.com/teamchong/pxpipe) integrations on request regions the exact path does not own |
+| **Pixroom exact path** | Materializes a supported lookup or count from local old tool data | Keeps the original bytes local and passes through ambiguous or unsupported questions |
+
+Pixroom does not claim to replace provider caching, compaction, or general compression. It adds an exact structured-data path and a transactional runtime that prevents optimizers from rewriting the same bytes twice.
 
 ## 22,614 tokens in. 594 tokens out.
 
@@ -486,6 +486,8 @@ npm run bench:qcv-quality       # 36 exact structured tasks, no provider calls
 npm run bench:profile           # paired direct-vs-proxy local profile + raw samples
 npm run bench:profile:isolated  # separate load, proxy, and upstream processes
 ```
+
+Questions, integration ideas, independent benchmark runs, and sanitized field reports belong in [GitHub Discussions](https://github.com/CodePalAI/pixroom/discussions). Reproducible defects and optimizer proposals use the structured [issue forms](https://github.com/CodePalAI/pixroom/issues/new/choose).
 
 ## Status
 

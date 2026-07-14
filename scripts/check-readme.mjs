@@ -98,14 +98,20 @@ if (/[—–“”]/.test(readme)) fail('README contains non-ASCII dash or quote
 const visibleReadme = readme.replace(/<!--[^]*?-->/g, '');
 const waitingForNpm = readme.includes('LAUNCH(npm)');
 if (waitingForNpm) {
-  if (!readme.includes('npm install -g git+https://github.com/CodePalAI/pixroom.git')) {
-    fail('pre-npm README is missing the verified GitHub CLI install');
+  if (!visibleReadme.includes('git clone https://github.com/CodePalAI/pixroom.git')) {
+    fail('pre-npm README is missing the verified public clone command');
   }
-  if (!readme.includes('npm install git+https://github.com/CodePalAI/pixroom.git')) {
-    fail('pre-npm README is missing the verified GitHub SDK install');
+  if (!visibleReadme.includes('npm install && npm link')) {
+    fail('pre-npm README is missing the verified checkout CLI setup');
+  }
+  if (!visibleReadme.includes('npm install /path/to/pixroom')) {
+    fail('pre-npm README is missing the local-directory SDK install');
   }
   for (const unavailable of ['npm install -g pixroom', 'npm install pixroom', 'npx pixroom demo']) {
     if (visibleReadme.includes(unavailable)) fail(`README advertises unpublished npm path: ${unavailable}`);
+  }
+  if (visibleReadme.includes('git+https://github.com/CodePalAI/pixroom.git')) {
+    fail('README advertises the unreliable npm Git-dependency path');
   }
 } else {
   for (const required of ['npm install -g pixroom', 'npm install pixroom', 'npx pixroom demo']) {

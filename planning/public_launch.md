@@ -30,7 +30,7 @@ Do not publish "no quality loss," "97% cheaper," "production proven," or a compe
 ## Gate 2: visual proof
 
 - [ ] Record a 15-25 second terminal demo at 1200x750 or larger, with a readable font and no shell history, username, file path, token, or notification visible.
-- [ ] Show `npx pixroom demo` after npm is live. Before npm, show the GitHub install followed by `pixroom demo`.
+- [ ] Show `npx pixroom demo` after npm is live. Before npm, show the cloned-checkout install followed by `pixroom demo`.
 - [ ] Keep the recording to one story: 1,000 rows, query for ID 733, 13,821 to 171 estimated dataset tokens, exact email, zero model/network calls.
 - [ ] Export an MP4 for GitHub upload and a compressed GIF/WebP fallback under 8 MB.
 - [ ] Upload the MP4 by dragging it into a temporary GitHub issue comment, copy the `user-attachments` URL, then close the issue.
@@ -53,11 +53,11 @@ Recommended tools: VHS for deterministic terminal capture, or Screen Studio/Quic
 
 ## Gate 4: GitHub conversion surface
 
-- [ ] Set the About description to: `Exact local context virtualization for AI agents. Stop resending giant JSON, logs, and tool output.`
-- [ ] Set the homepage to `https://codepal.ai` until dedicated docs have a stable domain.
-- [ ] Keep topics focused: `llm`, `ai-agents`, `context-optimization`, `context-compression`, `token-optimization`, `claude-code`, `openai`, `anthropic`, `developer-tools`, `codepal`.
-- [ ] Enable Discussions with `Q&A`, `Ideas`, `Show and tell`, and `Benchmarks` categories.
-- [ ] Add the Discussions link at `LAUNCH(community)` in the README.
+- [x] Set the About description to: `Exact local context virtualization for AI agents. Stop resending giant JSON, logs, and tool output.` Verified 2026-07-14.
+- [x] Set the homepage to `https://codepal.ai` until dedicated docs have a stable domain. Verified 2026-07-14.
+- [x] Keep topics focused: `llm`, `ai-agents`, `context-optimization`, `context-compression`, `token-optimization`, `claude-code`, `openai`, `anthropic`, `developer-tools`, `codepal`. Verified 2026-07-14.
+- [x] Enable GitHub Discussions. Verified 2026-07-14. Create or rename `Q&A`, `Ideas`, `Show and tell`, and `Benchmarks` categories in the web UI if they are not present.
+- [x] Add the Discussions link to the README. Verified 2026-07-14.
 - [ ] Pin a welcome discussion with the demo, supported operations, current limits, and a request for sanitized traces and independent replications.
 - [ ] Create 5-10 scoped `good first issue` items before launch. Prefer protocol fixtures, docs, adapters, and adversarial cases over architecture rewrites.
 - [ ] Confirm bug, optimizer, and benchmark-replication issue forms work while logged out of the maintainer account.
