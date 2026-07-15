@@ -2,6 +2,7 @@ import { spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import {
   chmodSync,
+  existsSync,
   mkdtempSync,
   mkdirSync,
   readFileSync,
@@ -200,17 +201,18 @@ function promptFor(task) {
 }
 
 function spawnAgent(task, workspace, proxyUrl, keys, secrets) {
-  const commonEnv = { ...process.env, CI: '1', NO_COLOR: '1' };
+  const commonEnv = { ...process.env, CI: '1', NO_COLOR: '1', TERM: 'dumb' };
+  delete commonEnv.COPILOT_AGENT;
+  delete commonEnv.COPILOT_DEBUG_NONCE;
   const prompt = promptFor(task);
   const command = task.agent === 'claude' ? 'claude' : 'codex';
   const args = task.agent === 'claude'
     ? [
-        '--bare', '--safe-mode', '--print', prompt,
+        '--bare', '--print', prompt,
         '--model', ANTHROPIC_MODEL,
         '--max-budget-usd', '0.20',
         '--output-format', 'json',
         '--no-session-persistence',
-        '--dangerously-skip-permissions',
         '--allowedTools', 'Read',
       ]
     : [
@@ -509,6 +511,12 @@ async function runSession(task, keys, secrets, budget) {
     const result = await spawnAgent(task, workspace, `http://${address.host}:${address.port}`, keys, secrets);
     await proxy.close();
     proxy = undefined;
+    if (!existsSync(sourceCapture)) {
+      throw new Error(
+        `${task.id}: agent exited ${result.code}${result.signal ? ` (${result.signal})` : ''} ` +
+          `before its first provider request: ${result.stderrTail}`,
+      );
+    }
     const records = readCaptureFile(sourceCapture);
     const applied = records.filter(hasAppliedQcv);
     const sourceRecord = applied.at(-1);
