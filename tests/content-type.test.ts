@@ -5,6 +5,11 @@ describe('classifyContent', () => {
   it('detects JSON objects and arrays', () => {
     expect(classifyContent('{"a":1,"b":2,"c":3}')).toBe('json');
     expect(classifyContent('[{"id":1},{"id":2},{"id":3}]')).toBe('json');
+    expect(classifyContent('1\t[\n2\t  {"id":1},\n3\t  {"id":2}\n4\t]')).toBe('json');
+  });
+
+  it('does not unwrap malformed or non-sequential line prefixes', () => {
+    expect(classifyContent('1\t[\n3\t  {"id":1}\n4\t]')).not.toBe('json');
   });
 
   it('detects structured logs', () => {

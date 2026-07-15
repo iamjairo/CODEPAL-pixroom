@@ -19,6 +19,9 @@ import { createPinpoint } from '../../dist/pinpoint.js';
 import { createProxyServer } from '../../dist/proxy/server.js';
 import { readCaptureFile } from '../../dist/capture/store.js';
 import { replayCaptureFile } from '../../dist/capture/replay.js';
+import { classifyContent } from '../../dist/policy/content-type.js';
+import { unwrapSequentialLineNumbers } from '../../dist/policy/content-normalization.js';
+import { VirtualContextStore } from '../../dist/virtual-context/store.js';
 import { EVIDENCE } from '../evidence.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -364,6 +367,12 @@ function hasAppliedQcv(record) {
 function structuralDiagnostics(records) {
   const rows = records.map((record) => {
     const body = record.originalBody ?? {};
+    const conversation = Array.isArray(body.messages) ? body.messages : Array.isArray(body.input) ? body.input : [];
+    const question = [...conversation]
+      .reverse()
+      .filter((item) => item?.role === 'user')
+      .map((item) => textContent(item?.content))
+      .find((text) => text.trim()) ?? '';
     const strings = [];
     const pending = [body];
     while (pending.length > 0) {
@@ -372,20 +381,53 @@ function structuralDiagnostics(records) {
       else if (Array.isArray(value)) pending.push(...value);
       else if (value != null && typeof value === 'object') pending.push(...Object.values(value));
     }
+    const toolPayloads = conversation.flatMap((item) =>
+      Array.isArray(item?.content)
+        ? item.content
+            .filter((block) => block?.type === 'tool_result' && typeof block.content === 'string')
+            .map((block) => block.content)
+        : item?.type === 'function_call_output' && typeof item.output === 'string'
+          ? [item.output]
+          : item?.role === 'tool' && typeof item.content === 'string'
+            ? [item.content]
+            : [],
+    );
+    const planner = toolPayloads
+      .filter((payload) => payload.length >= MIN_CHARS)
+      .map((payload) => {
+        const inspection = new VirtualContextStore().inspect(payload, question);
+        return {
+          kind: inspection.descriptor.kind,
+          fields: inspection.descriptor.fields,
+          planned: inspection.prefetch != null,
+          op: inspection.prefetch?.query.op ?? null,
+        };
+      });
     return {
       provider: record.provider,
       maxStringChars: Math.max(0, ...strings),
-      conversation: (Array.isArray(body.messages) ? body.messages : Array.isArray(body.input) ? body.input : [])
-        .map((item) => ({
+      questionChars: question.length,
+      planner,
+      conversation: conversation.map((item) => ({
           role: item?.role ?? null,
           type: item?.type ?? null,
           content: Array.isArray(item?.content)
             ? item.content.map((block) => ({
                 type: block?.type ?? null,
                 textChars: typeof block?.text === 'string' ? block.text.length : null,
+                textPrefix: typeof block?.text === 'string' ? block.text.slice(0, 300) : null,
                 contentChars: typeof block?.content === 'string' ? block.content.length : null,
                 contentPrefix: typeof block?.content === 'string' && block.content.length >= MIN_CHARS
                   ? block.content.slice(0, 300)
+                  : null,
+                contentSuffix: typeof block?.content === 'string' && block.content.length >= MIN_CHARS
+                  ? block.content.slice(-300)
+                  : null,
+                contentType: typeof block?.content === 'string' && block.content.length >= MIN_CHARS
+                  ? classifyContent(block.content)
+                  : null,
+                normalizedChanged: typeof block?.content === 'string' && block.content.length >= MIN_CHARS
+                  ? unwrapSequentialLineNumbers(block.content) !== block.content
                   : null,
               }))
             : typeof item?.content === 'string'

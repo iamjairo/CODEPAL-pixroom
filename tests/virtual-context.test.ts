@@ -61,6 +61,23 @@ describe('VirtualContextStore', () => {
     expect(store.manifest(descriptor)).toContain(descriptor.id);
   });
 
+  it('queries sequential line-numbered JSON while hashing the original bytes', () => {
+    const store = new VirtualContextStore();
+    const raw = [
+      '1\t[',
+      '2\t  {"id": 1, "email": "one@example.com"},',
+      '3\t  {"id": 2, "email": "two@example.com"}',
+      '4\t]',
+    ].join('\n');
+    const descriptor = store.put(raw);
+
+    expect(descriptor.kind).toBe('json-array');
+    expect(descriptor.bytes).toBe(Buffer.byteLength(raw));
+    expect(store.prefetch(descriptor, 'What is the email for id 2?')?.result).toContain(
+      'two@example.com',
+    );
+  });
+
   it('caps query output', () => {
     const store = new VirtualContextStore(180);
     const descriptor = store.put(JSON.stringify(Array.from({ length: 20 }, (_, id) => ({ id, text: 'x'.repeat(50) }))));
@@ -250,7 +267,16 @@ describe('virtual-context runtime integration', () => {
     const body = {
       model: 'claude-haiku-4-5',
       messages: [
-        { role: 'user', content: [{ type: 'text', text: 'What is the email for id 47?' }] },
+        {
+          role: 'user',
+          content: [
+            {
+              type: 'text',
+              text: '<system-reminder>This may or may not be relevant.</system-reminder>',
+            },
+            { type: 'text', text: 'What is the email for id 47?' },
+          ],
+        },
         { role: 'assistant', content: [{ type: 'tool_use', id: 'read_data', name: 'Read', input: {} }] },
         { role: 'user', content: [{ type: 'tool_result', tool_use_id: 'read_data', content: JSON.stringify(rows) }] },
       ],

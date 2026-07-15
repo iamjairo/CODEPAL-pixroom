@@ -13,6 +13,7 @@
  */
 
 import type { ContentType } from '../types.js';
+import { unwrapSequentialLineNumbers } from './content-normalization.js';
 
 /** Lines that look like structured log records (level tag or leading timestamp). */
 const LOG_LINE_RE =
@@ -64,7 +65,7 @@ function symbolDensity(s: string): number {
  * natural language, code is the fallback for symbol-dense non-JSON text.
  */
 export function classifyContent(text: string): ContentType {
-  const s = text.trim();
+  const s = unwrapSequentialLineNumbers(text).trim();
   if (s.length === 0) return 'unknown';
 
   if (looksLikeJson(s)) return 'json';

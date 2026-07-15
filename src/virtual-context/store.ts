@@ -1,5 +1,7 @@
 import { createHash } from 'node:crypto';
 
+import { unwrapSequentialLineNumbers } from '../policy/content-normalization.js';
+
 export const VIRTUAL_QUERY_TOOL_NAME = 'pinpoint_query';
 
 type JsonPrimitive = string | number | boolean | null;
@@ -155,7 +157,7 @@ function buildEntry(raw: string): VirtualContextEntry {
   let kind: VirtualContextKind = 'lines';
   let fields: string[] = [];
   try {
-    value = JSON.parse(raw);
+    value = JSON.parse(unwrapSequentialLineNumbers(raw));
     if (Array.isArray(value)) {
       kind = 'json-array';
       fields = recordFields(value);

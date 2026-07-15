@@ -109,6 +109,11 @@ function virtualizable(target: { readonly text: string }, maxChars: number): boo
   return contentType === 'json' || contentType === 'log' || contentType === 'code';
 }
 
+function isStandaloneSystemReminder(text: string): boolean {
+  const trimmed = text.trim();
+  return trimmed.startsWith('<system-reminder>') && trimmed.endsWith('</system-reminder>');
+}
+
 function latestUserText(body: Readonly<Record<string, unknown>>): string {
   const messages = Array.isArray(body.messages) ? body.messages : [];
   for (let index = messages.length - 1; index >= 0; index--) {
@@ -128,7 +133,8 @@ function latestUserText(body: Readonly<Record<string, unknown>>): string {
           typeof block === 'object' &&
           !Array.isArray(block) &&
           (block as { type?: unknown }).type === 'text' &&
-          typeof (block as { text?: unknown }).text === 'string',
+          typeof (block as { text?: unknown }).text === 'string' &&
+          !isStandaloneSystemReminder((block as { text: string }).text),
       )
       .map((block) => block.text)
       .join('\n');
@@ -148,6 +154,9 @@ function latestUserText(body: Readonly<Record<string, unknown>>): string {
       .filter(
         (block): block is { type: 'input_text'; text: string } =>
           isRecord(block) && block.type === 'input_text' && typeof block.text === 'string',
+      )
+      .filter(
+        (block) => !isStandaloneSystemReminder(block.text),
       )
       .map((block) => block.text)
       .join('\n');
