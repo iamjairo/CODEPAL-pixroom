@@ -98,6 +98,8 @@ export {
 export type {
   VirtualContextDescriptor,
   VirtualContextInspection,
+  VirtualContextJoinInspection,
+  VirtualContextJoinQuery,
   VirtualContextKind,
   VirtualContextPrefetch,
   VirtualContextQuery,

@@ -38,6 +38,33 @@ function qcvBody(stream = false): Record<string, unknown> {
   };
 }
 
+function qcvJoinBody(stream = false): Record<string, unknown> {
+  const orders = Array.from({ length: 60 }, (_, orderId) => ({
+    order_id: orderId,
+    customer_id: orderId + 1_000,
+    source_padding: 'responses join source '.repeat(3),
+  }));
+  const customers = Array.from({ length: 60 }, (_, customerId) => ({
+    customer_id: customerId + 1_000,
+    email: `joined${customerId}@example.com`,
+    destination_padding: 'responses join destination '.repeat(3),
+  }));
+  return {
+    model: 'gpt-5',
+    stream,
+    input: [
+      { type: 'function_call', call_id: 'call_orders', name: 'read_orders', arguments: '{}' },
+      { type: 'function_call_output', call_id: 'call_orders', output: JSON.stringify(orders) },
+      { type: 'function_call', call_id: 'call_customers', name: 'read_customers', arguments: '{}' },
+      { type: 'function_call_output', call_id: 'call_customers', output: JSON.stringify(customers) },
+      {
+        role: 'user',
+        content: [{ type: 'input_text', text: 'What is the email for order_id 27?' }],
+      },
+    ],
+  };
+}
+
 const proxies: ProxyServer[] = [];
 const upstreams: http.Server[] = [];
 
@@ -64,6 +91,25 @@ describe('OpenAI Responses support', () => {
     expect(JSON.stringify(input[2]?.content)).toContain('user47@example.com');
     expect(JSON.stringify(input[2]?.content)).toContain('input_text');
     expect(JSON.stringify(routed.body)).not.toContain('pinpoint_query');
+    await runtime.shutdown();
+  });
+
+  it('virtualizes an exact unique-key join across two function_call_output items', async () => {
+    const runtime = createPinpoint({
+      virtualContext: { enabled: true, minChars: 100, protectRecent: 0 },
+      semantic: { enabled: false },
+      optical: { enabled: false },
+      logLevel: 'silent',
+    });
+
+    const routed = await runtime.route('openai', 'gpt-5', qcvJoinBody(true), 'payg');
+    const serialized = JSON.stringify(routed.body);
+
+    expect(routed.virtualized).toBe(true);
+    expect(serialized.match(/<<pinpoint_virtual/g)).toHaveLength(2);
+    expect(serialized).toContain('joined27@example.com');
+    expect(serialized).not.toContain('joined26@example.com');
+    expect(serialized).not.toContain('pinpoint_query');
     await runtime.shutdown();
   });
 

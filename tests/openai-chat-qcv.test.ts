@@ -65,4 +65,64 @@ describe('OpenAI Chat exact QCV', () => {
     expect(JSON.stringify(forwarded)).toContain('user31@example.com');
     expect(JSON.stringify(forwarded)).not.toContain('pinpoint_query');
   });
+
+  it('forwards an exact unique-key join across two tool messages', async () => {
+    let forwarded: Record<string, unknown> | undefined;
+    const upstream = http.createServer((request, response) => {
+      const chunks: Buffer[] = [];
+      request.on('data', (chunk: Buffer) => chunks.push(chunk));
+      request.on('end', () => {
+        forwarded = JSON.parse(Buffer.concat(chunks).toString()) as Record<string, unknown>;
+        response.writeHead(200, { 'content-type': 'application/json' });
+        response.end(JSON.stringify({
+          id: 'chat_join',
+          choices: [{ message: { role: 'assistant', content: 'joined27@example.com' }, finish_reason: 'stop' }],
+        }));
+      });
+    });
+    upstreams.push(upstream);
+    await new Promise<void>((resolve) => upstream.listen(0, '127.0.0.1', resolve));
+    const upstreamPort = (upstream.address() as AddressInfo).port;
+    const proxy = createProxyServer({
+      port: 0,
+      upstreams: { openai: `http://127.0.0.1:${upstreamPort}` },
+      virtualContext: { enabled: true, minChars: 100, protectRecent: 0 },
+      semantic: { enabled: false },
+      optical: { enabled: false },
+      logLevel: 'silent',
+    });
+    proxies.push(proxy);
+    const { port } = await proxy.listen();
+    const orders = Array.from({ length: 50 }, (_, orderId) => ({
+      order_id: orderId,
+      customer_id: orderId + 1_000,
+      source_padding: 'chat join source '.repeat(3),
+    }));
+    const customers = Array.from({ length: 50 }, (_, customerId) => ({
+      customer_id: customerId + 1_000,
+      email: `joined${customerId}@example.com`,
+      destination_padding: 'chat join destination '.repeat(3),
+    }));
+
+    await fetch(`http://127.0.0.1:${port}/v1/chat/completions`, {
+      method: 'POST',
+      headers: { authorization: 'Bearer test', 'content-type': 'application/json' },
+      body: JSON.stringify({
+        model: 'gpt-test',
+        messages: [
+          { role: 'assistant', tool_calls: [{ id: 'orders', type: 'function', function: { name: 'read_orders', arguments: '{}' } }] },
+          { role: 'tool', tool_call_id: 'orders', content: JSON.stringify(orders) },
+          { role: 'assistant', tool_calls: [{ id: 'customers', type: 'function', function: { name: 'read_customers', arguments: '{}' } }] },
+          { role: 'tool', tool_call_id: 'customers', content: JSON.stringify(customers) },
+          { role: 'user', content: 'What is the email for order_id 27?' },
+        ],
+      }),
+    });
+
+    const serialized = JSON.stringify(forwarded);
+    expect(serialized.match(/<<pinpoint_virtual/g)).toHaveLength(2);
+    expect(serialized).toContain('joined27@example.com');
+    expect(serialized).not.toContain('joined26@example.com');
+    expect(serialized).not.toContain('pinpoint_query');
+  });
 });

@@ -4,6 +4,15 @@ All notable changes are documented here. This project follows semantic versionin
 
 ## Unreleased
 
+### Added
+
+- Deterministic one-hop unique-key QCV joins across two JSON tool results, with exact local projection and no model-planned retrieval.
+- Expanded exact-QCV breadth evidence: 42/42 positive tasks across seven categories and 20/20 adversarial controls refused.
+
+### Safety
+
+- Exact joins fall through on duplicate selector rows, duplicate destination keys, competing datasets, multiple valid join paths, missing rows, oversized projections, or insufficient atomic store capacity. Unsafe JSON integers fall through instead of being rounded.
+
 ## 0.1.0 - 2026-07-14
 
 ### Added

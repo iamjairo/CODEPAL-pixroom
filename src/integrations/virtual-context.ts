@@ -252,11 +252,26 @@ export class VirtualContextIntegration implements ProcessorIntegration {
         return { target, ...inspection };
       });
       const exact = planned.filter(({ prefetch }) => prefetch !== undefined);
+      const joined = !queryFallback && exact.length === 0
+        ? this.store.inspectJoin(candidates.map(({ text }) => text), question)
+        : undefined;
+      const joinedIds = new Set(joined?.descriptors.map(({ id }) => id) ?? []);
+      const joinedPlanned = joined
+        ? planned
+            .filter(({ descriptor }) => joinedIds.has(descriptor.id))
+            .map((value) =>
+              value.descriptor.id === joined.prefetch.query.id
+                ? { ...value, prefetch: joined.prefetch }
+                : value,
+            )
+        : [];
       const proposed = queryFallback
         ? planned
         : exact.length === 1
           ? exact
-          : [];
+          : joinedPlanned.length === joinedIds.size
+            ? joinedPlanned
+            : [];
       const retainedIds = new Set<string>();
       let retainedEntries = 0;
       let retainedBytes = 0;
@@ -272,7 +287,8 @@ export class VirtualContextIntegration implements ProcessorIntegration {
         retainedEntries += 1;
         retainedBytes += descriptor.bytes;
       }
-      const selected = proposed.filter(({ descriptor }) => retainedIds.has(descriptor.id));
+      let selected = proposed.filter(({ descriptor }) => retainedIds.has(descriptor.id));
+      if (joined && selected.length !== proposed.length) selected = [];
 
       if (selected.length === 0) {
         result = passthroughResult(

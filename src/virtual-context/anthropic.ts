@@ -43,7 +43,10 @@ export function parseVirtualContextQuery(value: unknown): VirtualContextQuery | 
         ([field, expected]) =>
           field.length === 0 ||
           field.length > 256 ||
-          (expected !== null && !['string', 'number', 'boolean'].includes(typeof expected)),
+          (expected !== null && !['string', 'number', 'boolean'].includes(typeof expected)) ||
+          (typeof expected === 'number' &&
+            (!Number.isFinite(expected) ||
+              (Number.isInteger(expected) && !Number.isSafeInteger(expected)))),
       )
     ) {
       return undefined;

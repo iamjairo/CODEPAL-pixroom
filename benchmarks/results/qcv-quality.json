@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "evidenceLevel": "offline-real-transform",
-  "generatedAt": "2026-07-14T15:12:45.058Z",
+  "generatedAt": "2026-07-15T06:00:59.191Z",
   "methodology": {
     "providerCalls": 0,
     "modelQuality": "not measured; deterministic exact materialization only",
@@ -11,23 +11,26 @@
       "log-count",
       "source-code",
       "table-json",
-      "nested-projection"
+      "nested-projection",
+      "json-join"
     ],
     "negativeCategories": [
       "ambiguous-selector",
-      "multiple-datasets"
+      "multiple-datasets",
+      "join-ambiguity",
+      "numeric-exactness"
     ]
   },
   "summary": {
-    "tasks": 36,
-    "exact": 36,
-    "virtualized": 36,
+    "tasks": 42,
+    "exact": 42,
+    "virtualized": 42,
     "fallbackInjected": 0,
-    "tokensText": 104018,
-    "tokensCompressed": 5981,
-    "tokensSaved": 98037,
-    "negativeControls": 12,
-    "refused": 12
+    "tokensText": 144272,
+    "tokensCompressed": 7583,
+    "tokensSaved": 136689,
+    "negativeControls": 20,
+    "refused": 20
   },
   "results": [
     {
@@ -389,6 +392,66 @@
       "tokensText": 3686,
       "tokensCompressed": 180,
       "tokensSaved": 3506
+    },
+    {
+      "id": "json-join-1",
+      "category": "json-join",
+      "exact": true,
+      "virtualized": true,
+      "fallbackInjected": false,
+      "tokensText": 6709,
+      "tokensCompressed": 267,
+      "tokensSaved": 6442
+    },
+    {
+      "id": "json-join-2",
+      "category": "json-join",
+      "exact": true,
+      "virtualized": true,
+      "fallbackInjected": false,
+      "tokensText": 6709,
+      "tokensCompressed": 267,
+      "tokensSaved": 6442
+    },
+    {
+      "id": "json-join-3",
+      "category": "json-join",
+      "exact": true,
+      "virtualized": true,
+      "fallbackInjected": false,
+      "tokensText": 6709,
+      "tokensCompressed": 267,
+      "tokensSaved": 6442
+    },
+    {
+      "id": "json-join-4",
+      "category": "json-join",
+      "exact": true,
+      "virtualized": true,
+      "fallbackInjected": false,
+      "tokensText": 6709,
+      "tokensCompressed": 267,
+      "tokensSaved": 6442
+    },
+    {
+      "id": "json-join-5",
+      "category": "json-join",
+      "exact": true,
+      "virtualized": true,
+      "fallbackInjected": false,
+      "tokensText": 6709,
+      "tokensCompressed": 267,
+      "tokensSaved": 6442
+    },
+    {
+      "id": "json-join-6",
+      "category": "json-join",
+      "exact": true,
+      "virtualized": true,
+      "fallbackInjected": false,
+      "tokensText": 6709,
+      "tokensCompressed": 267,
+      "tokensSaved": 6442
     }
   ],
   "negativeResults": [
@@ -463,11 +526,60 @@
       "category": "multiple-datasets",
       "refused": true,
       "fallbackInjected": false
+    },
+    {
+      "id": "refuse-join-duplicate-source",
+      "category": "join-ambiguity",
+      "refused": true,
+      "fallbackInjected": false
+    },
+    {
+      "id": "refuse-join-duplicate-destination",
+      "category": "join-ambiguity",
+      "refused": true,
+      "fallbackInjected": false
+    },
+    {
+      "id": "refuse-join-two-keys",
+      "category": "join-ambiguity",
+      "refused": true,
+      "fallbackInjected": false
+    },
+    {
+      "id": "refuse-join-competing-destination",
+      "category": "join-ambiguity",
+      "refused": true,
+      "fallbackInjected": false
+    },
+    {
+      "id": "refuse-join-missing-row",
+      "category": "join-ambiguity",
+      "refused": true,
+      "fallbackInjected": false
+    },
+    {
+      "id": "refuse-join-no-shared-key",
+      "category": "join-ambiguity",
+      "refused": true,
+      "fallbackInjected": false
+    },
+    {
+      "id": "refuse-unsafe-numeric-selector",
+      "category": "numeric-exactness",
+      "refused": true,
+      "fallbackInjected": false
+    },
+    {
+      "id": "refuse-unsafe-numeric-projection",
+      "category": "numeric-exactness",
+      "refused": true,
+      "fallbackInjected": false
     }
   ],
   "verdict": {
     "atLeastThirtyTasks": true,
     "sixCategories": true,
+    "sevenCategories": true,
     "allExact": true,
     "allVirtualized": true,
     "noFallback": true,

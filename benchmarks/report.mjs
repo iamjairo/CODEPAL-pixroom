@@ -885,7 +885,8 @@ if (!directAnthropicVirtual) {
     '**Default-safety checks:** proposal inspection retains no data; storage commits atomically after ' +
       'request validation; historical manifests remain byte-identical across different current questions; ' +
       'query capabilities are request-scoped; memory is bounded by entries and bytes; delimiter injection ' +
-      'is escaped; repeated/range/negative/multi-dataset selectors fall through; mixed tools, transport ' +
+      'is escaped; repeated/range/negative selectors and ambiguous multi-dataset join paths fall through; ' +
+      'mixed tools, transport ' +
       'failure, invalid continuation output, and round-cap exhaustion replay the original request. These ' +
       'are automated regression tests, not quality evidence.',
   );
@@ -998,7 +999,7 @@ if (qcvQuality) {
     `- **QCV breadth:** ${qcvQuality.summary.exact}/${qcvQuality.summary.tasks} deterministic tasks ` +
       `materialized exact results across ${qcvQuality.methodology.categories.length} structured categories ` +
       `without exposing fallback; ${qcvQuality.summary.refused}/${qcvQuality.summary.negativeControls} ` +
-      'ambiguous or multi-dataset controls were refused. This broadens operation coverage but is not ' +
+      'adversarial ambiguity controls were refused. This broadens operation coverage but is not ' +
       'live-model non-inferiority evidence.',
   );
 }

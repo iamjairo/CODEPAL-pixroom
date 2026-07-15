@@ -25,6 +25,15 @@ export interface VirtualContextQuery {
   readonly limit?: number;
 }
 
+export interface VirtualContextJoinQuery {
+  readonly id: string;
+  readonly op: 'json_join';
+  readonly joinId: string;
+  readonly where: Readonly<Record<string, JsonPrimitive>>;
+  readonly on: string;
+  readonly fields: readonly string[];
+}
+
 interface VirtualContextEntry {
   readonly descriptor: VirtualContextDescriptor;
   readonly raw: string;
@@ -32,8 +41,13 @@ interface VirtualContextEntry {
 }
 
 export interface VirtualContextPrefetch {
-  readonly query: VirtualContextQuery;
+  readonly query: VirtualContextQuery | VirtualContextJoinQuery;
   readonly result: string;
+}
+
+export interface VirtualContextJoinInspection {
+  readonly descriptors: readonly [VirtualContextDescriptor, VirtualContextDescriptor];
+  readonly prefetch: VirtualContextPrefetch;
 }
 
 export interface VirtualContextInspection {
@@ -60,7 +74,22 @@ function clampInteger(value: number | undefined, fallback: number, max: number):
 }
 
 function samePrimitive(left: unknown, right: JsonPrimitive): boolean {
+  if (typeof left === 'number' && Number.isInteger(left) && !Number.isSafeInteger(left)) {
+    return false;
+  }
+  if (typeof right === 'number' && Number.isInteger(right) && !Number.isSafeInteger(right)) {
+    return false;
+  }
   return left === right;
+}
+
+function isPrimitive(value: unknown): value is JsonPrimitive {
+  return (
+    value === null ||
+    typeof value === 'string' ||
+    typeof value === 'boolean' ||
+    (typeof value === 'number' && (!Number.isInteger(value) || Number.isSafeInteger(value)))
+  );
 }
 
 function matchesWhere(value: unknown, where: Readonly<Record<string, JsonPrimitive>>): boolean {
@@ -70,15 +99,37 @@ function matchesWhere(value: unknown, where: Readonly<Record<string, JsonPrimiti
 
 function project(value: unknown, fields: readonly string[]): unknown {
   if (!isRecord(value) || fields.length === 0) return value;
-  const selected: JsonRecord = {};
+  const selected = Object.create(null) as JsonRecord;
   for (const field of fields) {
     if (Object.hasOwn(value, field)) selected[field] = value[field];
   }
   return selected;
 }
 
+function containsUnsafeInteger(value: unknown): boolean {
+  const pending = [value];
+  while (pending.length > 0) {
+    const current = pending.pop();
+    if (typeof current === 'number') {
+      if (Number.isInteger(current) && !Number.isSafeInteger(current)) return true;
+    } else if (Array.isArray(current)) {
+      for (const item of current) pending.push(item);
+    } else if (isRecord(current)) {
+      for (const item of Object.values(current)) pending.push(item);
+    }
+  }
+  return false;
+}
+
 function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function isKeyField(field: string): boolean {
+  return (
+    /(?:^|[_-])(?:id|key|uuid|guid|code|number|no)$/i.test(field) ||
+    /(?:Id|ID|Key|UUID|Uuid|Guid|Code|Number|No)$/.test(field)
+  );
 }
 
 function primitive(raw: string): JsonPrimitive {
@@ -200,6 +251,99 @@ export class VirtualContextStore {
     return { descriptor: entry.descriptor, prefetch: this.prefetchEntry(entry, question) };
   }
 
+  inspectJoin(rawValues: readonly string[], question: string): VirtualContextJoinInspection | undefined {
+    if (
+      !question.trim() ||
+      /\b(?:not|except|without|between|range|from|through|before|after|at least|at most|more than|less than|under|over|or)\b|[<>]/i.test(
+        question,
+      )
+    ) {
+      return undefined;
+    }
+
+    const scratch = new Map(this.entries);
+    const entries: VirtualContextEntry[] = [];
+    for (const raw of rawValues) {
+      const entry = this.resolveId(buildEntry(raw), scratch);
+      if (entries.some(({ descriptor }) => descriptor.id === entry.descriptor.id)) continue;
+      scratch.set(entry.descriptor.id, entry);
+      if (entry.descriptor.kind === 'json-array') entries.push(entry);
+    }
+    if (entries.length < 2) return undefined;
+
+    const allFields = [...new Set(entries.flatMap(({ descriptor }) => descriptor.fields))];
+    const mentioned = allFields.filter((field) =>
+      new RegExp(`\\b${escapeRegExp(field)}\\b`, 'i').test(question),
+    );
+    const selectors: { field: string; value: JsonPrimitive }[] = [];
+    for (const field of mentioned) {
+      const matches = [...question.matchAll(new RegExp(
+        `\\b${escapeRegExp(field)}\\b\\s*(?:(is|equals?|[:=])\\s*)?(['"]?[A-Za-z0-9_.@-]+['"]?)`,
+        'gi',
+      ))];
+      if (matches.length > 1) return undefined;
+      const match = matches[0];
+      if (!match?.[2]) continue;
+      const value = primitive(match[2]);
+      const explicitOperator = match[1] != null;
+      const implicitNumericKey = isKeyField(field) && typeof value === 'number';
+      if (explicitOperator || implicitNumericKey) selectors.push({ field, value });
+    }
+    if (selectors.length !== 1) return undefined;
+
+    const selector = selectors[0]!;
+    const requestedFields = mentioned.filter((field) => field !== selector.field);
+    if (requestedFields.length === 0) return undefined;
+
+    const plans: {
+      source: VirtualContextEntry;
+      destination: VirtualContextEntry;
+      prefetch: VirtualContextPrefetch;
+    }[] = [];
+    for (const source of entries) {
+      if (!source.descriptor.fields.includes(selector.field)) continue;
+      const sourceRows = (source.value as unknown[]).filter((row) =>
+        matchesWhere(row, { [selector.field]: selector.value }),
+      );
+      if (sourceRows.length !== 1 || !isRecord(sourceRows[0])) continue;
+
+      for (const destination of entries) {
+        if (destination.descriptor.id === source.descriptor.id) continue;
+        const fields = requestedFields.filter((field) =>
+          destination.descriptor.fields.includes(field),
+        );
+        if (fields.length !== requestedFields.length) continue;
+        const sharedFields = source.descriptor.fields.filter((field) =>
+          field !== selector.field &&
+          isKeyField(field) &&
+          !fields.includes(field) &&
+          destination.descriptor.fields.includes(field),
+        );
+        for (const on of sharedFields) {
+          const query: VirtualContextJoinQuery = {
+            id: source.descriptor.id,
+            op: 'json_join',
+            joinId: destination.descriptor.id,
+            where: { [selector.field]: selector.value },
+            on,
+            fields,
+          };
+          const result = this.serializeBounded(this.joinJson(source, query, scratch));
+          const parsed = JSON.parse(result);
+          if (isRecord(parsed) && Object.hasOwn(parsed, 'error')) continue;
+          plans.push({ source, destination, prefetch: { query, result } });
+        }
+      }
+    }
+
+    if (plans.length !== 1) return undefined;
+    const plan = plans[0]!;
+    return {
+      descriptors: [plan.source.descriptor, plan.destination.descriptor],
+      prefetch: plan.prefetch,
+    };
+  }
+
   get size(): number {
     return this.entries.size;
   }
@@ -250,7 +394,7 @@ export class VirtualContextStore {
         if (!match?.[2]) continue;
         const value = primitive(match[2]);
         const explicitOperator = match[1] != null;
-        const implicitNumericKey = /(?:^|_)(?:id|index|number|no)$/i.test(field) && typeof value === 'number';
+        const implicitNumericKey = isKeyField(field) && typeof value === 'number';
         if (explicitOperator || implicitNumericKey) where[field] = value;
       }
       const whereFields = new Set(Object.keys(where));
@@ -313,14 +457,17 @@ export class VirtualContextStore {
     return { query, result };
   }
 
-  query(input: VirtualContextQuery): string {
+  query(input: VirtualContextQuery | VirtualContextJoinQuery): string {
     const entry = this.entries.get(input.id);
     if (!entry) return JSON.stringify({ error: 'virtual context not found', id: input.id });
 
     return this.serializeBounded(this.execute(entry, input));
   }
 
-  private execute(entry: VirtualContextEntry, input: VirtualContextQuery): unknown {
+  private execute(
+    entry: VirtualContextEntry,
+    input: VirtualContextQuery | VirtualContextJoinQuery,
+  ): unknown {
     let result: unknown;
     switch (input.op) {
       case 'schema':
@@ -338,10 +485,55 @@ export class VirtualContextStore {
       case 'slice':
         result = this.slice(entry, input);
         break;
+      case 'json_join':
+        result = this.joinJson(entry, input);
+        break;
       default:
         result = { error: 'unsupported virtual context operation' };
     }
     return result;
+  }
+
+  private joinJson(
+    source: VirtualContextEntry,
+    input: VirtualContextJoinQuery,
+    entries: ReadonlyMap<string, VirtualContextEntry> = this.entries,
+  ): unknown {
+    const destination = entries.get(input.joinId);
+    if (
+      source.descriptor.kind !== 'json-array' ||
+      destination?.descriptor.kind !== 'json-array' ||
+      !isKeyField(input.on) ||
+      !source.descriptor.fields.includes(input.on) ||
+      !destination.descriptor.fields.includes(input.on) ||
+      Object.keys(input.where).length !== 1 ||
+      input.fields.length === 0 ||
+      input.fields.some((field) => !destination.descriptor.fields.includes(field))
+    ) {
+      return { error: 'invalid json join' };
+    }
+
+    const sourceRows = (source.value as unknown[]).filter((row) => matchesWhere(row, input.where));
+    if (sourceRows.length !== 1 || !isRecord(sourceRows[0])) {
+      return { error: 'json join source is not unique' };
+    }
+    const joinValue = sourceRows[0][input.on];
+    if (!isPrimitive(joinValue)) return { error: 'json join key is not primitive' };
+
+    const destinationRows = (destination.value as unknown[]).filter((row) =>
+      matchesWhere(row, { [input.on]: joinValue }),
+    );
+    if (destinationRows.length !== 1 || !isRecord(destinationRows[0])) {
+      return { error: 'json join destination is not unique' };
+    }
+    if (input.fields.some((field) => !Object.hasOwn(destinationRows[0]!, field))) {
+      return { error: 'json join projection is incomplete' };
+    }
+    return {
+      matches: [project(destinationRows[0], input.fields)],
+      count: 1,
+      truncated: false,
+    };
   }
 
   private selectJson(entry: VirtualContextEntry, input: VirtualContextQuery): unknown {
@@ -402,6 +594,9 @@ export class VirtualContextStore {
   }
 
   private serializeBounded(value: unknown): string {
+    if (containsUnsafeInteger(value)) {
+      return JSON.stringify({ error: 'query result contains an integer outside the exact JSON range' });
+    }
     const serialized = JSON.stringify(value);
     if (serialized.length <= this.maxResultChars) return serialized;
     return JSON.stringify({

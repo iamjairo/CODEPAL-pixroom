@@ -102,6 +102,95 @@ describe('VirtualContextStore', () => {
     }
   });
 
+  it('plans only unique key joins without retaining inspected data', () => {
+    const store = new VirtualContextStore();
+    const source = JSON.stringify([
+      { order_id: 7, customer_id: 101 },
+      { order_id: 8, customer_id: 102 },
+    ]);
+    const destination = JSON.stringify([
+      { customer_id: 101, email: 'one@example.com' },
+      { customer_id: 102, email: 'two@example.com' },
+    ]);
+    const exact = store.inspectJoin([source, destination], 'What is the email for order_id 7?');
+
+    expect(exact?.descriptors).toHaveLength(2);
+    expect(exact?.prefetch.query).toMatchObject({
+      op: 'json_join',
+      where: { order_id: 7 },
+      on: 'customer_id',
+      fields: ['email'],
+    });
+    expect(exact?.prefetch.result).toContain('one@example.com');
+    expect(store.size).toBe(0);
+    expect(store.bytes).toBe(0);
+    const replayStore = new VirtualContextStore();
+    replayStore.put(source);
+    replayStore.put(destination);
+    expect(replayStore.query(exact!.prefetch.query)).toBe(exact!.prefetch.result);
+
+    const duplicateSource = JSON.stringify([
+      { order_id: 7, customer_id: 101 },
+      { order_id: 7, customer_id: 102 },
+    ]);
+    const duplicateDestination = JSON.stringify([
+      { customer_id: 101, email: 'one@example.com' },
+      { customer_id: 101, email: 'other@example.com' },
+    ]);
+    const twoJoinKeys = JSON.stringify([
+      { customer_id: 101, account_id: 201, email: 'one@example.com' },
+    ]);
+    const sourceWithTwoKeys = JSON.stringify([
+      { order_id: 7, customer_id: 101, account_id: 201 },
+    ]);
+    const competingDestination = JSON.stringify([
+      { customer_id: 101, email: 'competing@example.com' },
+    ]);
+
+    expect(store.inspectJoin([duplicateSource, destination], 'What is the email for order_id 7?')).toBeUndefined();
+    expect(store.inspectJoin([source, duplicateDestination], 'What is the email for order_id 7?')).toBeUndefined();
+    expect(store.inspectJoin([sourceWithTwoKeys, twoJoinKeys], 'What is the email for order_id 7?')).toBeUndefined();
+    expect(store.inspectJoin([source, destination, competingDestination], 'What is the email for order_id 7?')).toBeUndefined();
+    expect(store.inspectJoin([source, destination], 'What is the email for order_id 7 or order_id 8?')).toBeUndefined();
+    expect(store.inspectJoin(
+      [
+        JSON.stringify([{ order_id: 7, customer_name: 'Ada' }]),
+        JSON.stringify([{ customer_name: 'Ada', email: 'coincidental@example.com' }]),
+      ],
+      'What is the email for order_id 7?',
+    )).toBeUndefined();
+    expect(store.inspectJoin(
+      [
+        JSON.stringify([{ orderId: 7, customerId: 101 }]),
+        JSON.stringify([{ customerId: 101, email: 'camel@example.com' }]),
+      ],
+      'What is the email for orderId 7?',
+    )?.prefetch.result).toContain('camel@example.com');
+    expect(store.size).toBe(0);
+    expect(store.bytes).toBe(0);
+  });
+
+  it('refuses exact joins whose projected result exceeds the output cap', () => {
+    const store = new VirtualContextStore(120);
+    const source = JSON.stringify([{ order_id: 7, customer_id: 101 }]);
+    const destination = JSON.stringify([{ customer_id: 101, email: 'x'.repeat(500) }]);
+
+    expect(store.inspectJoin([source, destination], 'What is the email for order_id 7?')).toBeUndefined();
+  });
+
+  it('fails closed on lossy integers and preserves special JSON projection keys', () => {
+    const store = new VirtualContextStore();
+    const unsafeSelector = store.put('[{"id":9007199254740993,"email":"wrong@example.com"}]');
+    const unsafeProjection = store.put('[{"id":1,"amount":9007199254740993}]');
+    const specialField = store.put('[{"id":1,"__proto__":"exact-value"}]');
+
+    expect(store.prefetch(unsafeSelector, 'What is the email for id 9007199254740993?')).toBeUndefined();
+    expect(store.prefetch(unsafeProjection, 'What is the amount for id 1?')).toBeUndefined();
+    expect(store.prefetch(specialField, 'What is the __proto__ for id 1?')?.result).toContain(
+      '"__proto__":"exact-value"',
+    );
+  });
+
   it('bounds retained bytes and escapes untrusted manifest fields', () => {
     const store = new VirtualContextStore(12_000, 10, 30);
     const first = store.put('a'.repeat(20));
@@ -143,6 +232,92 @@ describe('VirtualContextStore', () => {
 });
 
 describe('virtual-context runtime integration', () => {
+  it('materializes an unambiguous exact join across two JSON tool results', async () => {
+    const runtime = createPinpoint({
+      virtualContext: { enabled: true, minChars: 100, protectRecent: 0 },
+      semantic: { enabled: false },
+      optical: { enabled: false },
+      logLevel: 'silent',
+    });
+    const orders = Array.from({ length: 80 }, (_, orderId) => ({
+      order_id: orderId,
+      customer_id: orderId + 1_000,
+      status: orderId % 2 === 0 ? 'open' : 'closed',
+      padding: 'order fixture '.repeat(3),
+    }));
+    const customers = Array.from({ length: 80 }, (_, customerId) => ({
+      customer_id: customerId + 1_000,
+      email: `customer${customerId}@example.com`,
+      tier: customerId % 3 === 0 ? 'pro' : 'basic',
+      padding: 'customer fixture '.repeat(3),
+    }));
+    const body = {
+      model: 'claude-haiku-4-5',
+      messages: [
+        { role: 'assistant', content: [{ type: 'tool_use', id: 'toolu_orders', name: 'read_orders', input: {} }] },
+        { role: 'user', content: [{ type: 'tool_result', tool_use_id: 'toolu_orders', content: JSON.stringify(orders) }] },
+        { role: 'assistant', content: [{ type: 'tool_use', id: 'toolu_customers', name: 'read_customers', input: {} }] },
+        { role: 'user', content: [{ type: 'tool_result', tool_use_id: 'toolu_customers', content: JSON.stringify(customers) }] },
+        { role: 'user', content: 'What is the email for order_id 47?' },
+      ],
+    };
+
+    const routed = await runtime.route('anthropic', 'claude-haiku-4-5', body, 'payg');
+    const serialized = JSON.stringify(routed.body);
+
+    expect(routed.virtualized).toBe(true);
+    expect(routed.report.rows.find((row) => row.stage === 'virtual')).toMatchObject({
+      applied: true,
+    });
+    expect(serialized.match(/<<pinpoint_virtual/g)).toHaveLength(2);
+    expect(serialized.match(/<pinpoint_exact_prefetch>/g)).toHaveLength(1);
+    expect(serialized).toContain('customer47@example.com');
+    expect(serialized).not.toContain('customer46@example.com');
+    expect(serialized).not.toContain('"name":"pinpoint_query"');
+    expect(runtime.virtualContext.size).toBe(2);
+    await runtime.shutdown();
+  });
+
+  it('retains no join dataset when capacity cannot commit the pair atomically', async () => {
+    const runtime = createPinpoint({
+      virtualContext: {
+        enabled: true,
+        minChars: 100,
+        protectRecent: 0,
+        maxEntries: 1,
+      },
+      semantic: { enabled: false },
+      optical: { enabled: false },
+      logLevel: 'silent',
+    });
+    const orders = Array.from({ length: 30 }, (_, orderId) => ({
+      order_id: orderId,
+      customer_id: orderId + 1_000,
+      padding: 'order capacity fixture '.repeat(2),
+    }));
+    const customers = Array.from({ length: 30 }, (_, customerId) => ({
+      customer_id: customerId + 1_000,
+      email: `customer${customerId}@example.com`,
+      padding: 'customer capacity fixture '.repeat(2),
+    }));
+    const body = {
+      model: 'claude-haiku-4-5',
+      messages: [
+        { role: 'user', content: [{ type: 'tool_result', tool_use_id: 'orders', content: JSON.stringify(orders) }] },
+        { role: 'user', content: [{ type: 'tool_result', tool_use_id: 'customers', content: JSON.stringify(customers) }] },
+        { role: 'user', content: 'What is the email for order_id 7?' },
+      ],
+    };
+
+    const routed = await runtime.route('anthropic', 'claude-haiku-4-5', structuredClone(body), 'payg');
+
+    expect(routed.body).toEqual(body);
+    expect(routed.virtualized).toBe(false);
+    expect(runtime.virtualContext.size).toBe(0);
+    expect(runtime.virtualContext.bytes).toBe(0);
+    await runtime.shutdown();
+  });
+
   it('virtualizes an old structured tool result and keeps exact values queryable', async () => {
     const runtime = createPinpoint({
       virtualContext: { enabled: true, minChars: 500, protectRecent: 1 },

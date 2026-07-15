@@ -122,6 +122,31 @@ function nestedProjectionTasks() {
   });
 }
 
+function joinTasks() {
+  return Array.from({ length: 6 }, (_, offset) => {
+    const target = 17 + offset * 9;
+    const orders = Array.from({ length: 90 }, (_, orderId) => ({
+      order_id: orderId,
+      customer_id: orderId + 1_000,
+      status: orderId % 2 === 0 ? 'open' : 'closed',
+      source_padding: 'join source fixture '.repeat(3),
+    }));
+    const customers = Array.from({ length: 90 }, (_, customerId) => ({
+      customer_id: customerId + 1_000,
+      email: `joined${customerId}@example.com`,
+      tier: customerId % 3 === 0 ? 'pro' : 'basic',
+      destination_padding: 'join destination fixture '.repeat(3),
+    }));
+    return {
+      id: `json-join-${offset + 1}`,
+      category: 'json-join',
+      contents: [JSON.stringify(orders), JSON.stringify(customers)],
+      question: `What is the email for order_id ${target}?`,
+      expected: `joined${target}@example.com`,
+    };
+  });
+}
+
 function tasks() {
   return [
     ...jsonLookupTasks(),
@@ -130,6 +155,100 @@ function tasks() {
     ...sourceTasks(),
     ...tableTasks(),
     ...nestedProjectionTasks(),
+    ...joinTasks(),
+  ];
+}
+
+function joinRefusalTasks() {
+  const padding = 'adversarial join fixture '.repeat(5);
+  const validSource = JSON.stringify([
+    { order_id: 7, customer_id: 101, source_padding: padding },
+    { order_id: 8, customer_id: 102, source_padding: padding },
+  ]);
+  const validDestination = JSON.stringify([
+    { customer_id: 101, email: 'one@example.com', destination_padding: padding },
+    { customer_id: 102, email: 'two@example.com', destination_padding: padding },
+  ]);
+  return [
+    {
+      id: 'refuse-join-duplicate-source',
+      category: 'join-ambiguity',
+      contents: [
+        JSON.stringify([
+          { order_id: 7, customer_id: 101, source_padding: padding },
+          { order_id: 7, customer_id: 102, source_padding: padding },
+        ]),
+        validDestination,
+      ],
+      question: 'What is the email for order_id 7?',
+    },
+    {
+      id: 'refuse-join-duplicate-destination',
+      category: 'join-ambiguity',
+      contents: [
+        validSource,
+        JSON.stringify([
+          { customer_id: 101, email: 'one@example.com', destination_padding: padding },
+          { customer_id: 101, email: 'other@example.com', destination_padding: padding },
+        ]),
+      ],
+      question: 'What is the email for order_id 7?',
+    },
+    {
+      id: 'refuse-join-two-keys',
+      category: 'join-ambiguity',
+      contents: [
+        JSON.stringify([{ order_id: 7, customer_id: 101, account_id: 201, source_padding: padding }]),
+        JSON.stringify([{ customer_id: 101, account_id: 201, email: 'one@example.com', destination_padding: padding }]),
+      ],
+      question: 'What is the email for order_id 7?',
+    },
+    {
+      id: 'refuse-join-competing-destination',
+      category: 'join-ambiguity',
+      contents: [
+        validSource,
+        validDestination,
+        JSON.stringify([{ customer_id: 101, email: 'competing@example.com', other_padding: padding }]),
+      ],
+      question: 'What is the email for order_id 7?',
+    },
+    {
+      id: 'refuse-join-missing-row',
+      category: 'join-ambiguity',
+      contents: [
+        validSource,
+        JSON.stringify([{ customer_id: 999, email: 'missing@example.com', destination_padding: padding }]),
+      ],
+      question: 'What is the email for order_id 7?',
+    },
+    {
+      id: 'refuse-join-no-shared-key',
+      category: 'join-ambiguity',
+      contents: [
+        validSource,
+        JSON.stringify([{ account_id: 101, email: 'wrong-key@example.com', destination_padding: padding }]),
+      ],
+      question: 'What is the email for order_id 7?',
+    },
+  ];
+}
+
+function numericExactnessRefusalTasks() {
+  const padding = 'numeric exactness refusal fixture '.repeat(5);
+  return [
+    {
+      id: 'refuse-unsafe-numeric-selector',
+      category: 'numeric-exactness',
+      contents: [`[{"id":9007199254740993,"email":"wrong@example.com","padding":"${padding}"}]`],
+      question: 'What is the email for id 9007199254740993?',
+    },
+    {
+      id: 'refuse-unsafe-numeric-projection',
+      category: 'numeric-exactness',
+      contents: [`[{"id":1,"amount":9007199254740993,"padding":"${padding}"}]`],
+      question: 'What is the amount for id 1?',
+    },
   ];
 }
 
@@ -161,7 +280,7 @@ function refusalTasks() {
     ],
     question: `What is email for id ${10 + index}?`,
   }));
-  return [...ambiguous, ...multiple];
+  return [...ambiguous, ...multiple, ...joinRefusalTasks(), ...numericExactnessRefusalTasks()];
 }
 
 function prefetchPayload(body) {
@@ -188,14 +307,17 @@ async function main() {
   const negativeResults = [];
   try {
     for (const task of tasks()) {
+      const contents = task.contents ?? [task.content];
       const routed = await runtime.route(
         'anthropic',
         'claude-haiku-4-5',
         {
           model: 'claude-haiku-4-5',
           messages: [
-            { role: 'assistant', content: [{ type: 'tool_use', id: `tool_${task.id}`, name: 'read_data', input: {} }] },
-            { role: 'user', content: [{ type: 'tool_result', tool_use_id: `tool_${task.id}`, content: task.content }] },
+            ...contents.flatMap((content, index) => [
+              { role: 'assistant', content: [{ type: 'tool_use', id: `tool_${task.id}_${index}`, name: 'read_data', input: {} }] },
+              { role: 'user', content: [{ type: 'tool_result', tool_use_id: `tool_${task.id}_${index}`, content }] },
+            ]),
             { role: 'user', content: task.question },
           ],
         },
@@ -269,6 +391,7 @@ async function main() {
     verdict: {
       atLeastThirtyTasks: results.length >= 30,
       sixCategories: categories.length >= 6,
+      sevenCategories: categories.length >= 7,
       allExact: results.every((result) => result.exact),
       allVirtualized: results.every((result) => result.virtualized),
       noFallback: results.every((result) => !result.fallbackInjected),

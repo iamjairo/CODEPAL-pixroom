@@ -1,6 +1,6 @@
 # pinpoint compression benchmark
 
-_Generated 2026-07-14T12:29:13.180Z._
+_Generated 2026-07-15T06:00:59.313Z._
 
 Measures token consumption (and, for live arms, response correctness) for **headroom-only** (semantic), **pxpipe-only** (optical), and **pinpoint** (both), on the same prompts + system context. Results are separated by evidence level; simulations are not presented as product-performance evidence.
 
@@ -369,13 +369,13 @@ On the same fixture definitions, the earlier Headroom-only paid arm used 13,183 
 
 > Scope: the deterministic exact subset defaults on for first-party Anthropic Messages, OpenAI Chat, and OpenAI Responses PAYG traffic, including streaming responses. Ambiguous questions pass through by default; `PINPOINT_VIRTUAL_QUERY_FALLBACK=1` separately enables the bounded Anthropic query tool for non-streaming requests. Subscription traffic passes through. N=2 is breakthrough-candidate evidence, not a universal claim.
 
-**Default-safety checks:** proposal inspection retains no data; storage commits atomically after request validation; historical manifests remain byte-identical across different current questions; query capabilities are request-scoped; memory is bounded by entries and bytes; delimiter injection is escaped; repeated/range/negative/multi-dataset selectors fall through; mixed tools, transport failure, invalid continuation output, and round-cap exhaustion replay the original request. These are automated regression tests, not quality evidence.
+**Default-safety checks:** proposal inspection retains no data; storage commits atomically after request validation; historical manifests remain byte-identical across different current questions; query capabilities are request-scoped; memory is bounded by entries and bytes; delimiter injection is escaped; repeated/range/negative selectors and ambiguous multi-dataset join paths fall through; mixed tools, transport failure, invalid continuation output, and round-cap exhaustion replay the original request. These are automated regression tests, not quality evidence.
 
 > **Related work:** LeanCTX already combines exact content-addressed archives, `ctx_expand` JSON/search recovery, and query-conditioned context modes. QCV's narrower distinction is drop-in virtualization of arbitrary intercepted provider tool results, deterministic exact current-question prefetch, conditional tool exposure, and transparent continuation inside a transactional multi-optimizer runtime. This report does not claim globally novel ingredients.
 
 ## Arm I — Exact QCV breadth suite
 
-Evidence: `offline-real-transform`. 36 deterministic tasks across 6 categories, with zero provider calls. This grades exact local materialization and fallback suppression, not model-answer quality.
+Evidence: `offline-real-transform`. 42 deterministic tasks across 7 categories, with zero provider calls. This grades exact local materialization and fallback suppression, not model-answer quality.
 
 | category | tasks | exact | virtualized | fallback |
 | --- | --- | --- | --- | --- |
@@ -385,8 +385,9 @@ Evidence: `offline-real-transform`. 36 deterministic tasks across 6 categories, 
 | source-code | 6 | 6/6 | 6/6 | 0 |
 | table-json | 6 | 6/6 | 6/6 | 0 |
 | nested-projection | 6 | 6/6 | 6/6 | 0 |
+| json-join | 6 | 6/6 | 6/6 | 0 |
 
-Result: 36/36 exact, 36/36 virtualized, 0 fallback tools; dataset-region estimate 104,018 → 5,964 tokens (94.3% lower). Adversarial controls: 12/12 safely refused without fallback. Verdict: `atLeastThirtyTasks=true`, `sixCategories=true`, `allExact=true`, `allVirtualized=true`, `noFallback=true`, `allNegativeControlsRefused=true`.
+Result: 42/42 exact, 42/42 virtualized, 0 fallback tools; dataset-region estimate 144,272 → 7,583 tokens (94.7% lower). Adversarial controls: 20/20 safely refused without fallback. Verdict: `atLeastThirtyTasks=true`, `sixCategories=true`, `sevenCategories=true`, `allExact=true`, `allVirtualized=true`, `noFallback=true`, `allNegativeControlsRefused=true`.
 
 ## Findings
 
@@ -395,7 +396,7 @@ Result: 36/36 exact, 36/36 virtualized, 0 fallback tools; dataset-region estimat
 - **Live Claude Code (fable-5):** optical genuinely engages — pxpipe/pinpoint image the static slab for a **net total-input cut vs native** despite the proxy's request inflation, correctness preserved (except a base-URL arithmetic quirk that hits *all* proxies, not compression). On opus (out of optical scope) the same proxying nets *more* tokens. The decisive subscription concern is the **prompt cache**: aggressive/lossy restructuring interacts with Claude Code's cache, so pinpoint goes stealth there. See Arm C; the full optical+semantic composition is Arm A.
 - **Paid direct Anthropic (claude-haiku-4-5-20251001):** provider input fell 40.3% and modeled cost fell 40.1%, with equal 2/3 quality. This was a three-task, one-repetition pilot and used headroom semantic compression only, so it validates the integration rather than independent pinpoint value.
 - **QCV paid pilot (claude-haiku-4-5-20251001):** input fell 97.4%, modeled cost fell 97.1%, and exact score improved 1/2 → 2/2. This is the first pinpoint-owned optimizer result, but it remains a two-task, one-repetition pilot.
-- **QCV breadth:** 36/36 deterministic tasks materialized exact results across 6 structured categories without exposing fallback; 12/12 ambiguous or multi-dataset controls were refused. This broadens operation coverage but is not live-model non-inferiority evidence.
+- **QCV breadth:** 42/42 deterministic tasks materialized exact results across 7 structured categories without exposing fallback; 20/20 adversarial ambiguity controls were refused. This broadens operation coverage but is not live-model non-inferiority evidence.
 - **Constructed additivity (Arm E):** `dominates-all=true` on five synthetic disjoint-region inputs; strict token wins on mixed-json + mixed-logs + mixed-code. This is transform arithmetic, not a task-quality or universal product claim.
 - **Prose (Arm F): fills the gap** — a large user-message prose block is compressed **0%** by pxpipe, headroom-tools, and default pinpoint, but `PINPOINT_SEMANTIC_PROSE=1` routes it to headroom's Kompress for a real, reversible cut (~6–21% of prose tokens by redundancy), **additive** with the optical + tool_result regions and a **no-op** when there's no prose.
 - **Controller simulation (Arm G):** the policy loop recovers a hand-authored 2×2 allocation under its own oracle. It is retained as a deterministic mechanism test and excluded from competitive claims.

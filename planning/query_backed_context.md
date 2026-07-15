@@ -15,8 +15,9 @@ QCV handles non-recent JSON, line-oriented logs, and source-like tool results on
    - explicit field/value lookup -> exact `json_select` result;
    - explicit filtered count -> exact JSON count;
    - explicit log-level count -> boundary-aware line count;
+   - explicit selector across two JSON arrays with exactly one shared primitive key and one row at each hop -> exact one-hop join projection;
    - otherwise -> no prefetch.
-5. Default-on QCV selects a candidate only when exactly one dataset yields one complete exact answer and the transformed request is smaller. Repeated selectors, ranges, negation, and multiple matching datasets are refused.
+5. Default-on QCV selects a candidate only when exactly one single-dataset plan or one two-dataset join path yields a complete exact answer and the transformed request is smaller. Repeated selectors, ranges, negation, duplicate keys, competing datasets, and multiple valid join paths are refused.
 6. The transaction validates a cloned request, atomically retains every selected dataset within entry/byte limits, commits stable manifests into Anthropic `tool_result`, OpenAI Chat `role:tool`, or Responses `function_call_output` positions, and appends escaped exact data to the current provider-native user turn.
 7. Within exact-query turns, historical manifest bytes depend only on the dataset and configuration, not the selector, preserving that transformed prefix. An ambiguous turn intentionally falls back to the original and can therefore change applicability.
 8. Unresolved questions fall through by default. With `PINPOINT_VIRTUAL_QUERY_FALLBACK=1`, pinpoint injects `pinpoint_query`; pure internal calls receive bounded local `schema`, `json_select`, `count`, `grep`, or `slice` results and continue transparently.
@@ -56,7 +57,7 @@ The repaired pilot reduced input 97.4% and cost 97.1%. QCV returned the exact se
 
 The conservative offline benchmark counts an initial optimized request plus one complete uncached fallback continuation even though the safe exact cases need no second provider request. QCV still used 63.7-67.7% fewer tokens than the existing Headroom+pxpipe stack on JSON, logs, and current source text.
 
-A separate 36-task deterministic suite spans JSON lookup, filtered counts, logs, source exports, tabular JSON, and nested projections. It produced 36/36 exact materializations, 36/36 virtualizations, and zero fallback tools, with dataset-region estimates reduced from 104,018 to 5,964 tokens. Twelve ambiguous-selector and multi-dataset controls were all refused without fallback. This is operation-breadth evidence without provider calls, not live-model quality evidence.
+A separate 42-task deterministic suite spans JSON lookup, filtered counts, logs, source exports, tabular JSON, nested projections, and one-hop unique-key JSON joins. It produced 42/42 exact materializations, 42/42 virtualizations, and zero fallback tools, with dataset-region estimates reduced from 144,272 to 7,583 tokens. Twenty ambiguous-selector, competing-dataset, unsafe-join, and lossy-number controls were all refused without fallback. This is operation-breadth evidence without provider calls, not live-model quality evidence.
 
 These are small synthetic pilots, not universal quality evidence.
 
@@ -83,6 +84,8 @@ The ingredients have prior art. The current claim is a distinct integration and 
 - model-driven queries receive only request-scoped dataset capabilities;
 - model-visible field names and exact values are delimiter-escaped and labeled as data;
 - ambiguous questions do not get speculative prefetch and multiple exact candidate datasets fall through;
+- exact joins require one explicit equality selector, one unique shared primitive key, one matching source row, one matching destination row, and a bounded complete projection;
+- selectors or projected values containing integers outside JavaScript's exact JSON range fall through instead of returning rounded data;
 - historical manifests are independent of the current question;
 - hidden query rounds are capped;
 - invalid query inputs are rejected structurally;
@@ -96,4 +99,4 @@ The ingredients have prior art. The current claim is a distinct integration and 
 2. Demonstrate quality non-inferiority within two percentage points versus raw and Headroom-only.
 3. Replay sanitized Claude Code/Codex traces with cache reads/writes, retries, and repeated turns using durable capture.
 4. Validate provider conformance and soak behavior for synthesized Anthropic/OpenAI continuation streams.
-5. Expand deterministic planning to safe multi-dataset joins without weakening the current ambiguity refusal.
+5. Expand beyond one-hop one-to-one joins only when new operations preserve the current duplicate-key and competing-path refusals.

@@ -208,9 +208,10 @@ By default, the exact-data path considers older tool results between 6,000 and 2
 |---|---|
 | JSON plus a clear field/value lookup, such as "email for id 73" | Stores the full JSON locally and sends the one exact matching value |
 | JSON plus a filtered count, such as "how many records have active is true?" | Counts matching records locally and sends the exact number |
+| Two JSON arrays with one explicit selector and one unique shared key, such as "email for order_id 73" | Follows the one-to-one key locally and sends the exact projected value |
 | Logs plus a level count, such as "how many ERROR lines?" | Counts matching log lines locally and sends the exact number |
 | Source code plus "which classes are exported?" | Finds and sends the exact `export class` lines |
-| A range, negation, repeated selector, multiple matching datasets, or unclear question | Leaves the original tool result unchanged |
+| A range, negation, repeated selector, competing datasets or join paths, duplicate keys, integers outside JavaScript's exact JSON range, or unclear question | Leaves the original tool result unchanged |
 | A short prompt, normal chat, recent turn, image, or unsupported content | Leaves it unchanged; another installed compression module may still handle a different part of the request |
 | Subscription or OAuth traffic | Keeps the exact-data path off; other safe configured compression may still run |
 
@@ -366,7 +367,7 @@ The offline corpus runs real Pinpoint transforms over agent-shaped requests and 
 
 This offline result validates transformation and token accounting, not model quality. The paid pilots are also small: synthetic fixtures, one model, one randomized pair per task, and no retries. Cache behavior, retrievals, model choice, and how often real requests match the rules can change the net saving.
 
-The broader exact-data test suite runs 36 deterministic tasks across JSON lookup, filtered counts, logs, source exports, tabular JSON, and nested projections. It produced 36/36 exact answers, replaced the large old tool output in 36/36 cases, and never exposed model-planned retrieval. The measured tool-output regions fell from 104,018 to 5,964 estimated tokens. It also refused 12/12 ambiguous or multi-dataset controls. This is offline operation coverage, not live-model quality evidence.
+The broader exact-data test suite runs 42 deterministic tasks across JSON lookup, filtered counts, logs, source exports, tabular JSON, nested projections, and one-hop unique-key JSON joins. It produced 42/42 exact answers, replaced the large old tool output in 42/42 cases, and never exposed model-planned retrieval. The measured tool-output regions fell from 144,272 to 7,583 estimated tokens. It also refused 20/20 ambiguous, competing-dataset, unsafe-join, and lossy-number controls. This is offline operation coverage, not live-model quality evidence.
 
 The full [benchmark report](./benchmarks/REPORT.md) keeps live, offline, agentic, and simulated evidence separate. It also preserves failed experiments instead of averaging them into successful results.
 

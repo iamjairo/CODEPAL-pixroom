@@ -11,6 +11,8 @@ export type {
   VirtualContextDescriptor,
   VirtualContextKind,
   VirtualContextInspection,
+  VirtualContextJoinInspection,
+  VirtualContextJoinQuery,
   VirtualContextPrefetch,
   VirtualContextQuery,
 } from './store.js';

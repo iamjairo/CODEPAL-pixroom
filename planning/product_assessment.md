@@ -1,6 +1,6 @@
 # Pinpoint product assessment
 
-_Evidence snapshot: 2026-07-14._
+_Evidence snapshot: 2026-07-15._
 
 ## Executive verdict
 
@@ -19,7 +19,7 @@ Recommendation: center the next validation cycle on QCV and the neutral optimize
 | Repaired paid QCV pilot, Haiku 4.5, 2 paired tasks | 22,614 -> 594 provider input tokens; 97.1% modeled cost reduction; 1/2 -> 2/2 score | Pinpoint QCV | Original optimizer can beat raw context and improve an exact aggregation answer |
 | Rejected naive QCV pilot | 79.1% input reduction; quality 2/3 -> 1/3 | Pinpoint QCV v0 | Model-planned retrieval under a tiny output cap is not safe; design correctly rejected |
 | Conservative offline QCV, 3 fixtures | 63.7-67.7% fewer tokens than current full stack, counting one complete uncached fallback continuation | Pinpoint QCV | QCV remains smaller even when query-round cost is pessimistically included |
-| Exact QCV breadth, 48 deterministic cases | 36/36 exact positive tasks; 12/12 ambiguous or multi-dataset controls refused; zero fallback tools | Pinpoint QCV | Broad local operation and refusal coverage across six structured categories; not live-model quality evidence |
+| Exact QCV breadth, 62 deterministic cases | 42/42 exact positive tasks; 20/20 ambiguous, competing-dataset, unsafe-join, or lossy-number controls refused; zero fallback tools | Pinpoint QCV | Broad local operation and refusal coverage across seven structured categories, including one-hop unique-key joins; not live-model quality evidence |
 | Paid Anthropic pilot, Haiku 4.5, 3 paired tasks | 24,249 -> 14,478 provider input tokens; 40.1% modeled cost reduction; 2/3 -> 2/3 score | Headroom semantic path | Integration and measurement work on paid traffic |
 | Offline Fable-5, 3 mixed fixtures | Headroom 28.3%; pxpipe 20.5%; pinpoint 48.8% input reduction | Composition of both upstream engines | Multiple disjoint optimizers can add value |
 | Transaction/runtime tests | Custom integration works without router edits; rollback, audit, and shadow pass | Pinpoint kernel | A credible plugin-host foundation |
