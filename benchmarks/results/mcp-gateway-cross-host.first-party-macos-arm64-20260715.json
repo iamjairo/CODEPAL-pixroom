@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 1,
+  "evidenceLevel": "live-agentic",
+  "kind": "mcp-result-firewall-cross-host-gate",
+  "date": "2026-07-15",
+  "source": {
+    "description": "Two real installed agent clients independently completed the same disposable synthetic stdio MCP task through the production Pinpoint CLI gateway.",
+    "persistedData": "Only content-free receipts are retained. Client event streams, debug logs, provider credentials, personal paths, and temporary MCP state are deleted after grading.",
+    "fingerprints": {
+      "src/mcp/gateway.ts": "a94985e81c304b34185ff3ef012bf163b3007fc6b87bc2df3a8f6d955b1963ff",
+      "src/virtual-context/store.ts": "7b0bbc2de4e400b7cb85a23d926bf5ec2c898c7242df57b220026bf3cbc36783",
+      "src/cli/main.ts": "ee9f86a97d7e1004f72a46c45b6a37fcbe2b5b3e0204880ae380b999fcda5224",
+      "benchmarks/v2/mcp_gateway_agent_gate.mjs": "ed9a2e1c75e6f4824f744055356c83aef5ff93d0d9a12a18e6fb9957b0499641",
+      "benchmarks/v2/mcp_gateway_copilot_gate.mjs": "b7c7d41bf55ac7d0f845ee23f095d94e5d816d3ccdd65dfa4b393b94c1298a6b"
+    }
+  },
+  "fixture": {
+    "task": "Find one email by accountId through an MCP server and return only the value.",
+    "upstreamTool": "accounts_list",
+    "upstreamConstraint": "The synthetic upstream tool intentionally exposes no filtering parameter and returns 1,000 records under structuredContent.data.accounts.",
+    "upstreamStructuredChars": 81665,
+    "expectedArtifactId": "vctx_28a153ae144607feab1b3cf97a0d785e",
+    "expectedAnswer": "user733@example.com",
+    "gatewayCommand": "pinpoint mcp gateway --min-chars 1000 -- <upstream stdio command>"
+  },
+  "summary": {
+    "hostsAttempted": 4,
+    "hostsExecuted": 2,
+    "hostsPassed": 2,
+    "exactAnswers": 2,
+    "upstreamCallsObserved": 2,
+    "exactQueryCallsObserved": 2,
+    "sharedArtifactId": true,
+    "fileChanges": 0
+  },
+  "hosts": [
+    {
+      "host": "Claude Code",
+      "clientVersion": "2.1.197",
+      "model": "claude-haiku-4-5-20251001",
+      "status": "passed",
+      "upstreamCalled": true,
+      "queryCalled": true,
+      "artifactId": "vctx_28a153ae144607feab1b3cf97a0d785e",
+      "largestModelVisibleToolResultChars": 513,
+      "turns": 5,
+      "observedCostUSD": 0.026493600000000003,
+      "answer": "user733@example.com",
+      "escapeHatchesDenied": ["Bash", "Read", "Grep", "Glob", "Agent", "Edit", "Write"]
+    },
+    {
+      "host": "GitHub Copilot CLI",
+      "clientVersion": "1.0.71-2",
+      "model": "gpt-5.3-codex",
+      "status": "passed",
+      "upstreamCalled": true,
+      "queryCalled": true,
+      "artifactId": "vctx_28a153ae144607feab1b3cf97a0d785e",
+      "largestToolCompletionEventChars": 2965,
+      "premiumRequests": 0,
+      "filesModified": 0,
+      "answer": "user733@example.com",
+      "availableTools": ["accounts"]
+    },
+    {
+      "host": "Cursor Agent",
+      "clientVersion": "2025.09.18-7ae6800",
+      "status": "not_executed",
+      "reason": "The installed client is not authenticated. No task or provider request was run."
+    },
+    {
+      "host": "Codex CLI",
+      "clientVersion": "0.45.0",
+      "status": "not_executed",
+      "reason": "The installed client has an incompatible local xhigh setting; an earlier low-effort override reached the provider but returned 401 Unauthorized. No result is counted."
+    }
+  ],
+  "limitations": [
+    "This is one shared first-party synthetic task across two clients, not a prevalence estimate or customer-production trace.",
+    "Both prompts explicitly required the accounts MCP server. Claude denied unrelated tools; Copilot exposed only the accounts server.",
+    "The upstream server intentionally lacked filtering, representing a poorly bounded tool rather than every MCP server.",
+    "Claude's 513-character value measures model-visible tool-result content. Copilot's 2,965-character value is a conservative complete JSONL tool-completion event size and includes event metadata; they are not directly comparable.",
+    "Character reduction is not provider token or bill reduction. Extra discovery and query turns remain part of net cost.",
+    "Cursor and Codex are explicitly not counted as passes."
+  ]
+}

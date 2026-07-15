@@ -10,7 +10,7 @@
       "src/mcp/gateway.ts": "a94985e81c304b34185ff3ef012bf163b3007fc6b87bc2df3a8f6d955b1963ff",
       "src/virtual-context/store.ts": "7b0bbc2de4e400b7cb85a23d926bf5ec2c898c7242df57b220026bf3cbc36783",
       "src/cli/main.ts": "ee9f86a97d7e1004f72a46c45b6a37fcbe2b5b3e0204880ae380b999fcda5224",
-      "benchmarks/v2/mcp_gateway_agent_gate.mjs": "edf5d91313ddd8c8fdfa78ffedd27964302af3fe5a6b7593eb206c3589d71325"
+      "benchmarks/v2/mcp_gateway_agent_gate.mjs": "ed9a2e1c75e6f4824f744055356c83aef5ff93d0d9a12a18e6fb9957b0499641"
     }
   },
   "environment": {
@@ -46,6 +46,7 @@
     "agentExitCode": 0,
     "upstreamCalled": true,
     "queryCalled": true,
+    "artifactId": "vctx_28a153ae144607feab1b3cf97a0d785e",
     "toolCalls": [
       "ToolSearch",
       "mcp__accounts__accounts_list",
@@ -54,8 +55,8 @@
     "upstreamStructuredChars": 81665,
     "largestModelVisibleToolResultChars": 513,
     "modelVisibleCharacterReduction": 0.9937182391477377,
-    "turns": 4,
-    "observedCostUSD": 0.027886949999999997,
+    "turns": 5,
+    "observedCostUSD": 0.026493600000000003,
     "expected": "user733@example.com",
     "answer": "user733@example.com"
   },

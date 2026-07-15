@@ -85,6 +85,7 @@
     "benchmarks/results/evidence-gate.first-party-macos-arm64-20260715.json",
     "benchmarks/results/agent-trace-gate.first-party-macos-arm64-20260715.json",
     "benchmarks/results/mcp-gateway-agent.first-party-macos-arm64-20260715.json",
+    "benchmarks/results/mcp-gateway-cross-host.first-party-macos-arm64-20260715.json",
     "benchmarks/traces/agent-gate/",
     "bin/",
     "dist/",
@@ -131,6 +132,7 @@
     "bench:agent-traces:canary": "npm run build && node benchmarks/v2/agent_trace_gate.mjs --phase canary",
     "bench:agent-traces": "npm run build && node benchmarks/v2/agent_trace_gate.mjs --phase benchmark",
     "bench:mcp-gateway:agent": "npm run build && node benchmarks/v2/mcp_gateway_agent_gate.mjs",
+    "bench:mcp-gateway:copilot": "npm run build && node benchmarks/v2/mcp_gateway_copilot_gate.mjs",
     "prepublishOnly": "npm run assets:readme && npm run docs:check && npm run typecheck && npm test && npm run build && npm run package:smoke"
   },
   "publishConfig": {

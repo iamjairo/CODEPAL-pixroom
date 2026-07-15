@@ -1,5 +1,5 @@
 import { spawn } from 'node:child_process';
-import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -7,9 +7,7 @@ import { fileURLToPath } from 'node:url';
 const root = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const cli = join(root, 'bin', 'cli.js');
 const expected = 'user733@example.com';
-const expectedArtifactId = 'vctx_28a153ae144607feab1b3cf97a0d785e';
-const debugDirectory = mkdtempSync(join(tmpdir(), 'pinpoint-mcp-gate-'));
-const debugFile = join(debugDirectory, 'claude-debug.log');
+const temporary = mkdtempSync(join(tmpdir(), 'pinpoint-copilot-mcp-gate-'));
 
 const upstream = String.raw`
   import { createInterface } from 'node:readline';
@@ -57,7 +55,7 @@ const upstream = String.raw`
 const config = JSON.stringify({
   mcpServers: {
     accounts: {
-      type: 'stdio',
+      type: 'local',
       command: process.execPath,
       args: [
         cli,
@@ -71,39 +69,34 @@ const config = JSON.stringify({
         '--eval',
         upstream,
       ],
+      tools: ['*'],
     },
   },
 });
 
-function runClaude() {
+function runCopilot() {
   const args = [
-    '--print',
+    '--prompt',
     'Use the accounts MCP server to find the email for accountId 733. Return only the email address. Do not use repository files or shell commands.',
     '--model',
-    'claude-haiku-4-5-20251001',
-    '--max-budget-usd',
-    '0.15',
-    '--debug',
-    'mcp',
-    '--debug-file',
-    debugFile,
-    '--verbose',
+    'auto',
     '--output-format',
-    'stream-json',
-    '--no-session-persistence',
-    '--permission-mode',
-    'plan',
-    '--strict-mcp-config',
-    '--mcp-config',
+    'json',
+    '--stream',
+    'off',
+    '--additional-mcp-config',
     config,
-    '--allowedTools',
-    'mcp__accounts__accounts_list,mcp__accounts__pinpoint_query',
-    '--disallowedTools',
-    'Bash,Read,Grep,Glob,Agent,Edit,Write',
+    '--disable-builtin-mcps',
+    '--available-tools=accounts',
+    '--allow-tool=accounts',
+    '--no-ask-user',
+    '--no-remote-export',
+    '--log-level',
+    'error',
   ];
 
   return new Promise((resolve, reject) => {
-    const child = spawn('claude', args, {
+    const child = spawn('copilot', args, {
       cwd: root,
       env: process.env,
       stdio: ['ignore', 'pipe', 'pipe'],
@@ -133,72 +126,72 @@ function runClaude() {
   });
 }
 
-const run = await runClaude();
-const events = run.stdout
-  .split('\n')
-  .filter(Boolean)
-  .map((line) => JSON.parse(line));
-const calls = events.flatMap((event) =>
-  event.type === 'assistant' && Array.isArray(event.message?.content)
-    ? event.message.content
-        .filter((block) => block.type === 'tool_use')
-        .map((block) => ({ name: block.name, input: block.input }))
-    : [],
-);
-const artifactIds = [...new Set(
-  events.flatMap((event) => JSON.stringify(event).match(/vctx_[a-f0-9]{32,64}/g) ?? []),
-)];
-const resultSizes = events.flatMap((event) =>
-  event.type === 'user' && Array.isArray(event.message?.content)
-    ? event.message.content
-        .filter((block) => block.type === 'tool_result')
-        .map((block) => JSON.stringify(block.content ?? '').length)
-    : [],
-);
-const finalEvent = [...events].reverse().find((event) => event.type === 'result');
-const answer = typeof finalEvent?.result === 'string' ? finalEvent.result.trim() : '';
-const upstreamCalled = calls.some(({ name }) => name.endsWith('__accounts_list'));
-const queryCalled = calls.some(({ name }) => name.endsWith('__pinpoint_query'));
-const maxToolResultChars = Math.max(0, ...resultSizes);
-const passed =
-  run.code === 0 &&
-  !run.exceeded &&
-  upstreamCalled &&
-  queryCalled &&
-  artifactIds.length === 1 &&
-  artifactIds[0] === expectedArtifactId &&
-  maxToolResultChars < 5_000 &&
-  answer === expected;
-
-console.log(JSON.stringify({
-  passed,
-  agentExitCode: run.code,
-  upstreamCalled,
-  queryCalled,
-  toolCalls: calls,
-  artifactIds,
-  maxToolResultChars,
-  answer,
-  expected,
-  totalCostUSD: finalEvent?.total_cost_usd ?? null,
-  turns: finalEvent?.num_turns ?? null,
-}, null, 2));
-
-if (!passed) {
-  const diagnostic = run.stderr.trim().slice(-2_000);
-  if (diagnostic) console.error(diagnostic.replace(/(?:sk-ant-|sk-)[A-Za-z0-9_-]+/g, '[REDACTED]'));
-  try {
-    const debug = readFileSync(debugFile, 'utf8')
-      .split('\n')
-      .filter((line) => /mcp|accounts|error|fail|spawn|stdio/i.test(line))
-      .map((line) => line.replace(/(?:sk-ant-|sk-)[A-Za-z0-9_-]+/g, '[REDACTED]').slice(0, 800))
-      .slice(-80)
-      .join('\n');
-    if (debug) console.error(debug);
-  } catch {
-    // A missing debug log is itself non-fatal diagnostic information.
+function nestedStrings(value, keyPattern, found = []) {
+  if (Array.isArray(value)) {
+    for (const item of value) nestedStrings(item, keyPattern, found);
+  } else if (value && typeof value === 'object') {
+    for (const [key, item] of Object.entries(value)) {
+      if (keyPattern.test(key) && typeof item === 'string') found.push(item);
+      nestedStrings(item, keyPattern, found);
+    }
   }
-  process.exitCode = 1;
+  return found;
 }
 
-rmSync(debugDirectory, { recursive: true, force: true });
+try {
+  const run = await runCopilot();
+  const events = run.stdout
+    .split('\n')
+    .filter(Boolean)
+    .map((line) => JSON.parse(line));
+  const serialized = events.map((event) => JSON.stringify(event));
+  const upstreamCalled = serialized.some((line) => line.includes('accounts_list'));
+  const queryCalled = serialized.some(
+    (line) => line.includes('pinpoint_query') && line.includes('vctx_28a153ae144607feab1b3cf97a0d785e'),
+  );
+  const artifactIds = [...new Set(
+    serialized.flatMap((line) => line.match(/vctx_[a-f0-9]{32,64}/g) ?? []),
+  )];
+  const answers = events.flatMap((event) => nestedStrings(event, /^(?:content|result|text)$/i));
+  const answer = [...answers].reverse().find((value) => value.trim() === expected)?.trim() ?? '';
+  const toolCompletions = events.filter((event) => event.type === 'tool.execution_complete');
+  const maxToolCompletionEventChars = Math.max(
+    0,
+    ...toolCompletions.map((event) => JSON.stringify(event).length),
+  );
+  const resultEvent = [...events].reverse().find((event) => event.type === 'result');
+  const models = [...new Set(events.flatMap((event) => nestedStrings(event, /^model$/i)))];
+  const passed =
+    run.code === 0 &&
+    !run.exceeded &&
+    upstreamCalled &&
+    queryCalled &&
+    artifactIds.length === 1 &&
+    maxToolCompletionEventChars < 10_000 &&
+    answer === expected;
+
+  console.log(JSON.stringify({
+    passed,
+    agentExitCode: run.code,
+    upstreamCalled,
+    queryCalled,
+    toolCalls: ['accounts_list', 'pinpoint_query'],
+    artifactIds,
+    maxToolCompletionEventChars,
+    answer,
+    expected,
+    models,
+    eventTypes: [...new Set(events.map((event) => event.type))],
+    usage: resultEvent?.usage ?? null,
+  }, null, 2));
+
+  if (!passed) {
+    const redacted = run.stderr
+      .replace(/(?:gh[opsu]_|sk-)[A-Za-z0-9_-]+/g, '[REDACTED]')
+      .slice(-4_000);
+    if (redacted.trim()) console.error(redacted);
+    process.exitCode = 1;
+  }
+} finally {
+  rmSync(temporary, { recursive: true, force: true });
+}

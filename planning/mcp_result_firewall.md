@@ -136,6 +136,6 @@ Focused automated coverage validates:
 - capacity fail-open behavior;
 - small/error pass-through.
 
-The first real-agent receipt records one Claude Code session. An 81,665-character synthetic structured result became a 513-character model-visible artifact result. Claude called `pinpoint_query` and returned the exact requested email in four turns. This proves compatibility for one task, not organic prevalence.
+The cross-host receipt records the same task on Claude Code and GitHub Copilot CLI. Both clients called the unfilterable upstream tool, received the same SHA-derived artifact id, called `pinpoint_query`, and returned the exact requested email. Claude's 81,665-character structured result became a 513-character model-visible artifact result; Copilot's complete tool-completion event stayed at 2,965 characters including metadata and used zero premium requests. This proves compatibility across two host/model families for one task, not organic prevalence.
 
-See `benchmarks/results/mcp-gateway-agent.first-party-macos-arm64-20260715.json`.
+See `benchmarks/results/mcp-gateway-cross-host.first-party-macos-arm64-20260715.json`.

@@ -10,7 +10,7 @@ The problem itself is real. Public reports show oversized MCP results in Azure, 
 
 Pinpoint now moves QCV to the upstream boundary as a **lossless MCP result firewall**. `pinpoint mcp gateway -- <server>` wraps an unmodified stdio MCP server, retains eligible oversized results before the host sees them, returns a protocol-native artifact handle, and exposes deterministic bounded queries. It requires no provider API key and therefore works on subscription/OAuth clients. Provider-wire QCV remains a secondary engine for custom applications and eligible historical requests.
 
-The first real Claude Code gate passed. An intentionally unfilterable synthetic MCP tool returned 1,000 nested records (81,665 characters). Claude received a 513-character artifact result, called `pinpoint_query` with the correct selector and projection, and returned the exact email in four turns. This is the first evidence that the new boundary and autonomous query loop work together. It is one first-party synthetic task, not a prevalence estimate or external validation.
+The same real-agent gate now passes on two independently installed hosts. Claude Code 2.1.197 with Claude Haiku 4.5 and GitHub Copilot CLI 1.0.71-2 auto-routed to GPT-5.3 Codex both called the intentionally unfilterable 1,000-row upstream tool, received the same exact artifact id, called `pinpoint_query`, and returned the exact email. Claude's largest model-visible result was 513 characters; Copilot's largest complete tool-completion event was 2,965 characters including metadata, with zero premium requests and no file changes. This establishes cross-host compatibility for one first-party synthetic task, not prevalence or external validation.
 
 Verdict: the gateway is a more credible breakthrough candidate than provider-wire QCV, but it is not yet a breakthrough product. The ingredients have substantial prior art in VS Code, Qwen Code, Octomind, LlamaIndex, LangChain, and LeanCTX. The candidate differentiation is arbitrary-server wrapping plus protocol-native exact artifacts, deterministic structured queries/joins, schema compatibility, and atomic fail-open retention.
 
@@ -20,7 +20,8 @@ Recommendation: make the MCP firewall the product center. Stop expanding the gen
 
 | Evidence | Result | Attribution | What it supports |
 | --- | --- | --- | --- |
-| Real Claude Code MCP gateway gate, one synthetic unfilterable tool | 81,665-character structured result -> 513-character artifact result; autonomous upstream call + `pinpoint_query`; exact answer; 4 turns; $0.027887 | Pinpoint MCP firewall + QCV store | The upstream boundary, strict Claude MCP schemas, nested collection discovery, and autonomous exact follow-up work together for one real client task |
+| Cross-host MCP gateway gate, Claude Code + GitHub Copilot CLI | 2/2 exact; same artifact id; both upstream + query calls observed; no file changes; Copilot zero premium requests | Pinpoint MCP firewall + QCV store | The artifact/query contract is not tied to one client or model family |
+| Real Claude Code MCP gateway gate, one synthetic unfilterable tool | 81,665-character structured result -> 513-character artifact result; expected artifact id asserted; exact answer; 5 turns; $0.026494 | Pinpoint MCP firewall + QCV store | The upstream boundary, strict Claude MCP schemas, nested collection discovery, and autonomous exact follow-up work together for one real client task |
 | Repeated paid QCV gate, 30 templates x 5 unique variants, Haiku 4.5 + GPT-4.1 mini, 3 protocols | QCV 150/150; raw 109/150; Headroom 112/150; zero paired harms; 96.8% lower modeled cost than Headroom (95% CI 96.5%-96.9%); spend $2.295591 | Pinpoint QCV | Efficacy and two-point quality non-inferiority gate passed on the fixed, exchangeable synthetic benchmark population |
 | Real-agent trace gate, 5 Claude Code + 5 Codex sessions | 10/10 correct final values; 10/10 sanitized hash-matched replays; cache shape, long sessions, tool continuation, and two injected retries passed | Pinpoint runtime/QCV | First-party agent conformance: Claude QCV plus Codex safe sub-threshold pass-through; not customer production evidence |
 | Repaired paid QCV pilot, Haiku 4.5, 2 paired tasks | 22,614 -> 594 provider input tokens; 97.1% modeled cost reduction; 1/2 -> 2/2 score | Pinpoint QCV | Original optimizer can beat raw context and improve an exact aggregation answer |
@@ -138,8 +139,8 @@ This is still close to Headroom's team offering. A partnership or upstream contr
 Do not add more generic gateway features. Current gate status:
 
 1. **MCP protocol path - passed locally:** initialize, tools, resources, notifications, nested structured results, strict schemas, exact query recovery, and fail-open capacity are covered.
-2. **Real Claude MCP flow - passed first-party once:** the upstream-call -> artifact -> exact-query path completed correctly with bounded visible output.
-3. **Cross-host conformance - open:** run equivalent gates on Codex, VS Code/Copilot, Cursor, and at least one framework client without host-specific code.
+2. **Cross-host MCP flow - passed first-party on two clients:** Claude Code and GitHub Copilot CLI completed the same upstream-call -> artifact -> exact-query path with the same artifact id and exact answer.
+3. **Broader host conformance - open:** run equivalent gates on Codex, VS Code, Cursor, and at least one framework client without host-specific gateway code. Cursor was unauthenticated and Codex was locally blocked, so they are not counted.
 4. **Organic applicability - open:** three external teams capture content-free pre-truncation metrics for at least one week. Report result-size distribution, eligible share, query success, extra turns, and pass-through reasons.
 5. **Quality - open:** at least 100 externally sourced tasks with raw/full-artifact and gateway arms show no material task-quality loss. Include free-form, nested, ambiguous, error, and mixed-content controls.
 6. **Demand - open:** at least one MCP operator asks to keep the wrapper deployed after the shadow/evaluation period.
@@ -149,6 +150,6 @@ Time-box external validation to six weeks. If cross-host conformance, organic ap
 
 ## Bottom line
 
-Pinpoint has now corrected both the product thesis and the architecture. The old provider-wire result remains valid conditional evidence, but it did not prove a mainstream coding-CLI problem. The MCP firewall attacks documented failures at the boundary where the full result still exists, and one real Claude Code flow proves the mechanism can work autonomously.
+Pinpoint has now corrected both the product thesis and the architecture. The old provider-wire result remains valid conditional evidence, but it did not prove a mainstream coding-CLI problem. The MCP firewall attacks documented failures at the boundary where the full result still exists, and the same autonomous mechanism now works on Claude Code and GitHub Copilot CLI across two model families.
 
-That is a credible technical breakthrough candidate, not a market breakthrough yet. The rational next move is cross-host replication and external pre-truncation measurement. If those hold, Pinpoint has a narrow, defensible product. If they do not, upstream the firewall and exact query engine rather than maintaining another broad context platform.
+That is a stronger technical breakthrough candidate, not a market breakthrough yet. The rational next move is broader host replication, real MCP servers, and external pre-truncation measurement. If those hold, Pinpoint has a narrow, defensible product. If they do not, upstream the firewall and exact query engine rather than maintaining another broad context platform.

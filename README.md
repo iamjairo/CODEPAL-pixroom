@@ -12,13 +12,13 @@
 
 <p align="center">Wrap any stdio MCP server. Pinpoint keeps large exact results local and gives the agent a small resource handle plus deterministic select, count, grep, slice, and join operations.</p>
 
-<p align="center"><strong>Real Claude Code gate: 81,665-character MCP result -> 513-character handle -> exact email via <code>pinpoint_query</code></strong></p>
+<p align="center"><strong>Real cross-host gate: Claude Code + GitHub Copilot CLI both queried the same 81,665-character MCP artifact and returned the exact email</strong></p>
 
 <p align="center">
   <a href="LICENSE"><img alt="license" src="https://img.shields.io/badge/license-Apache%202.0-blue.svg"></a>
   <a href="https://github.com/CodePalAI/pinpoint/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/CodePalAI/pinpoint/actions/workflows/ci.yml/badge.svg"></a>
   <img alt="node" src="https://img.shields.io/badge/node-%E2%89%A522-brightgreen.svg">
-  <a href="./benchmarks/results/mcp-gateway-agent.first-party-macos-arm64-20260715.json"><img alt="real Claude Code MCP gate: passed" src="https://img.shields.io/badge/Claude%20Code%20MCP%20gate-passed-2ea44f.svg"></a>
+  <a href="./benchmarks/results/mcp-gateway-cross-host.first-party-macos-arm64-20260715.json"><img alt="real cross-host MCP gate: 2 of 2 exact" src="https://img.shields.io/badge/cross--host%20MCP%20gate-2%2F2%20exact-2ea44f.svg"></a>
   <img alt="status" src="https://img.shields.io/badge/status-experimental-orange.svg">
   <a href="https://codepal.ai"><img alt="Built by CodePal" src="https://img.shields.io/badge/built%20by-CodePal-2563eb.svg"></a>
 </p>
@@ -51,7 +51,7 @@
 
 The gateway runs between the MCP host and server, before Claude Code, Codex, Copilot, Cursor, or another host can truncate or persist the result. It does not need a provider API key and does not depend on the model API protocol.
 
-> **Evidence boundary:** the real-agent receipt is one first-party synthetic Claude Code task with an intentionally unfilterable MCP tool. It proves the gateway and autonomous follow-up query work together. It does not estimate how common oversized MCP results are.
+> **Evidence boundary:** two installed clients passed the same first-party synthetic task with an intentionally unfilterable MCP tool. This proves cross-host gateway compatibility and autonomous follow-up querying for one exact task. It does not estimate how common oversized MCP results are.
 
 <!-- LAUNCH(demo-video): Put a 15-25 second terminal recording here after independent replication. Keep the generated receipt card above as the static fallback. -->
 
@@ -99,8 +99,9 @@ The existing Anthropic/OpenAI proxy and SDK path still supports provider-wire QC
 | Surface | Put Pinpoint here | Provider login requirement | Current evidence |
 |---|---|---|---|
 | Any stdio MCP host | `pinpoint mcp gateway -- <server> [args...]` | None; the host keeps its existing login | Protocol integration tests |
-| Claude Code MCP | Wrap the configured server command | API key or subscription | One paid synthetic agent gate passed |
-| VS Code / Copilot, Codex, Cursor, other MCP hosts | Wrap the configured server command | Whatever the host already uses | Protocol-compatible; external replication open |
+| Claude Code MCP | Wrap the configured server command | API key or subscription | Real synthetic agent gate passed |
+| GitHub Copilot CLI | Wrap the configured server command | Existing Copilot login | Real synthetic agent gate passed; zero premium requests |
+| VS Code, Codex, Cursor, other MCP hosts | Wrap the configured server command | Whatever the host already uses | Protocol-compatible; real-host replication open |
 | Anthropic SDK / Messages | `@codepal/pinpoint/anthropic` or provider proxy | Provider API key for wire QCV | Repeated controlled QCV gate |
 | OpenAI SDK / Chat / Responses | `@codepal/pinpoint/openai` or provider proxy | Provider API key for wire QCV | Repeated controlled QCV gate |
 
@@ -391,9 +392,14 @@ Provider wrappers are exported from `@codepal/pinpoint/anthropic` and `@codepal/
 
 CodePal publishes Pinpoint's raw benchmark artifacts, negative results, and safety checks so people can inspect the claims rather than trust a headline.
 
-### Real Claude Code MCP gateway gate
+### Cross-host MCP gateway gate
 
-One real Claude Code 2.1.197 session used the production CLI gateway against a disposable synthetic MCP server. The upstream `accounts_list` tool intentionally had no filter and returned 1,000 records under `structuredContent.data.accounts`.
+Claude Code 2.1.197 and GitHub Copilot CLI 1.0.71-2 independently used the production gateway against the same disposable synthetic MCP server. The upstream `accounts_list` tool intentionally had no filter and returned 1,000 records under `structuredContent.data.accounts`. Both clients received the same artifact id and returned exactly `user733@example.com`.
+
+| Host | Model | Upstream call | Exact query | Final answer | Bounded result evidence |
+|---|---|:---:|:---:|:---:|---|
+| Claude Code | Claude Haiku 4.5 | Yes | Yes | Exact | Largest model-visible tool result: 513 characters |
+| GitHub Copilot CLI | GPT-5.3 Codex | Yes | Yes | Exact | Largest complete tool-event record: 2,965 characters; includes event metadata |
 
 Claude autonomously performed this sequence:
 
@@ -402,9 +408,11 @@ Claude autonomously performed this sequence:
 3. called `mcp__accounts__pinpoint_query` with `accountId: 733` and `fields: ["email"]`;
 4. returned exactly `user733@example.com`.
 
-The gate completed in four agent turns for $0.027887 observed provider cost. Filesystem, shell, subagent, and editing tools were denied, and the run failed unless both MCP calls occurred, every visible tool result stayed below 5,000 characters, and the final answer matched exactly. Inspect the [content-free receipt](./benchmarks/results/mcp-gateway-agent.first-party-macos-arm64-20260715.json) or rerun `npm run bench:mcp-gateway:agent` with Claude Code authenticated.
+The final artifact-asserting gate completed in five agent turns for $0.026494 observed provider cost. Filesystem, shell, subagent, and editing tools were denied, and the run failed unless both MCP calls occurred, exactly one expected artifact id appeared, every visible tool result stayed below 5,000 characters, and the final answer matched exactly. Inspect the [content-free receipt](./benchmarks/results/mcp-gateway-agent.first-party-macos-arm64-20260715.json) or rerun `npm run bench:mcp-gateway:agent` with Claude Code authenticated.
 
-This is one first-party synthetic compatibility task. It is evidence that the new boundary works with a real client, not an estimate of organic prevalence or a universal quality claim.
+Copilot auto-routed to `gpt-5.3-codex`, exposed only the synthetic `accounts` MCP server, called both tools, changed no files, and used zero premium requests. Rerun with `npm run bench:mcp-gateway:copilot`.
+
+Inspect the [cross-host receipt](./benchmarks/results/mcp-gateway-cross-host.first-party-macos-arm64-20260715.json). Cursor was not authenticated and Codex was blocked by local configuration/authentication, so neither is counted. This remains one first-party synthetic compatibility task, not an estimate of organic prevalence or a universal quality claim.
 
 ### Provider-wire QCV evidence gate
 
@@ -588,7 +596,7 @@ Pinpoint is experimental but usable today for local evaluation and API-key traff
 
 Pinpoint is developed and maintained by [CodePal](https://codepal.ai) with contributions from the open-source community.
 
-- **Validated first-party:** 150 independently parameterized live task variants across two models and three protocols, plus 10 real Claude Code/Codex sessions with retries, cache shape, long turns, and hash-matched replay.
+- **Validated first-party:** one exact MCP task replicated across Claude Code and GitHub Copilot CLI, 150 independently parameterized provider-wire variants across two models and three protocols, plus 10 historical Claude Code/Codex proxy sessions with retries, cache shape, long turns, and hash-matched replay.
 - **Still being proved:** independent replication, the eligible share of organic traffic, external adoption, customer demand, and lower proxy overhead under heavy concurrency.
 
 The [product assessment](./planning/product_assessment.md) explains the evidence and current limits without marketing shortcuts.

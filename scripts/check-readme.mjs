@@ -28,6 +28,17 @@ const gatewayReceipt = JSON.parse(
     'utf8',
   ),
 );
+const crossHostReceipt = JSON.parse(
+  readFileSync(
+    join(
+      root,
+      'benchmarks',
+      'results',
+      'mcp-gateway-cross-host.first-party-macos-arm64-20260715.json',
+    ),
+    'utf8',
+  ),
+);
 const packageJson = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
 const proofAssetPath = join(root, 'assets', 'qcv-evidence-gate.svg');
 const proofAsset = readFileSync(proofAssetPath, 'utf8');
@@ -149,6 +160,26 @@ for (const [sourcePath, expectedHash] of Object.entries(gatewayReceipt.source.fi
     fail(`MCP gateway receipt fingerprint is stale: ${sourcePath}`);
   }
 }
+for (const [sourcePath, expectedHash] of Object.entries(crossHostReceipt.source.fingerprints)) {
+  const absolute = join(root, sourcePath);
+  if (!existsSync(absolute)) {
+    fail(`cross-host receipt source does not exist: ${sourcePath}`);
+    continue;
+  }
+  const actualHash = sha256(readFileSync(absolute));
+  if (actualHash !== expectedHash) {
+    fail(`cross-host receipt fingerprint is stale: ${sourcePath}`);
+  }
+}
+for (const value of [
+  `${crossHostReceipt.summary.hostsPassed}/${crossHostReceipt.summary.hostsExecuted}`,
+  integer.format(crossHostReceipt.hosts[1].largestToolCompletionEventChars),
+  crossHostReceipt.hosts[0].clientVersion,
+  crossHostReceipt.hosts[1].clientVersion,
+  crossHostReceipt.hosts[1].model,
+]) {
+  if (!readme.includes(value)) fail(`README is missing cross-host receipt value: ${value}`);
+}
 
 if (!readme.includes('./assets/qcv-evidence-gate.svg')) fail('README does not render the proof asset');
 if (!existsSync(join(root, 'llms.txt'))) fail('llms.txt is missing');
@@ -167,7 +198,7 @@ const endUserSignals = [
   'Subscription-compatible',
   '## What passes through',
   '### Provider-wire QCV: the secondary path',
-  '### Real Claude Code MCP gateway gate',
+  '### Cross-host MCP gateway gate',
   'pinpoint mcp gateway --',
   'Provider API key',
 ];
