@@ -48,6 +48,7 @@ export interface McpGatewayOptions extends McpResultFirewallOptions {
   readonly cwd?: string;
   readonly env?: NodeJS.ProcessEnv;
   readonly signal?: AbortSignal;
+  readonly shutdownGraceMs?: number;
 }
 
 export interface McpResultTransformation {
@@ -226,11 +227,17 @@ function artifactMimeType(descriptor: VirtualContextDescriptor): string {
   return descriptor.kind.startsWith('json-') ? 'application/json' : 'text/plain';
 }
 
+function displayToolName(sourceTool: string): string {
+  const normalized = sourceTool.replace(/[\u0000-\u001f\u007f]+/g, ' ').trim();
+  return normalized.slice(0, 128) || 'upstream tool';
+}
+
 function virtualResult(
   sourceTool: string,
   descriptor: VirtualContextDescriptor,
   original: McpCallToolResult,
 ): McpCallToolResult {
+  const label = displayToolName(sourceTool);
   const artifact = {
     id: descriptor.id,
     sourceTool,
@@ -242,7 +249,7 @@ function virtualResult(
     queryTool: MCP_QUERY_TOOL_NAME,
   };
   const text = [
-    `Pinpoint kept the exact ${descriptor.bytes}-byte result from ${sourceTool} outside model context.`,
+    `Pinpoint kept the exact ${descriptor.bytes}-byte result from ${label} outside model context.`,
     JSON.stringify(artifact),
     `Call ${MCP_QUERY_TOOL_NAME} with this id for bounded exact access; use schema when the fields are unclear.`,
   ].join('\n');
@@ -254,7 +261,7 @@ function virtualResult(
       {
         type: 'resource_link',
         uri: `${MCP_ARTIFACT_URI_PREFIX}${descriptor.id}`,
-        name: `${sourceTool} result`,
+        name: `${label} result`,
         description: `Exact ${descriptor.kind} result retained by Pinpoint; query with ${MCP_QUERY_TOOL_NAME}.`,
         mimeType: artifactMimeType(descriptor),
       },
@@ -296,6 +303,12 @@ export class McpResultFirewall {
     return [MCP_QUERY_TOOL];
   }
 
+  private pruneDescriptors(): void {
+    for (const id of this.descriptors.keys()) {
+      if (!this.store.has(id)) this.descriptors.delete(id);
+    }
+  }
+
   transformResult(sourceTool: string, result: McpCallToolResult): McpResultTransformation {
     try {
       const raw = exactPayload(result);
@@ -317,6 +330,7 @@ export class McpResultFirewall {
         return { result, virtualized: false };
       }
       if (!this.store.has(descriptor.id)) return { result, virtualized: false };
+      this.pruneDescriptors();
       this.descriptors.set(descriptor.id, { descriptor, sourceTool });
       return {
         result: candidate,
@@ -346,6 +360,7 @@ export class McpResultFirewall {
   }
 
   listResources(): readonly Record<string, unknown>[] {
+    this.pruneDescriptors();
     return [...this.descriptors.values()]
       .filter(({ descriptor }) => this.store.has(descriptor.id))
       .map(({ descriptor, sourceTool }) => ({
@@ -467,23 +482,23 @@ function mergeInitialize(result: unknown): unknown {
 }
 
 function mergeTools(result: unknown, firewall: McpResultFirewall, includeLocal: boolean): unknown {
-  if (!isRecord(result) || !Array.isArray(result.tools) || !includeLocal) return result;
+  if (!isRecord(result) || !Array.isArray(result.tools)) return result;
   const tools = result.tools.filter(isRecord);
   if (tools.some(({ name }) => name === MCP_QUERY_TOOL_NAME)) {
     throw new Error(`upstream MCP server uses reserved tool name ${MCP_QUERY_TOOL_NAME}`);
   }
   const wrapped = tools.map((tool) =>
-    isRecord(tool.outputSchema)
+    isRecord(tool.outputSchema) && tool.outputSchema.type === 'object'
       ? {
           ...tool,
           outputSchema: {
             type: 'object',
-            oneOf: [tool.outputSchema, MCP_ARTIFACT_OUTPUT_SCHEMA],
+            anyOf: [tool.outputSchema, MCP_ARTIFACT_OUTPUT_SCHEMA],
           },
         }
       : tool,
   );
-  return { ...result, tools: [...wrapped, ...firewall.tools] };
+  return { ...result, tools: includeLocal ? [...wrapped, ...firewall.tools] : wrapped };
 }
 
 function mergeResources(result: unknown, firewall: McpResultFirewall, includeLocal: boolean): unknown {
@@ -532,9 +547,11 @@ export async function runMcpGateway(
     shell: false,
   });
   const pending = new Map<string, PendingRequest>();
+  const shutdownGraceMs = Math.max(0, Math.trunc(options.shutdownGraceMs ?? 2_000));
   let upstreamHasResources = false;
   let clientQueue = Promise.resolve();
   let upstreamQueue = Promise.resolve();
+  let forceKillTimer: NodeJS.Timeout | undefined;
 
   child.stderr.setEncoding('utf8');
   child.stderr.on('data', (chunk: string) => error.write(chunk));
@@ -663,7 +680,12 @@ export async function runMcpGateway(
   clientLines.once('close', () => child.stdin.end());
 
   const abort = (): void => {
+    if (child.exitCode !== null || child.signalCode !== null) return;
     child.kill('SIGTERM');
+    forceKillTimer = setTimeout(() => {
+      if (child.exitCode === null && child.signalCode === null) child.kill('SIGKILL');
+    }, shutdownGraceMs);
+    forceKillTimer.unref();
   };
   options.signal?.addEventListener('abort', abort, { once: true });
   const exitCode = await new Promise<number | null>((resolve, reject) => {
@@ -671,6 +693,7 @@ export async function runMcpGateway(
     child.once('close', resolve);
   });
   options.signal?.removeEventListener('abort', abort);
+  if (forceKillTimer) clearTimeout(forceKillTimer);
   clientLines.close();
   upstreamLines.close();
   await Promise.all([clientQueue, upstreamQueue]);

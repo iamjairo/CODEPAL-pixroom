@@ -402,7 +402,7 @@ Claude autonomously performed this sequence:
 3. called `mcp__accounts__pinpoint_query` with `accountId: 733` and `fields: ["email"]`;
 4. returned exactly `user733@example.com`.
 
-The gate completed in four agent turns for $0.019163 observed provider cost. Filesystem, shell, subagent, and editing tools were denied, and the run failed unless both MCP calls occurred, every visible tool result stayed below 5,000 characters, and the final answer matched exactly. Inspect the [content-free receipt](./benchmarks/results/mcp-gateway-agent.first-party-macos-arm64-20260715.json) or rerun `npm run bench:mcp-gateway:agent` with Claude Code authenticated.
+The gate completed in four agent turns for $0.027887 observed provider cost. Filesystem, shell, subagent, and editing tools were denied, and the run failed unless both MCP calls occurred, every visible tool result stayed below 5,000 characters, and the final answer matched exactly. Inspect the [content-free receipt](./benchmarks/results/mcp-gateway-agent.first-party-macos-arm64-20260715.json) or rerun `npm run bench:mcp-gateway:agent` with Claude Code authenticated.
 
 This is one first-party synthetic compatibility task. It is evidence that the new boundary works with a real client, not an estimate of organic prevalence or a universal quality claim.
 

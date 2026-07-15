@@ -241,6 +241,14 @@ export class VirtualContextStore {
     private readonly maxStoredBytes = 64 * 1024 * 1024,
   ) {}
 
+  private touch(id: string): VirtualContextEntry | undefined {
+    const entry = this.entries.get(id);
+    if (!entry) return undefined;
+    this.entries.delete(id);
+    this.entries.set(id, entry);
+    return entry;
+  }
+
   private resolveId(
     entry: VirtualContextEntry,
     entries: ReadonlyMap<string, VirtualContextEntry> = this.entries,
@@ -486,7 +494,7 @@ export class VirtualContextStore {
   }
 
   prefetch(descriptor: VirtualContextDescriptor, question: string): VirtualContextPrefetch | undefined {
-    const entry = this.entries.get(descriptor.id);
+    const entry = this.touch(descriptor.id);
     return entry ? this.prefetchEntry(entry, question) : undefined;
   }
 
@@ -518,8 +526,9 @@ export class VirtualContextStore {
   }
 
   query(input: VirtualContextQuery | VirtualContextJoinQuery): string {
-    const entry = this.entries.get(input.id);
+    const entry = this.touch(input.id);
     if (!entry) return JSON.stringify({ error: 'virtual context not found', id: input.id });
+    if (input.op === 'json_join') this.touch(input.joinId);
 
     return this.serializeBounded(this.execute(entry, input));
   }

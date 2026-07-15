@@ -134,6 +134,7 @@ for (const value of [
   integer.format(gatewayReceipt.result.largestModelVisibleToolResultChars),
   percentage(gatewayReceipt.result.modelVisibleCharacterReduction),
   gatewayReceipt.result.expected,
+  `$${gatewayReceipt.result.observedCostUSD.toFixed(6)}`,
 ]) {
   if (!readme.includes(value)) fail(`README is missing MCP gateway receipt value: ${value}`);
 }

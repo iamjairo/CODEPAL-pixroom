@@ -25,7 +25,7 @@ All notable changes are documented here. This project follows semantic versionin
 
 ### Fixed
 
-- Generated output schemas retain root `type: "object"`, as required by Claude Code's strict MCP tool validator even when `oneOf` is present.
+- Generated output schemas retain root `type: "object"`, as required by Claude Code's strict MCP tool validator even when `anyOf` is present.
 
 ## 0.1.1 - 2026-07-15
 

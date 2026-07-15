@@ -174,6 +174,28 @@ describe('McpResultFirewall', () => {
     expect(firewall.store.size).toBe(0);
   });
 
+  it('uses query access as LRU recency and prunes evicted resource metadata', () => {
+    const firewall = new McpResultFirewall({ minChars: 100, maxEntries: 2 });
+    const payload = (marker: string) => ({
+      content: [{
+        type: 'text',
+        text: JSON.stringify(Array.from({ length: 30 }, (_, id) => ({ id, marker, value: 'x'.repeat(20) }))),
+      }],
+    });
+    const first = firewall.transformResult('first', payload('first')).descriptor!;
+    const second = firewall.transformResult('second', payload('second')).descriptor!;
+    firewall.callTool(MCP_QUERY_TOOL_NAME, { id: first.id, op: 'schema' });
+    const third = firewall.transformResult('third', payload('third')).descriptor!;
+
+    expect(firewall.store.has(first.id)).toBe(true);
+    expect(firewall.store.has(second.id)).toBe(false);
+    expect(firewall.store.has(third.id)).toBe(true);
+    expect(firewall.listResources().map(({ uri }) => uri)).toEqual([
+      `pinpoint://artifact/${first.id}`,
+      `pinpoint://artifact/${third.id}`,
+    ]);
+  });
+
   it('proxies an upstream MCP server before the host can truncate its result', async () => {
     const upstream = String.raw`
       import { createInterface } from 'node:readline';
@@ -238,7 +260,13 @@ describe('McpResultFirewall', () => {
       'accounts_list',
       MCP_QUERY_TOOL_NAME,
     ]);
-    expect(tools[0]?.outputSchema).toMatchObject({ oneOf: expect.any(Array) });
+    expect(tools[0]?.outputSchema).toMatchObject({ anyOf: expect.any(Array) });
+
+    send(input, { jsonrpc: '2.0', id: 22, method: 'tools/list', params: { cursor: 'next' } });
+    const laterPage = await next();
+    const laterTools = (laterPage.result as { tools: Array<{ name: string; outputSchema?: unknown }> }).tools;
+    expect(laterTools.map(({ name }) => name)).toEqual(['accounts_list']);
+    expect(laterTools[0]?.outputSchema).toMatchObject({ anyOf: expect.any(Array) });
 
     send(input, {
       jsonrpc: '2.0',
@@ -292,6 +320,7 @@ describe('McpResultFirewall', () => {
   it('terminates the wrapped server when the gateway is aborted', async () => {
     const upstream = String.raw`
       import { createInterface } from 'node:readline';
+      process.on('SIGTERM', () => {});
       const lines = createInterface({ input: process.stdin, crlfDelay: Infinity });
       for await (const line of lines) {
         const message = JSON.parse(line);
@@ -317,6 +346,7 @@ describe('McpResultFirewall', () => {
       output,
       error: new PassThrough(),
       signal: controller.signal,
+      shutdownGraceMs: 20,
     });
 
     send(input, { jsonrpc: '2.0', id: 1, method: 'initialize', params: {} });

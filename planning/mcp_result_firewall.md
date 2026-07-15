@@ -32,7 +32,7 @@ The existing `pinpoint mcp` standalone server remains separate.
 
 - `pinpoint_query`: bounded `schema`, `json_select`, `count`, `grep`, `slice`, and `json_join` operations.
 
-If an upstream tool declares an object `outputSchema`, the gateway advertises an object-root `oneOf` union:
+If an upstream tool declares an object `outputSchema`, the gateway advertises an object-root `anyOf` union:
 
 1. the original output schema;
 2. the Pinpoint artifact envelope.
