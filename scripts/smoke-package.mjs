@@ -35,7 +35,18 @@ try {
     throw new Error('npm pack returned the wrong package identity');
   }
   const paths = new Set((artifact.files ?? []).map((file) => file.path));
-  for (const required of ['README.md', 'CODE_OF_CONDUCT.md', 'LICENSE', 'NOTICE', 'bin/cli.js']) {
+  for (const required of [
+    'README.md',
+    'CODE_OF_CONDUCT.md',
+    'LICENSE',
+    'NOTICE',
+    'bin/cli.js',
+    'examples/mcp-opaque-flow.json',
+    'examples/mcp-opaque-flow.schema.json',
+    'planning/value_opaque_mcp_dataflow.md',
+    'benchmarks/results/mcp-opaque-flow.first-party-macos-arm64-20260715.json',
+    'benchmarks/results/mcp-opaque-flow-cross-host.first-party-macos-arm64-20260715.json',
+  ]) {
     if (!paths.has(required)) throw new Error(`packed artifact is missing ${required}`);
   }
 
@@ -55,12 +66,15 @@ try {
   const runtimeScript = [
     `const entries = ${JSON.stringify(publicEntries)};`,
     'for (const entry of entries) await import(entry);',
-    "const { McpResultFirewall, MCP_QUERY_TOOL_NAME } = await import('@codepal/pinpoint/mcp');",
+    "const { McpResultFirewall, MCP_FLOW_TOOL_NAME, MCP_QUERY_TOOL_NAME, parseMcpOpaqueFlowConfig, verifyMcpOpaqueFlowReceipt } = await import('@codepal/pinpoint/mcp');",
     'const firewall = new McpResultFirewall({ minChars: 10 });',
     "const transformed = firewall.transformResult('smoke', { content: [{ type: 'text', text: JSON.stringify(Array.from({ length: 100 }, (_, id) => ({ id, value: `exact-smoke-value-${id}` }))) }] });",
     "if (!transformed.virtualized) throw new Error('public MCP firewall did not virtualize');",
     "const queried = firewall.callTool(MCP_QUERY_TOOL_NAME, { id: transformed.descriptor.id, op: 'json_select', where: { id: 73 }, fields: ['value'] });",
     "if (!queried.content[0].text.includes('exact-smoke-value-73')) throw new Error('public MCP query did not recover exact value');",
+    "const flowConfig = parseMcpOpaqueFlowConfig({ version: 1, flows: [{ name: 'smoke_flow', sourceTool: 'source', sourceKind: 'json-array', destinationTool: 'destination', destinationArgument: 'records', allowedOps: ['json_select'], allowedFields: ['value'] }] });",
+    "if (MCP_FLOW_TOOL_NAME !== 'pinpoint_flow' || flowConfig.exposeQueryTool || !flowConfig.opaqueArtifactIds) throw new Error('public opaque-flow config defaults are invalid');",
+    "if (verifyMcpOpaqueFlowReceipt({})) throw new Error('public receipt verifier accepted an invalid receipt');",
     'console.log(`imported ${entries.length} public entry points`);',
   ].join('\n');
   run(process.execPath, ['--input-type=module', '--eval', runtimeScript]);

@@ -45,7 +45,10 @@ validated before the upstream process starts. Unknown top-level fields, unsuppor
 versions, duplicate flow names, missing projection allowlists, overlapping fixed and
 dynamic destination arguments, invalid limits, and missing upstream tools fail closed.
 
-See `examples/mcp-opaque-flow.json` for a complete policy.
+See `examples/mcp-opaque-flow.json` for a complete policy and
+`examples/mcp-opaque-flow.schema.json` for the editor/tooling schema. Runtime
+validation remains authoritative because it also checks semantic constraints such as
+projection requirements and argument overlap.
 
 ## Protocol path
 

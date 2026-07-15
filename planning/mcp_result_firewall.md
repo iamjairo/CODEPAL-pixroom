@@ -20,6 +20,7 @@ The gateway is provider-independent and works with API-key, OAuth, or subscripti
 
 ```bash
 pinpoint mcp gateway [--min-chars N] -- <upstream-command> [args...]
+pinpoint mcp gateway --flow-config <policy.json> -- <upstream-command> [args...]
 ```
 
 The upstream process is spawned directly with `shell: false`. The gateway forwards newline-delimited JSON-RPC 2.0 messages over stdio in both directions, including requests, responses, notifications, and server-initiated messages.
@@ -47,6 +48,14 @@ Eligible oversized `tools/call` results become:
 - bounded access through `pinpoint_query` and `resources/read`.
 
 The full payload is not returned to the host in that call.
+
+## Value-opaque flow mode
+
+Loading a versioned flow policy creates a separate confidentiality contract. Named source tools are captured regardless of result size or envelope profitability and fail closed when exact capture is impossible. Query/resources are hidden, artifact ids become random process-local capabilities, and the configured destination tool is called only inside the gateway with an allowlisted exact projection. Client-visible output is an Ed25519-signed, hash-chained receipt with per-sequence HMAC commitments rather than values.
+
+This mode validates source and destination names against the first complete upstream tool catalog before accepting any tool call. Source metadata, result extensions, JSON-RPC errors, stderr, and unsolicited server messages are not preserved as alternate value paths. Ordinary unconfigured tools retain the fail-open rules below.
+
+See `planning/value_opaque_mcp_dataflow.md` for policy syntax, receipt semantics, evidence, threat model, and verified prior art.
 
 ## Exact artifact model
 

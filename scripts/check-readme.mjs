@@ -39,6 +39,28 @@ const crossHostReceipt = JSON.parse(
     'utf8',
   ),
 );
+const opaqueFlowReceipt = JSON.parse(
+  readFileSync(
+    join(
+      root,
+      'benchmarks',
+      'results',
+      'mcp-opaque-flow.first-party-macos-arm64-20260715.json',
+    ),
+    'utf8',
+  ),
+);
+const opaqueFlowCrossHostReceipt = JSON.parse(
+  readFileSync(
+    join(
+      root,
+      'benchmarks',
+      'results',
+      'mcp-opaque-flow-cross-host.first-party-macos-arm64-20260715.json',
+    ),
+    'utf8',
+  ),
+);
 const packageJson = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
 const proofAssetPath = join(root, 'assets', 'qcv-evidence-gate.svg');
 const proofAsset = readFileSync(proofAssetPath, 'utf8');
@@ -171,6 +193,19 @@ for (const [sourcePath, expectedHash] of Object.entries(crossHostReceipt.source.
     fail(`cross-host receipt fingerprint is stale: ${sourcePath}`);
   }
 }
+for (const evidence of [opaqueFlowReceipt, opaqueFlowCrossHostReceipt]) {
+  for (const [sourcePath, expectedHash] of Object.entries(evidence.source.fingerprints)) {
+    const absolute = join(root, sourcePath);
+    if (!existsSync(absolute)) {
+      fail(`opaque-flow receipt source does not exist: ${sourcePath}`);
+      continue;
+    }
+    const actualHash = sha256(readFileSync(absolute));
+    if (actualHash !== expectedHash) {
+      fail(`opaque-flow receipt fingerprint is stale: ${sourcePath}`);
+    }
+  }
+}
 for (const value of [
   `${crossHostReceipt.summary.hostsPassed}/${crossHostReceipt.summary.hostsExecuted}`,
   integer.format(crossHostReceipt.hosts[1].largestToolCompletionEventChars),
@@ -180,16 +215,41 @@ for (const value of [
 ]) {
   if (!readme.includes(value)) fail(`README is missing cross-host receipt value: ${value}`);
 }
+for (const value of [
+  `${opaqueFlowReceipt.summary.destinationAcceptedCalls}/${opaqueFlowReceipt.summary.flowCalls}`,
+  `${opaqueFlowReceipt.summary.bypassesDenied}/${opaqueFlowReceipt.summary.bypassAttempts}`,
+  `${opaqueFlowReceipt.summary.privateCanariesScanned}/${opaqueFlowReceipt.summary.privateCanariesScanned}`,
+  integer.format(opaqueFlowReceipt.summary.baselineVisibleBytes),
+  integer.format(opaqueFlowReceipt.summary.opaqueVisibleBytes),
+  `${opaqueFlowReceipt.summary.visibleByteReductionPercent.toFixed(1)}%`,
+  `${opaqueFlowReceipt.latencyMs.p95.toFixed(2)} ms`,
+]) {
+  if (!readme.includes(value)) fail(`README is missing opaque-flow protocol value: ${value}`);
+}
+for (const value of [
+  `${opaqueFlowCrossHostReceipt.summary.hostsPassed}/${opaqueFlowCrossHostReceipt.summary.hostsExecuted}`,
+  integer.format(
+    opaqueFlowCrossHostReceipt.summary.privateCanariesScannedPerHost *
+      opaqueFlowCrossHostReceipt.summary.hostsExecuted,
+  ),
+  `$${opaqueFlowCrossHostReceipt.hosts[0].observedCostUSD.toFixed(6)}`,
+  opaqueFlowCrossHostReceipt.fixture.finalAnswer,
+  opaqueFlowCrossHostReceipt.hosts[0].clientVersion.match(/\d+(?:\.\d+)+(?:-\d+)?/)?.[0],
+  opaqueFlowCrossHostReceipt.hosts[1].clientVersion.match(/\d+(?:\.\d+)+(?:-\d+)?/)?.[0],
+]) {
+  if (!readme.includes(value)) fail(`README is missing opaque-flow cross-host value: ${value}`);
+}
 
 if (!readme.includes('./assets/qcv-evidence-gate.svg')) fail('README does not render the proof asset');
 if (!existsSync(join(root, 'llms.txt'))) fail('llms.txt is missing');
 if (!readme.includes('./llms.txt')) fail('README does not link llms.txt');
 const endUserSignals = [
   'The lossless MCP result firewall for AI agents',
-  'Stop oversized MCP results before they hit the context window.',
+  'Move exact data between MCP tools without putting the values in model context.',
   '## What changes at the tool boundary',
   '## Get started (60 seconds)',
   '## What it does',
+  '## Value-opaque flows',
   '## Works with your stack',
   '## Choose your path',
   '### MCP gateway: the main path',
@@ -200,6 +260,8 @@ const endUserSignals = [
   '### Provider-wire QCV: the secondary path',
   '### Cross-host MCP gateway gate',
   'pinpoint mcp gateway --',
+  '--flow-config',
+  'pinpoint_flow',
   'Provider API key',
 ];
 for (const signal of endUserSignals) {

@@ -108,7 +108,7 @@ pinpoint mcp gateway \
 
 The policy names the source, destination, destination argument, allowed operations,
 filter fields, projection fields, fixed or dynamic destination arguments, and byte/item
-limits. See the [complete example](./examples/mcp-opaque-flow.json).
+limits. See the [complete example](./examples/mcp-opaque-flow.json) and [JSON Schema](./examples/mcp-opaque-flow.schema.json).
 
 With a flow policy loaded, Pinpoint defaults to strict mode:
 

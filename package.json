@@ -1,7 +1,7 @@
 {
   "name": "@codepal/pinpoint",
   "version": "0.1.1",
-  "description": "Lossless MCP result firewall and exact context virtualization runtime for AI agents.",
+  "description": "Value-opaque MCP dataflow and lossless result firewall for AI agents.",
   "type": "module",
   "license": "Apache-2.0",
   "author": {

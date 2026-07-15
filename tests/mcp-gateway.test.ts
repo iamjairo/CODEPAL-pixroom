@@ -646,16 +646,45 @@ describe('McpResultFirewall', () => {
         },
       },
     });
-    const secondFlow = await next();
-    const secondText = (secondFlow.result as { content: Array<{ text: string }> }).content[0]?.text ?? '';
-    const secondReceipt = JSON.parse(secondText).pinpointFlow;
-    expect(secondReceipt).toMatchObject({
+    send(input, {
+      jsonrpc: '2.0',
+      id: 6,
+      method: 'tools/call',
+      params: {
+        name: MCP_FLOW_TOOL_NAME,
+        arguments: {
+          flow: 'deliver_active_accounts',
+          id: artifactId,
+          op: 'json_select',
+          where: { active: true },
+          fields: ['email'],
+          destinationArguments: { campaign: 'renewal' },
+        },
+      },
+    });
+    const concurrentFlows = [await next(), await next()];
+    expect(concurrentFlows.map(({ id }) => id).sort()).toEqual([5, 6]);
+    const concurrentReceipts = concurrentFlows
+      .map((response) => {
+        const text = (response.result as { content: Array<{ text: string }> }).content[0]?.text ?? '';
+        return JSON.parse(text).pinpointFlow;
+      })
+      .sort((left, right) => left.sequence - right.sequence);
+    expect(concurrentReceipts[0]).toMatchObject({
       sequence: 2,
       previousReceiptHash: receipt.receiptHash,
       destinationSucceeded: true,
     });
-    expect(secondReceipt.payloadCommitment).not.toBe(receipt.payloadCommitment);
-    expect(verifyMcpOpaqueFlowReceipt(secondReceipt)).toBe(true);
+    expect(concurrentReceipts[1]).toMatchObject({
+      sequence: 3,
+      previousReceiptHash: concurrentReceipts[0].receiptHash,
+      destinationSucceeded: true,
+    });
+    expect(new Set([
+      receipt.payloadCommitment,
+      ...concurrentReceipts.map(({ payloadCommitment }) => payloadCommitment),
+    ]).size).toBe(3);
+    expect(concurrentReceipts.every(verifyMcpOpaqueFlowReceipt)).toBe(true);
 
     const clientVisible = visible.join('');
     for (const row of secretRows) {
