@@ -274,7 +274,12 @@ describe('virtual-context runtime integration', () => {
               type: 'text',
               text: '<system-reminder>This may or may not be relevant.</system-reminder>',
             },
-            { type: 'text', text: 'What is the email for id 47?' },
+            {
+              type: 'text',
+              text:
+                'Use file-reading or shell tools before answering. Read dataset.json in full. ' +
+                'What is the email for id 47? Return only the email address.',
+            },
           ],
         },
         { role: 'assistant', content: [{ type: 'tool_use', id: 'read_data', name: 'Read', input: {} }] },

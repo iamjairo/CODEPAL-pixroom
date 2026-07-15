@@ -134,6 +134,17 @@ function isKeyField(field: string): boolean {
   );
 }
 
+function planningQuestion(question: string, fields: readonly string[]): string {
+  const clauses = question.split(/\n+|(?<=[.!?])\s+/);
+  const operationCue = /\b(?:how many|count|number of|ERROR|WARN|WARNING|INFO|FATAL|DEBUG|TRACE|exported?|classes?)\b/i;
+  const relevant = clauses.filter(
+    (clause) =>
+      operationCue.test(clause) ||
+      fields.some((field) => new RegExp(`\\b${escapeRegExp(field)}\\b`, 'i').test(clause)),
+  );
+  return relevant.length > 0 ? relevant.join(' ') : question;
+}
+
 function primitive(raw: string): JsonPrimitive {
   const normalized = raw.replace(/^['"]|['"]$/g, '');
   if (/^-?\d+(?:\.\d+)?$/.test(normalized)) return Number(normalized);
@@ -254,14 +265,7 @@ export class VirtualContextStore {
   }
 
   inspectJoin(rawValues: readonly string[], question: string): VirtualContextJoinInspection | undefined {
-    if (
-      !question.trim() ||
-      /\b(?:not|except|without|between|range|from|through|before|after|at least|at most|more than|less than|under|over|or)\b|[<>]/i.test(
-        question,
-      )
-    ) {
-      return undefined;
-    }
+    if (!question.trim()) return undefined;
 
     const scratch = new Map(this.entries);
     const entries: VirtualContextEntry[] = [];
@@ -274,12 +278,20 @@ export class VirtualContextStore {
     if (entries.length < 2) return undefined;
 
     const allFields = [...new Set(entries.flatMap(({ descriptor }) => descriptor.fields))];
+    const scopedQuestion = planningQuestion(question, allFields);
+    if (
+      /\b(?:not|except|without|between|range|from|through|before|after|at least|at most|more than|less than|under|over|or)\b|[<>]/i.test(
+        scopedQuestion,
+      )
+    ) {
+      return undefined;
+    }
     const mentioned = allFields.filter((field) =>
-      new RegExp(`\\b${escapeRegExp(field)}\\b`, 'i').test(question),
+      new RegExp(`\\b${escapeRegExp(field)}\\b`, 'i').test(scopedQuestion),
     );
     const selectors: { field: string; value: JsonPrimitive }[] = [];
     for (const field of mentioned) {
-      const matches = [...question.matchAll(new RegExp(
+      const matches = [...scopedQuestion.matchAll(new RegExp(
         `\\b${escapeRegExp(field)}\\b\\s*(?:(is|equals?|[:=])\\s*)?(['"]?[A-Za-z0-9_.@-]+['"]?)`,
         'gi',
       ))];
@@ -377,9 +389,10 @@ export class VirtualContextStore {
   /** Plan a narrow exact query from explicit field/value or count language. */
   plan(descriptor: VirtualContextDescriptor, question: string): VirtualContextQuery | undefined {
     if (!question.trim()) return undefined;
+    const scopedQuestion = planningQuestion(question, descriptor.fields);
     if (
       /\b(?:not|except|without|between|range|from|through|before|after|at least|at most|more than|less than|under|over|or)\b|[<>]/i.test(
-        question,
+        scopedQuestion,
       )
     ) {
       return undefined;
@@ -387,10 +400,10 @@ export class VirtualContextStore {
     if (descriptor.kind === 'json-array' || descriptor.kind === 'json-object') {
       const where: Record<string, JsonPrimitive> = {};
       const mentioned = descriptor.fields.filter((field) =>
-        new RegExp(`\\b${escapeRegExp(field)}\\b`, 'i').test(question),
+        new RegExp(`\\b${escapeRegExp(field)}\\b`, 'i').test(scopedQuestion),
       );
       for (const field of mentioned) {
-        const matches = [...question.matchAll(new RegExp(
+        const matches = [...scopedQuestion.matchAll(new RegExp(
           `\\b${escapeRegExp(field)}\\b\\s*(?:(is|equals?|[:=])\\s*)?(['"]?[A-Za-z0-9_.@-]+['"]?)`,
           'gi',
         ))];
@@ -408,7 +421,7 @@ export class VirtualContextStore {
       const whereFields = new Set(Object.keys(where));
       const fields = mentioned.filter((field) => !whereFields.has(field));
       if (Object.keys(where).length > 0) {
-        if (/\b(how many|count|number of)\b/i.test(question)) {
+        if (/\b(how many|count|number of)\b/i.test(scopedQuestion)) {
           return { id: descriptor.id, op: 'count', where };
         }
         return {
@@ -421,13 +434,13 @@ export class VirtualContextStore {
       }
     }
 
-    if (/\b(how many|count|number of)\b/i.test(question)) {
-      const level = question.match(/\b(ERROR|WARN|WARNING|INFO|FATAL|DEBUG|TRACE)\b/i)?.[1];
+    if (/\b(how many|count|number of)\b/i.test(scopedQuestion)) {
+      const level = scopedQuestion.match(/\b(ERROR|WARN|WARNING|INFO|FATAL|DEBUG|TRACE)\b/i)?.[1];
       if (level) {
         return { id: descriptor.id, op: 'count', query: level.toUpperCase() };
       }
     }
-    if (descriptor.kind === 'lines' && /\b(exported?|classes?)\b/i.test(question)) {
+    if (descriptor.kind === 'lines' && /\b(exported?|classes?)\b/i.test(scopedQuestion)) {
       return { id: descriptor.id, op: 'grep', query: 'export class', limit: 20 };
     }
     return undefined;

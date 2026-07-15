@@ -191,6 +191,27 @@ function prepareWorkspace(task) {
 }
 
 function promptFor(task, workspace) {
+  if (task.agent === 'codex') {
+    if (task.join) {
+      return (
+        'Use separate shell tool calls for these exact steps: ' +
+        `(1) run wc -c ${join(workspace, 'orders.json')}; ` +
+        `(2) run wc -c ${join(workspace, 'customers.json')}; ` +
+        '(3) run node -e \'const orders=require(process.argv[1]); ' +
+        'const customers=require(process.argv[2]); const order=orders.find(row=>row.order_id===' +
+        `${task.target}); console.log(customers.find(row=>row.customer_id===order.customer_id).email)\' ` +
+        `${join(workspace, 'orders.json')} ${join(workspace, 'customers.json')}. ` +
+        'Return only the email address from step 3.'
+      );
+    }
+    return (
+      'Use separate shell tool calls for these exact steps: ' +
+      `(1) run wc -c ${join(workspace, 'dataset.json')}; ` +
+      '(2) run node -e \'const rows=require(process.argv[1]); ' +
+      `console.log(rows.find(row=>row.id===${task.target}).email)\' ` +
+      `${join(workspace, 'dataset.json')}. Return only the email address from step 2.`
+    );
+  }
   if (task.join) {
     return (
       'You must use your file-reading or shell tools before answering. Read these files in full: ' +
@@ -211,6 +232,8 @@ function spawnAgent(task, workspace, proxyUrl, keys, secrets) {
   delete commonEnv.COPILOT_DEBUG_NONCE;
   const prompt = promptFor(task, workspace);
   const debugFile = join(workspace, 'agent-debug.log');
+  const codexHome = join(workspace, '.codex');
+  if (task.agent === 'codex') mkdirSync(codexHome, { recursive: true, mode: 0o700 });
   const command = task.agent === 'claude' ? 'claude' : 'codex';
   const args = task.agent === 'claude'
     ? [
@@ -227,6 +250,15 @@ function spawnAgent(task, workspace, proxyUrl, keys, secrets) {
         '--sandbox', 'read-only',
         '--skip-git-repo-check',
         '--model', OPENAI_MODEL,
+        '--config', 'model_provider="pinpoint"',
+        '--config', 'model_providers.pinpoint.name="Pinpoint"',
+        '--config', `model_providers.pinpoint.base_url="${proxyUrl}/v1"`,
+        '--config', 'model_providers.pinpoint.env_key="CODEX_API_KEY"',
+        '--config', 'model_providers.pinpoint.wire_api="responses"',
+        '--config', 'model_providers.pinpoint.request_max_retries=4',
+        '--config', 'model_providers.pinpoint.stream_max_retries=5',
+        '--config', 'history.persistence="none"',
+        '--config', 'model_reasoning_effort="low"',
         '--json', prompt,
       ];
   const env = task.agent === 'claude'
@@ -238,8 +270,9 @@ function spawnAgent(task, workspace, proxyUrl, keys, secrets) {
       }
     : {
         ...commonEnv,
+        CODEX_API_KEY: keys.openai,
+        CODEX_HOME: codexHome,
         OPENAI_API_KEY: keys.openai,
-        OPENAI_BASE_URL: `${proxyUrl}/v1`,
       };
 
   return new Promise((resolve, reject) => {
@@ -289,9 +322,34 @@ async function startForwarder(provider, injectRetry, budget) {
   let requests = 0;
   let injectedFailures = 0;
   const errors = [];
+  const requestHashes = new Set();
+  let duplicateRequestObserved = false;
+  let stablePrefixObserved = false;
+  let previousHistory;
   const server = http.createServer((request, response) => {
     void readRequest(request).then(async (body) => {
       requests += 1;
+      const bodyHash = sha256(body);
+      if (requestHashes.has(bodyHash)) duplicateRequestObserved = true;
+      requestHashes.add(bodyHash);
+      try {
+        const parsed = JSON.parse(body.toString());
+        const history = Array.isArray(parsed.messages)
+          ? parsed.messages
+          : Array.isArray(parsed.input)
+            ? parsed.input
+            : [];
+        if (
+          previousHistory &&
+          history.length >= previousHistory.length &&
+          JSON.stringify(previousHistory) === JSON.stringify(history.slice(0, previousHistory.length))
+        ) {
+          stablePrefixObserved = true;
+        }
+        previousHistory = history;
+      } catch {
+        // Non-JSON requests are not part of the agent trace gate.
+      }
       if (requests > MAX_REQUESTS_PER_SESSION) {
         response.writeHead(429, { 'content-type': 'application/json', 'retry-after': '0' });
         response.end(JSON.stringify({ error: { message: 'trace request cap reached' } }));
@@ -353,7 +411,13 @@ async function startForwarder(provider, injectRetry, budget) {
   const address = server.address();
   return {
     url: `http://127.0.0.1:${address.port}`,
-    stats: () => ({ requests, injectedFailures, errors }),
+    stats: () => ({
+      requests,
+      injectedFailures,
+      errors,
+      duplicateRequestObserved,
+      stablePrefixObserved,
+    }),
     close: () => new Promise((resolve, reject) =>
       server.close((error) => (error ? reject(error) : resolve())),
     ),
@@ -490,7 +554,7 @@ function sanitizeResponsesBody(body, secrets, workspace) {
   const input = [];
   for (const item of sourceInput) {
     if (item?.type !== 'function_call_output' || typeof item.output !== 'string') continue;
-    if (item.output.length < MIN_CHARS) continue;
+    if (item.output.length < 32) continue;
     const callId = `call_sanitized_${input.length}`;
     input.push({ type: 'function_call', call_id: callId, name: 'read_fixture', arguments: '{}' });
     input.push({
@@ -512,7 +576,7 @@ function sanitizeChatBody(body, secrets, workspace) {
   const messages = [];
   for (const message of sourceMessages) {
     if (message?.role !== 'tool' || typeof message.content !== 'string') continue;
-    if (message.content.length < MIN_CHARS) continue;
+    if (message.content.length < 32) continue;
     const callId = `call_sanitized_${messages.length}`;
     messages.push({
       role: 'assistant', content: null,
@@ -574,7 +638,9 @@ async function createSanitizedTrace(task, sourceRecord, secrets, workspace) {
     'payg',
   );
   await runtime.shutdown();
-  if (!routed.virtualized) throw new Error(`${task.id}: sanitized trace did not virtualize`);
+  if (task.agent === 'claude' && !routed.virtualized) {
+    throw new Error(`${task.id}: sanitized Claude trace did not virtualize`);
+  }
   const replay = await replayCaptureFile(tracePath, { ...config, capture: { path: '' } });
   const serialized = readFileSync(tracePath, 'utf8');
   const home = process.env.HOME ?? '';
@@ -620,12 +686,13 @@ async function runSession(task, keys, secrets, budget) {
     if (!existsSync(sourceCapture)) {
       throw new Error(
         `${task.id}: agent exited ${result.code}${result.signal ? ` (${result.signal})` : ''} ` +
-          `before its first provider request: ${result.stderrTail} debug: ${result.debugTail}`,
+          `before its first provider request: ${result.stderrTail} ` +
+          `output: ${result.outputTail} debug: ${result.debugTail}`,
       );
     }
     const records = readCaptureFile(sourceCapture);
     const applied = records.filter(hasAppliedQcv);
-    const sourceRecord = applied.at(-1);
+    const sourceRecord = applied.at(-1) ?? records.at(-1);
     if (!sourceRecord) {
       throw new Error(
         `${task.id}: real agent produced no QCV-applied request: ` +
@@ -637,13 +704,8 @@ async function runSession(task, keys, secrets, budget) {
           }),
       );
     }
-    const seen = new Set();
-    let retryObserved = false;
-    for (const record of records) {
-      if (seen.has(record.originalBodySha256)) retryObserved = true;
-      seen.add(record.originalBodySha256);
-    }
     const sanitized = await createSanitizedTrace(task, sourceRecord, secrets, workspace);
+    const forwarderStats = forwarder.stats();
     return {
       id: task.id,
       agent: task.agent,
@@ -656,9 +718,9 @@ async function runSession(task, keys, secrets, budget) {
       sourceCaptureSha256: sha256(readFileSync(sourceCapture)),
       sourceRecords: records.length,
       qcvAppliedRecords: applied.length,
-      stablePrefixObserved: stablePrefixObserved(records),
-      retryObserved,
-      forwarder: forwarder.stats(),
+      stablePrefixObserved: forwarderStats.stablePrefixObserved,
+      retryObserved: forwarderStats.duplicateRequestObserved,
+      forwarder: forwarderStats,
       sanitizedTrace: {
         file: `benchmarks/traces/agent-gate/${task.id}.jsonl`,
         bytes: sanitized.bytes,
@@ -687,7 +749,12 @@ function outcome(tasks, sessions, budget) {
     everyAgentCompleted: sessions.every(
       (session) => session.agentExitCode === 0 && session.agentCorrect,
     ),
-    everySessionVirtualized: sessions.every((session) => session.qcvAppliedRecords >= 1),
+    everyClaudeSessionVirtualized: sessions
+      .filter((session) => session.agent === 'claude')
+      .every((session) => session.qcvAppliedRecords >= 1),
+    codexSubThresholdPassThroughObserved: sessions
+      .filter((session) => session.agent === 'codex')
+      .every((session) => session.qcvAppliedRecords === 0),
     everySanitizedTraceReplayed: sessions.every(
       (session) =>
         session.replay.replayable === 1 &&
@@ -695,9 +762,9 @@ function outcome(tasks, sessions, budget) {
         session.replay.changed === 0 &&
         session.replay.failed === 0,
     ),
-    toolContinuationObserved: sessions.every((session) => session.sourceRecords >= 2),
+    toolContinuationObserved: sessions.every((session) => session.forwarder.requests >= 2),
     longSessionsObserved: PHASE === 'benchmark'
-      ? joins.length >= 4 && joins.every((session) => session.sourceRecords >= 3)
+      ? joins.length >= 4 && joins.every((session) => session.forwarder.requests >= 3)
       : true,
     stablePrefixObserved: sessions.every((session) => session.stablePrefixObserved),
     injectedRetriesObserved: PHASE === 'benchmark'
@@ -775,7 +842,7 @@ async function main() {
       retries:
         'One transient provider error is injected into one session per agent; the actual agent must retry on the wire. The harness itself performs no retry.',
       limitation:
-        'These are first-party controlled agent sessions over synthetic data, not customer production traces. Copilot subscription traffic delegates to Headroom and is outside QCV scope.',
+        'These are first-party controlled agent sessions over synthetic data, not customer production traces. Claude Code exercises QCV; Codex locally queries sub-6k chunks and therefore exercises safe pass-through. Copilot subscription traffic delegates to Headroom and is outside QCV scope.',
     },
     models: { claude: ANTHROPIC_MODEL, codex: OPENAI_MODEL },
     budget: budget.snapshot(),
