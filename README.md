@@ -29,12 +29,12 @@
 <p align="center"><sub>Same model | Same provider | Same SDK response types | Less repeated input when a safe rule matches</sub></p>
 
 <p align="center">
-       <a href="./benchmarks/results/direct-anthropic-virtual.json">
-              <img src="./assets/qcv-paid-pilot.svg" alt="Paid Haiku 4.5 pilot: provider input fell from 22,614 to 594 tokens across two synthetic structured-context tasks; exact score changed from 1/2 to 2/2" width="920">
+  <a href="./benchmarks/results/evidence-gate.first-party-macos-arm64-20260715.json">
+    <img src="./assets/qcv-evidence-gate.svg" alt="Repeated live gate: Pinpoint QCV answered 150 of 150 exactly across 30 synthetic structured tasks, five repetitions, two models, and three protocols, with modeled provider cost 94.7% lower than Headroom" width="920">
        </a>
 </p>
 
-<p align="center"><sub>Small controlled pilot: two synthetic structured-context tasks, one run per task. Provider-reported usage, raw responses, costs, and the failed baseline answer are in the linked receipt.</sub></p>
+<p align="center"><sub>Repeated controlled evidence: 150 randomized paired observations per arm, zero QCV regressions, exact one-sided 95% harm bound 1.98%. Synthetic structured tasks, not a universal traffic claim.</sub></p>
 
 <!-- LAUNCH(demo-video): Put a 15-25 second terminal recording here after independent replication. Keep the generated receipt card above as the static fallback. -->
 
@@ -123,7 +123,7 @@ Pinpoint changes only the launched process environment. It does not rewrite the 
 | GitHub Copilot CLI | Delegated | `pinpoint doctor copilot`, then `pinpoint wrap copilot`; compression is handled by the optional Headroom integration |
 | Cursor, Cline, Continue | Config printed | `pinpoint wrap <agent>` prints the local base URL; keep the proxy running while the editor uses it |
 
-> **About the 97.4% headline:** it came from provider API-key traffic containing large eligible old tool output. It is not a promise for subscription/OAuth CLI sessions or ordinary chat.
+> **About the 94.7% result:** it came from provider API-key traffic containing large eligible structured tool output. It is not a promise for subscription/OAuth CLI sessions, ordinary chat, or traffic that does not match an exact rule.
 
 Pinpoint checks every request, applies only a matching safe rule, and forwards everything else unchanged. Automatic routing is not forced compression.
 
@@ -364,9 +364,31 @@ Provider wrappers are exported from `@codepal/pinpoint/anthropic` and `@codepal/
 
 CodePal publishes Pinpoint's raw benchmark artifacts, negative results, and safety checks so people can inspect the claims rather than trust a headline.
 
-### Paid exact-context pilot
+### Repeated multi-provider evidence gate
 
-The headline result came from two fixed Haiku 4.5 tasks sent directly to Anthropic and through Pinpoint:
+The current primary receipt covers 30 unique synthetic structured tasks, five repetitions, and three randomized arms per observation: raw provider input, Headroom-only semantic compression, and Pinpoint QCV. It used Claude Haiku 4.5 through Anthropic Messages and GPT-4.1 mini through both OpenAI Chat Completions and Responses.
+
+| Arm | Exact score | Provider input | Modeled provider cost |
+|---|---:|---:|---:|
+| Raw | 117/150 | 1,307,685 | $0.698772 |
+| Headroom | 120/150 | 1,175,570 | $0.616551 |
+| **Pinpoint QCV** | **150/150** | **47,480** | **$0.032929** |
+
+Against Headroom, QCV used 96.0% fewer input tokens and 94.7% lower modeled provider cost. The paired-bootstrap 95% cost-reduction interval was 94.3%-95.0%. There were zero paired regressions and 30 improvements; the exact one-sided 95% upper bound on harm was 1.98%, below the predeclared two-point non-inferiority margin.
+
+The run made 450 paid calls with no harness retries and observed $1.348252 in provider spend. Inspect the [full repeated receipt](./benchmarks/results/evidence-gate.first-party-macos-arm64-20260715.json).
+
+### Real-agent capture and replay gate
+
+Five real Claude Code sessions and five real Codex CLI sessions ran in disposable synthetic repositories through the production proxy. All 10 answered exactly, all 10 minimized sanitized traces replayed hash-identically, stable cache shape was observed, four long/join sessions completed, and both injected provider POST failures were retried by the agents.
+
+Claude Code exercised QCV on line-numbered `Read` output. Codex queried sub-6,000-character chunks locally, so Pinpoint correctly left those requests unchanged. The source captures, agent outputs, credentials, and personal paths were deleted; only reviewed synthetic derivatives remain. Inspect the [agent receipt](./benchmarks/results/agent-trace-gate.first-party-macos-arm64-20260715.json) and [sanitized traces](./benchmarks/traces/agent-gate/).
+
+These are first-party real-agent sessions over synthetic data, not customer production traces. Copilot subscription traffic delegates to Headroom and is outside QCV scope.
+
+### Historical paid exact-context pilot
+
+The earlier pilot used two fixed Haiku 4.5 tasks sent directly to Anthropic and through Pinpoint:
 
 - Provider-reported input fell from **22,614 to 594 tokens**.
 - Modeled cost fell from **$0.022684 to $0.000664**.
@@ -376,9 +398,9 @@ On the log task, the raw model answered `5` for a fixture containing seven error
 
 A separate three-task pilot tested the optional general compression path. Input fell from 24,249 to 14,478 tokens with the same 2/3 exact score. That result validates the integration path rather than Pinpoint's exact-context algorithm.
 
-These are small pilots with synthetic fixtures, one model, and one randomized pair per task. They do not establish universal model-quality parity.
+Those pilots remain useful negative and design-history evidence, but the repeated gate above supersedes them as the primary quality result.
 
-Run the offline checks or repeat the paid pilot from a clean machine using the [benchmark reproduction guide](./benchmarks/REPRODUCING.md). Labeled replication runs write separate raw receipts instead of replacing the headline artifact.
+Run the offline checks or repeat either paid gate from a clean machine using the [benchmark reproduction guide](./benchmarks/REPRODUCING.md). Labeled replication runs write separate receipts instead of replacing the committed artifacts.
 
 ### Broader offline token accounting
 
@@ -391,7 +413,7 @@ The offline corpus runs real Pinpoint transforms over agent-shaped requests and 
 | Source output + static context | 12,049 | 5,846 | **51.5%** |
 | **Total** | **49,020** | **25,093** | **48.8%** |
 
-This offline result validates transformation and token accounting, not model quality. The paid pilots are also small: synthetic fixtures, one model, one randomized pair per task, and no retries. Cache behavior, retrievals, model choice, and how often real requests match the rules can change the net saving.
+This offline result validates transformation and token accounting, not model quality. The repeated live gate above measures model quality on its committed synthetic task family. Cache behavior, model choice, and how often organic requests match the exact rules can change the net saving.
 
 The broader exact-data test suite runs 42 deterministic tasks across JSON lookup, filtered counts, logs, source exports, tabular JSON, nested projections, and one-hop unique-key joins. It produced 42/42 exact materializations, replaced the large old tool output in 42/42 cases, and never exposed model-planned retrieval. The measured tool-output regions fell from 144,272 to 7,583 estimated tokens. It also refused 20/20 ambiguous, competing-dataset, unsafe-join, and lossy-number controls. This is offline operation coverage, not live-model quality evidence.
 
@@ -422,7 +444,7 @@ To use CodePal's full AI development product, visit [codepal.ai](https://codepal
 | OpenAI Chat Completions | Yes | Yes | Yes |
 | OpenAI Responses | Yes | Yes | Yes |
 
-Exact local lookups run when Pinpoint classifies a request as provider API-key traffic. Claude Code, Codex CLI, Cursor, and Copilot identify themselves as subscription clients, so they use the safer subscription mode. Another installed compression module may still handle part of those requests.
+Exact local lookups run when Pinpoint sees an explicit provider API key, including API-key Claude Code and Codex CLI traffic. OAuth/JWT and subscription traffic remain in the safer pass-through posture. Another installed compression module may still handle part of those requests.
 
 Wrappers are included for Claude Code, Codex, Aider, OpenCode, Goose, OpenHands, Vibe, GitHub Copilot CLI, Cursor, Cline, and Continue. Run `pinpoint agent list` to see whether each adapter proxies traffic, delegates to another local path, or prints configuration.
 

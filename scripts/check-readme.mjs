@@ -6,10 +6,18 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const readmePath = join(root, 'README.md');
 const readme = readFileSync(readmePath, 'utf8');
 const receipt = JSON.parse(
-  readFileSync(join(root, 'benchmarks', 'results', 'direct-anthropic-virtual.json'), 'utf8'),
+  readFileSync(
+    join(
+      root,
+      'benchmarks',
+      'results',
+      'evidence-gate.first-party-macos-arm64-20260715.json',
+    ),
+    'utf8',
+  ),
 );
 const packageJson = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
-const proofAssetPath = join(root, 'assets', 'qcv-paid-pilot.svg');
+const proofAssetPath = join(root, 'assets', 'qcv-evidence-gate.svg');
 const proofAsset = readFileSync(proofAssetPath, 'utf8');
 const failures = [];
 
@@ -81,20 +89,24 @@ for (const target of localTargets(readme)) {
   }
 }
 
-const { summary, methodology } = receipt;
+const { methodology } = receipt;
+const headroom = receipt.summary.arms.headroom;
+const qcv = receipt.summary.arms.qcv;
+const comparison = receipt.summary.comparisons.qcvVsHeadroom;
 const evidenceStrings = [
-  integer.format(summary.directInputTokens),
-  integer.format(summary.pinpointInputTokens),
-  percentage(summary.inputSavingsFraction),
-  `${summary.directCorrect}/${methodology.syntheticCorrectnessTasks}`,
-  `${summary.pinpointCorrect}/${methodology.syntheticCorrectnessTasks}`,
+  integer.format(headroom.inputTokens),
+  integer.format(qcv.inputTokens),
+  percentage(comparison.costReduction),
+  `${headroom.correct}/${headroom.observations}`,
+  `${qcv.correct}/${qcv.observations}`,
+  `${(comparison.harmRateOneSided95Upper * 100).toFixed(2)}%`,
 ];
 for (const value of evidenceStrings) {
   if (!readme.includes(value)) fail(`README is missing paid-receipt value: ${value}`);
   if (!proofAsset.includes(value)) fail(`proof asset is missing paid-receipt value: ${value}`);
 }
 
-if (!readme.includes('./assets/qcv-paid-pilot.svg')) fail('README does not render the proof asset');
+if (!readme.includes('./assets/qcv-evidence-gate.svg')) fail('README does not render the proof asset');
 if (!existsSync(join(root, 'llms.txt'))) fail('llms.txt is missing');
 if (!readme.includes('./llms.txt')) fail('README does not link llms.txt');
 const endUserSignals = [
@@ -106,7 +118,7 @@ const endUserSignals = [
   '### Any language or HTTP client: change the base URL',
   'Provider API key',
   'Subscription or OAuth',
-  'About the 97.4% headline',
+  'About the 94.7% result',
   '## What Pinpoint can optimize',
 ];
 for (const signal of endUserSignals) {

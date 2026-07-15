@@ -11,6 +11,16 @@ const load = (name) => {
   const p = join(here, 'results', name);
   return existsSync(p) ? JSON.parse(readFileSync(p, 'utf8')) : null;
 };
+const loadNewest = (pattern) => {
+  const dir = join(here, 'results');
+  if (!existsSync(dir)) return null;
+  const values = readdirSync(dir)
+    .filter((name) => pattern.test(name))
+    .map((name) => JSON.parse(readFileSync(join(dir, name), 'utf8')));
+  return values.sort((left, right) =>
+    String(right.generatedAt).localeCompare(String(left.generatedAt))
+  )[0] ?? null;
+};
 const inlineCode = (value) => `\`${value}\``;
 
 const offline = load('offline.json');
@@ -27,6 +37,8 @@ const virtualContext = load('virtual-context.json');
 const directAnthropicVirtual = load('direct-anthropic-virtual.json');
 const virtualContextNaive = load('virtual-context-naive.json');
 const qcvQuality = load('qcv-quality.json');
+const evidenceGate = loadNewest(/^evidence-gate\.(?!preflight\.|canary\.).+\.json$/);
+const agentTraceGate = loadNewest(/^agent-trace-gate\..+\.json$/);
 const out = [];
 
 function loadClaudeResults() {
@@ -941,6 +953,119 @@ if (!qcvQuality) {
 }
 out.push('');
 
+out.push('## Arm J - Repeated multi-provider QCV evidence gate');
+out.push('');
+if (!evidenceGate) {
+  out.push('_Not run._');
+} else {
+  const { summary, methodology } = evidenceGate;
+  const comparison = summary.comparisons.qcvVsHeadroom;
+  out.push(
+    `Evidence: ${inlineCode(evidenceGate.evidenceLevel)}. ${methodology.logicalTasks} synthetic ` +
+      `structured tasks x ${methodology.repetitions} repetitions = ` +
+      `${methodology.pairedObservationsPlanned} randomized paired observations per arm. ` +
+      `${methodology.protocols.length} protocols, 2 live models, no retries.`,
+  );
+  out.push('');
+  out.push(
+    mdTable(
+      ['arm', 'exact', 'accuracy (95% Wilson)', 'provider input', 'modeled cost', 'median / p95'],
+      ['raw', 'headroom', 'qcv'].map((arm) => {
+        const row = summary.arms[arm];
+        return [
+          arm,
+          `${row.correct}/${row.observations}`,
+          `${pct(row.accuracy)} (${pct(row.accuracy95.low)}-${pct(row.accuracy95.high)})`,
+          row.inputTokens.toLocaleString(),
+          `$${row.costUSD.toFixed(6)}`,
+          `${row.latencyMs.median.toFixed(0)} / ${row.latencyMs.p95.toFixed(0)} ms`,
+        ];
+      }),
+    ),
+  );
+  out.push('');
+  out.push(
+    `QCV vs Headroom: ${pct(comparison.costReduction)} lower modeled provider cost ` +
+      `(paired-bootstrap 95% CI ${pct(comparison.costReduction95.low)}-${pct(comparison.costReduction95.high)}), ` +
+      `${pct(comparison.inputReduction)} fewer input tokens, ${comparison.harms} regressions, ` +
+      `${comparison.improvements} improvements. The exact one-sided 95% upper bound on paired harm is ` +
+      `${pct(comparison.harmRateOneSided95Upper)}, below the 2-point non-inferiority margin.`,
+  );
+  out.push('');
+  out.push(
+    mdTable(
+      ['live cell', 'observations', 'raw', 'Headroom', 'QCV'],
+      Object.entries(summary.cells).map(([cell, value]) => [
+        cell,
+        String(value.observations),
+        `${value.raw.correct}/${value.raw.observations}`,
+        `${value.headroom.correct}/${value.headroom.observations}`,
+        `${value.qcv.correct}/${value.qcv.observations}`,
+      ]),
+    ),
+  );
+  out.push('');
+  out.push(
+    `Observed 450-call spend: $${evidenceGate.budget.observedUSD.toFixed(6)}. ` +
+      `Implementation SHA-256: ${inlineCode(evidenceGate.environment.implementationSha256)}. ` +
+      `Verdict: ${inlineCode(`all-gates=${evidenceGate.verdict}`)}.`,
+  );
+  out.push('');
+  out.push(
+    '> This establishes repeated live-model efficacy on the committed synthetic structured-task family. ' +
+      'It does not establish the eligible share of organic customer traffic or universal model quality.',
+  );
+}
+out.push('');
+
+out.push('## Arm K - Real-agent sanitized trace gate');
+out.push('');
+if (!agentTraceGate) {
+  out.push('_Not run._');
+} else {
+  const sessions = agentTraceGate.sessions;
+  const agentRows = ['claude', 'codex'].map((agent) => {
+    const rows = sessions.filter((session) => session.agent === agent);
+    return [
+      agent === 'claude' ? 'Claude Code' : 'Codex CLI',
+      String(rows.length),
+      `${rows.filter((row) => row.agentCorrect).length}/${rows.length}`,
+      String(rows.filter((row) => row.qcvAppliedRecords > 0).length),
+      `${rows.reduce((total, row) => total + row.replay.matched, 0)}/${rows.length}`,
+    ];
+  });
+  out.push(
+    `Evidence: ${inlineCode(agentTraceGate.evidenceLevel)}. Real installed CLIs ran in disposable ` +
+      'synthetic workspaces through the production proxy. Source captures and agent output were deleted; ' +
+      'only minimized mode-0600 synthetic derivatives remain.',
+  );
+  out.push('');
+  out.push(mdTable(['agent', 'sessions', 'correct', 'QCV sessions', 'hash-matched replays'], agentRows));
+  out.push('');
+  const replaySaved = sessions.reduce((total, session) => total + session.replay.tokensSaved, 0);
+  out.push(
+    `${sessions.length}/${sessions.length} sessions answered exactly; ` +
+      `${sessions.reduce((total, session) => total + session.replay.matched, 0)}/${sessions.length} ` +
+      `sanitized traces replayed hash-identically. Claude Code exercised QCV and stable manifest reuse; ` +
+      'Codex locally queried sub-threshold chunks and exercised byte-stable pass-through. Both injected ' +
+      `provider POST failures were retried successfully. Offline replay saved ${replaySaved.toLocaleString()} ` +
+      'estimated tokens on the Claude traces.',
+  );
+  out.push('');
+  out.push(
+    `Observed provider spend: $${agentTraceGate.budget.observedUSD.toFixed(6)}; conservative exposure: ` +
+      `$${agentTraceGate.budget.conservativeExposureUSD.toFixed(6)}. Implementation SHA-256: ` +
+      `${inlineCode(agentTraceGate.implementationSha256)}. Verdict: ` +
+      `${inlineCode(`all-gates=${agentTraceGate.verdict}`)}.`,
+  );
+  out.push('');
+  out.push(
+    '> These are first-party real-agent sessions over synthetic repositories, not sanitized customer ' +
+      'production traces. Copilot subscription traffic delegates to Headroom and is outside QCV scope.',
+  );
+}
+out.push('');
+
 out.push('## Findings');
 out.push('');
 if (offline) {
@@ -1001,6 +1126,22 @@ if (qcvQuality) {
       `without exposing fallback; ${qcvQuality.summary.refused}/${qcvQuality.summary.negativeControls} ` +
       'adversarial ambiguity controls were refused. This broadens operation coverage but is not ' +
       'live-model non-inferiority evidence.',
+  );
+}
+if (evidenceGate) {
+  const comparison = evidenceGate.summary.comparisons.qcvVsHeadroom;
+  out.push(
+    `- **Repeated live QCV gate:** ${evidenceGate.summary.arms.qcv.correct}/` +
+      `${evidenceGate.summary.arms.qcv.observations} exact, zero paired harms, ` +
+      `${pct(comparison.costReduction)} lower modeled cost than Headroom ` +
+      `(95% CI ${pct(comparison.costReduction95.low)}-${pct(comparison.costReduction95.high)}).`,
+  );
+}
+if (agentTraceGate) {
+  out.push(
+    `- **Real-agent gate:** ${agentTraceGate.sessions.length}/${agentTraceGate.sessions.length} ` +
+      'Claude Code/Codex sessions exact and hash-replayed; Claude exercised QCV, while Codex correctly ' +
+      'passed through its sub-threshold local-query workflow.',
   );
 }
 if (proof) {

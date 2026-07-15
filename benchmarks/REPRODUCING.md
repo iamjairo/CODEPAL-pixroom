@@ -23,7 +23,92 @@ What they establish:
 
 They do not establish live model quality, provider-reported usage, real-agent savings, or production latency.
 
-## Independent paid pilot
+## Repeated multi-provider evidence gate
+
+The primary paid gate needs both `ANTHROPIC_API_KEY` and `OPENAI_API_KEY`. Set them through your shell's secure or masked input flow. Never paste a key into a command transcript, issue, artifact, or pull request.
+
+Install the optional Headroom comparison sidecar, build Pinpoint, and run the offline harness self-test:
+
+```bash
+python3.13 -m venv .venv
+.venv/bin/pip install "headroom-ai>=0.31.0"
+export PINPOINT_HEADROOM_BIN="$PWD/.venv/bin/headroom"
+npm ci
+npm run bench:evidence:self-test
+```
+
+The self-test verifies 30 tasks, six categories, balanced three-protocol coverage, budget enforcement, credential scrubbing, and the exact statistical threshold. With zero paired harms over 150 observations, the one-sided 95% Clopper-Pearson upper bound is 1.977%.
+
+Run the transform-only preflight. It lists models, proves all 30 QCV plans are exact without model fallback, and computes a one-token-per-byte conservative spend bound. Listing provider models may make authenticated metadata requests, but this phase sends no completion requests:
+
+```bash
+BENCH_MAX_USD=12 \
+BENCH_MAX_REQUESTS=450 \
+BENCH_ARTIFACT_LABEL=independent-macos-arm64-20260715 \
+npm run bench:evidence:preflight
+```
+
+Run one exact QCV canary through Anthropic Messages, OpenAI Chat Completions, and OpenAI Responses:
+
+```bash
+BENCH_ALLOW_PAID=1 \
+BENCH_MAX_USD=0.15 \
+BENCH_MAX_REQUESTS=3 \
+BENCH_ARTIFACT_LABEL=independent-macos-arm64-20260715 \
+npm run bench:evidence:canary
+```
+
+Run the complete gate only after both checks pass:
+
+```bash
+BENCH_ALLOW_PAID=1 \
+BENCH_MAX_USD=12 \
+BENCH_MAX_REQUESTS=450 \
+BENCH_REPS=5 \
+BENCH_SEED=20260715 \
+BENCH_BOOTSTRAP_SAMPLES=10000 \
+BENCH_ARTIFACT_LABEL=independent-macos-arm64-20260715 \
+npm run bench:evidence
+```
+
+The gate fails unless all of these hold:
+
+- at least 30 unique tasks and five repetitions per task;
+- all six arm-order permutations observed;
+- two live models and Anthropic Messages, OpenAI Chat, and OpenAI Responses represented;
+- at least 98% QCV exact accuracy;
+- one-sided 95% paired-harm upper bound below two percentage points versus raw and Headroom;
+- QCV modeled provider cost at least 25% below Headroom, including the paired-bootstrap 95% lower bound;
+- no harness retries, complete observations, and spend/request caps respected.
+
+The committed first-party run used Claude Haiku 4.5 and GPT-4.1 mini. It made 450 completion calls and observed $1.348252 in provider spend. Pricing is an explicit dated public-price snapshot in the receipt; review it before each replication.
+
+## Real-agent capture and replay gate
+
+Install current Claude Code and Codex CLIs. The harness runs them in disposable synthetic repositories through Pinpoint. It never modifies stored Codex auth: Codex uses a disposable `CODEX_HOME` and a custom loopback provider supplied through `CODEX_API_KEY`. Source captures and raw agent output are deleted after each session.
+
+Run the two-session canary, then the complete ten-session gate:
+
+```bash
+BENCH_MAX_USD=0.5 \
+BENCH_MAX_REQUESTS=12 \
+BENCH_ARTIFACT_LABEL=independent-macos-arm64-20260715 \
+npm run bench:agent-traces:canary
+
+BENCH_MAX_USD=3 \
+BENCH_MAX_REQUESTS=60 \
+BENCH_MAX_REQUESTS_PER_SESSION=8 \
+BENCH_ARTIFACT_LABEL=independent-macos-arm64-20260715 \
+npm run bench:agent-traces
+```
+
+The full gate requires five Claude Code and five Codex sessions, exact final answers, tool continuations, four long/join sessions, stable cache shape, one successful injected POST retry per agent, and hash-identical offline replay of every sanitized derivative. Claude must exercise QCV. Codex is expected to pass through when it locally queries sub-6,000-character chunks.
+
+Before publishing, verify every trace is mode `0600` and scan the receipts and `benchmarks/traces/agent-gate/` for credentials, home-directory paths, temporary paths, proprietary prompts, and real user data. The committed run observed $0.103216 in provider spend under a $1.369226 conservative exposure calculation.
+
+These are first-party real-agent sessions over synthetic repositories, not customer production traces. Do not relabel them as organic or external traffic.
+
+## Historical paid pilot
 
 Use a clean machine or disposable environment. Record the operator, date, OS, CPU, Node version, Python version, Pinpoint commit, Headroom version, exact model ID, and Anthropic SDK/API version with the receipt.
 
@@ -38,7 +123,7 @@ npm run build
 npm run bench:anthropic:self-test
 ```
 
-Set `ANTHROPIC_API_KEY` through your shell's secure or masked input flow. Never paste a key into an issue, command transcript, artifact, or pull request.
+Set `ANTHROPIC_API_KEY` through your shell's secure or masked input flow.
 
 Run the free token-count preflight first:
 

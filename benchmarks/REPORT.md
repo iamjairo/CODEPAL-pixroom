@@ -1,6 +1,6 @@
 # pinpoint compression benchmark
 
-_Generated 2026-07-15T06:00:59.313Z._
+_Generated 2026-07-15T08:10:21.797Z._
 
 Measures token consumption (and, for live arms, response correctness) for **headroom-only** (semantic), **pxpipe-only** (optical), and **pinpoint** (both), on the same prompts + system context. Results are separated by evidence level; simulations are not presented as product-performance evidence.
 
@@ -389,6 +389,43 @@ Evidence: `offline-real-transform`. 42 deterministic tasks across 7 categories, 
 
 Result: 42/42 exact, 42/42 virtualized, 0 fallback tools; dataset-region estimate 144,272 → 7,583 tokens (94.7% lower). Adversarial controls: 20/20 safely refused without fallback. Verdict: `atLeastThirtyTasks=true`, `sixCategories=true`, `sevenCategories=true`, `allExact=true`, `allVirtualized=true`, `noFallback=true`, `allNegativeControlsRefused=true`.
 
+## Arm J - Repeated multi-provider QCV evidence gate
+
+Evidence: `live-controlled`. 30 synthetic structured tasks x 5 repetitions = 150 randomized paired observations per arm. 3 protocols, 2 live models, no retries.
+
+| arm | exact | accuracy (95% Wilson) | provider input | modeled cost | median / p95 |
+| --- | --- | --- | --- | --- | --- |
+| raw | 117/150 | 78.0% (70.7%-83.9%) | 1,307,685 | $0.698772 | 1059 / 1746 ms |
+| headroom | 120/150 | 80.0% (72.9%-85.6%) | 1,175,570 | $0.616551 | 1007 / 2162 ms |
+| qcv | 150/150 | 100.0% (97.5%-100.0%) | 47,480 | $0.032929 | 829 / 1624 ms |
+
+QCV vs Headroom: 94.7% lower modeled provider cost (paired-bootstrap 95% CI 94.3%-95.0%), 96.0% fewer input tokens, 0 regressions, 30 improvements. The exact one-sided 95% upper bound on paired harm is 2.0%, below the 2-point non-inferiority margin.
+
+| live cell | observations | raw | Headroom | QCV |
+| --- | --- | --- | --- | --- |
+| openai-responses:gpt-4.1-mini | 50 | 35/50 | 35/50 | 50/50 |
+| anthropic-messages:claude-haiku-4-5-20251001 | 50 | 40/50 | 45/50 | 50/50 |
+| openai-chat:gpt-4.1-mini | 50 | 42/50 | 40/50 | 50/50 |
+
+Observed 450-call spend: $1.348252. Implementation SHA-256: `c265e53a22c09d231b3c1f7e8785ab33867ab21fd2468cad6ccf3bb5b50b2aea`. Verdict: `all-gates=true`.
+
+> This establishes repeated live-model efficacy on the committed synthetic structured-task family. It does not establish the eligible share of organic customer traffic or universal model quality.
+
+## Arm K - Real-agent sanitized trace gate
+
+Evidence: `live-agentic`. Real installed CLIs ran in disposable synthetic workspaces through the production proxy. Source captures and agent output were deleted; only minimized mode-0600 synthetic derivatives remain.
+
+| agent | sessions | correct | QCV sessions | hash-matched replays |
+| --- | --- | --- | --- | --- |
+| Claude Code | 5 | 5/5 | 5 | 5/5 |
+| Codex CLI | 5 | 5/5 | 0 | 5/5 |
+
+10/10 sessions answered exactly; 10/10 sanitized traces replayed hash-identically. Claude Code exercised QCV and stable manifest reuse; Codex locally queried sub-threshold chunks and exercised byte-stable pass-through. Both injected provider POST failures were retried successfully. Offline replay saved 60,671 estimated tokens on the Claude traces.
+
+Observed provider spend: $0.103216; conservative exposure: $1.369226. Implementation SHA-256: `516b2fa9ea0ca76452c585e46afb921396cd9b2bc995a2f333b2d5a8c2b85586`. Verdict: `all-gates=true`.
+
+> These are first-party real-agent sessions over synthetic repositories, not sanitized customer production traces. Copilot subscription traffic delegates to Headroom and is outside QCV scope.
+
 ## Findings
 
 - **Offline (claude-fable-5):** pxpipe-only 20.5%, headroom-only 28.3%, **pinpoint 48.8%** overall input-token reduction. The two engines target disjoint regions (optical→system slab, semantic→tool outputs), so composing them beats either alone.
@@ -397,6 +434,8 @@ Result: 42/42 exact, 42/42 virtualized, 0 fallback tools; dataset-region estimat
 - **Paid direct Anthropic (claude-haiku-4-5-20251001):** provider input fell 40.3% and modeled cost fell 40.1%, with equal 2/3 quality. This was a three-task, one-repetition pilot and used headroom semantic compression only, so it validates the integration rather than independent pinpoint value.
 - **QCV paid pilot (claude-haiku-4-5-20251001):** input fell 97.4%, modeled cost fell 97.1%, and exact score improved 1/2 → 2/2. This is the first pinpoint-owned optimizer result, but it remains a two-task, one-repetition pilot.
 - **QCV breadth:** 42/42 deterministic tasks materialized exact results across 7 structured categories without exposing fallback; 20/20 adversarial ambiguity controls were refused. This broadens operation coverage but is not live-model non-inferiority evidence.
+- **Repeated live QCV gate:** 150/150 exact, zero paired harms, 94.7% lower modeled cost than Headroom (95% CI 94.3%-95.0%).
+- **Real-agent gate:** 10/10 Claude Code/Codex sessions exact and hash-replayed; Claude exercised QCV, while Codex correctly passed through its sub-threshold local-query workflow.
 - **Constructed additivity (Arm E):** `dominates-all=true` on five synthetic disjoint-region inputs; strict token wins on mixed-json + mixed-logs + mixed-code. This is transform arithmetic, not a task-quality or universal product claim.
 - **Prose (Arm F): fills the gap** — a large user-message prose block is compressed **0%** by pxpipe, headroom-tools, and default pinpoint, but `PINPOINT_SEMANTIC_PROSE=1` routes it to headroom's Kompress for a real, reversible cut (~6–21% of prose tokens by redundancy), **additive** with the optical + tool_result regions and a **no-op** when there's no prose.
 - **Controller simulation (Arm G):** the policy loop recovers a hand-authored 2×2 allocation under its own oracle. It is retained as a deterministic mechanism test and excluded from competitive claims.

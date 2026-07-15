@@ -1,0 +1,464 @@
+{
+  "schemaVersion": 1,
+  "evidenceLevel": "live-agentic",
+  "kind": "sanitized-real-agent-trace-replay-gate",
+  "generatedAt": "2026-07-15T08:05:35.711Z",
+  "phase": "benchmark",
+  "methodology": {
+    "source": "Real Claude Code and Codex CLI sessions in disposable synthetic workspaces, routed through the production Pinpoint proxy.",
+    "sanitization": "Agent system prompts, tool schemas, outputs, source bodies, personal paths, and credentials are not persisted. Provider-native synthetic tool history is minimized, re-transformed, and written mode 0600.",
+    "replay": "Every persisted sanitized derivative is replayed offline and compared to its transformed-body SHA-256.",
+    "retries": "One transient provider error is injected into one session per agent; the actual agent must retry on the wire. The harness itself performs no retry.",
+    "limitation": "These are first-party controlled agent sessions over synthetic data, not customer production traces. Claude Code exercises QCV; Codex locally queries sub-6k chunks and therefore exercises safe pass-through. Copilot subscription traffic delegates to Headroom and is outside QCV scope."
+  },
+  "models": {
+    "claude": "claude-haiku-4-5-20251001",
+    "codex": "gpt-4.1-mini"
+  },
+  "implementationSha256": "516b2fa9ea0ca76452c585e46afb921396cd9b2bc995a2f333b2d5a8c2b85586",
+  "budget": {
+    "maxUSD": 3,
+    "maxRequests": 60,
+    "providerRequests": 46,
+    "conservativeExposureUSD": 1.3692264000000003,
+    "observedUSD": 0.10321585
+  },
+  "gates": {
+    "expectedSessionCount": true,
+    "tenRealAgentSessions": true,
+    "claudeAndCodex": true,
+    "everyAgentCompleted": true,
+    "everyClaudeSessionVirtualized": true,
+    "codexSubThresholdPassThroughObserved": true,
+    "everySanitizedTraceReplayed": true,
+    "toolContinuationObserved": true,
+    "longSessionsObserved": true,
+    "cacheShapeObserved": true,
+    "injectedRetriesObserved": true,
+    "sourceBodiesNotPersisted": true,
+    "withinExposureCap": true
+  },
+  "verdict": true,
+  "sessions": [
+    {
+      "id": "claude-lookup-1",
+      "agent": "claude",
+      "join": false,
+      "injectedRetry": false,
+      "agentExitCode": 0,
+      "agentSignal": null,
+      "agentCorrect": true,
+      "agentOutputSha256": "17c48fdd2e05ec54464a5e59aa946fb6f210c8a1891b3195ab360893caaf328c",
+      "sourceCaptureSha256": "c85130d84c483b6facda83852d1d6455129e3a022954f7f5af81e2f7628cc831",
+      "sourceRecords": 2,
+      "qcvAppliedRecords": 2,
+      "stablePrefixObserved": false,
+      "repeatedManifestObserved": true,
+      "retryObserved": false,
+      "forwarder": {
+        "requests": 5,
+        "injectedFailures": 0,
+        "errors": [],
+        "duplicateRequestObserved": false,
+        "stablePrefixObserved": false,
+        "repeatedManifestObserved": true,
+        "retryAfterInjectedFailureObserved": false
+      },
+      "sanitizedTrace": {
+        "file": "benchmarks/traces/agent-gate/claude-lookup-1.jsonl",
+        "bytes": 43771,
+        "sha256": "e8e558c687c11587c5185a801ecf0152c1f24bae9bfa85ad82bb6781c38eb881"
+      },
+      "replay": {
+        "records": 1,
+        "replayable": 1,
+        "matched": 1,
+        "changed": 0,
+        "failed": 0,
+        "tokensSaved": 9111,
+        "errors": []
+      },
+      "sourceBodiesPersisted": false,
+      "agentOutputPersisted": false,
+      "stderrTail": ""
+    },
+    {
+      "id": "claude-lookup-2",
+      "agent": "claude",
+      "join": false,
+      "injectedRetry": false,
+      "agentExitCode": 0,
+      "agentSignal": null,
+      "agentCorrect": true,
+      "agentOutputSha256": "3e86b44a9dceb54ce08fb92d0b550a61481674237d26ffc26afa2b2420a15bf8",
+      "sourceCaptureSha256": "3ad475312f16a49607dab398986d5ae8eb8155559dc43e4f4166a6410a0967e9",
+      "sourceRecords": 2,
+      "qcvAppliedRecords": 2,
+      "stablePrefixObserved": false,
+      "repeatedManifestObserved": true,
+      "retryObserved": false,
+      "forwarder": {
+        "requests": 5,
+        "injectedFailures": 0,
+        "errors": [],
+        "duplicateRequestObserved": false,
+        "stablePrefixObserved": false,
+        "repeatedManifestObserved": true,
+        "retryAfterInjectedFailureObserved": false
+      },
+      "sanitizedTrace": {
+        "file": "benchmarks/traces/agent-gate/claude-lookup-2.jsonl",
+        "bytes": 43772,
+        "sha256": "d719f163effc0870bcf51cd79cde833ec54edd8478fe8bfd3c8380529ef9d28b"
+      },
+      "replay": {
+        "records": 1,
+        "replayable": 1,
+        "matched": 1,
+        "changed": 0,
+        "failed": 0,
+        "tokensSaved": 9111,
+        "errors": []
+      },
+      "sourceBodiesPersisted": false,
+      "agentOutputPersisted": false,
+      "stderrTail": ""
+    },
+    {
+      "id": "claude-lookup-3",
+      "agent": "claude",
+      "join": false,
+      "injectedRetry": true,
+      "agentExitCode": 0,
+      "agentSignal": null,
+      "agentCorrect": true,
+      "agentOutputSha256": "3fa2e8528047921fd61bc5f432533f29c7ea0f17d840f8c4de0b39d5a7df49ba",
+      "sourceCaptureSha256": "24cd3c1df037f5b487ee2f0d234c52ee5aff239606d95c1b8a0ad0ceb089459f",
+      "sourceRecords": 2,
+      "qcvAppliedRecords": 2,
+      "stablePrefixObserved": true,
+      "repeatedManifestObserved": true,
+      "retryObserved": true,
+      "forwarder": {
+        "requests": 6,
+        "injectedFailures": 1,
+        "errors": [],
+        "duplicateRequestObserved": true,
+        "stablePrefixObserved": true,
+        "repeatedManifestObserved": true,
+        "retryAfterInjectedFailureObserved": true
+      },
+      "sanitizedTrace": {
+        "file": "benchmarks/traces/agent-gate/claude-lookup-3.jsonl",
+        "bytes": 43772,
+        "sha256": "cde5abbdc36186b0c87e2e492e559279ee6865ed0ad35d05a698a3e0a9b53a1d"
+      },
+      "replay": {
+        "records": 1,
+        "replayable": 1,
+        "matched": 1,
+        "changed": 0,
+        "failed": 0,
+        "tokensSaved": 9111,
+        "errors": []
+      },
+      "sourceBodiesPersisted": false,
+      "agentOutputPersisted": false,
+      "stderrTail": ""
+    },
+    {
+      "id": "claude-join-4",
+      "agent": "claude",
+      "join": true,
+      "injectedRetry": false,
+      "agentExitCode": 0,
+      "agentSignal": null,
+      "agentCorrect": true,
+      "agentOutputSha256": "e95ea9db1d1399bf1fb23f6ad487785d3df0855e073d38320bb84bf0f06b49ee",
+      "sourceCaptureSha256": "d856df9869273a7c486bd3e2c5d839946567a76bc41f227325f8a83c35de6cd8",
+      "sourceRecords": 3,
+      "qcvAppliedRecords": 2,
+      "stablePrefixObserved": false,
+      "repeatedManifestObserved": true,
+      "retryObserved": false,
+      "forwarder": {
+        "requests": 7,
+        "injectedFailures": 0,
+        "errors": [],
+        "duplicateRequestObserved": false,
+        "stablePrefixObserved": false,
+        "repeatedManifestObserved": true,
+        "retryAfterInjectedFailureObserved": false
+      },
+      "sanitizedTrace": {
+        "file": "benchmarks/traces/agent-gate/claude-join-4.jsonl",
+        "bytes": 77456,
+        "sha256": "a272b7e7c02249dfd5f733a38725725a2f798095c08a6fc9aa5ca350e792498f"
+      },
+      "replay": {
+        "records": 1,
+        "replayable": 1,
+        "matched": 1,
+        "changed": 0,
+        "failed": 0,
+        "tokensSaved": 16669,
+        "errors": []
+      },
+      "sourceBodiesPersisted": false,
+      "agentOutputPersisted": false,
+      "stderrTail": ""
+    },
+    {
+      "id": "claude-join-5",
+      "agent": "claude",
+      "join": true,
+      "injectedRetry": false,
+      "agentExitCode": 0,
+      "agentSignal": null,
+      "agentCorrect": true,
+      "agentOutputSha256": "d868789d629666398ff0533e3e940fefe962b30cf1f225fdb1f11f4d84326214",
+      "sourceCaptureSha256": "c99b508a62d2f2f0d1f55674f34d28fd31b78b7785a57b4995834b9722a659c4",
+      "sourceRecords": 3,
+      "qcvAppliedRecords": 2,
+      "stablePrefixObserved": false,
+      "repeatedManifestObserved": true,
+      "retryObserved": false,
+      "forwarder": {
+        "requests": 7,
+        "injectedFailures": 0,
+        "errors": [],
+        "duplicateRequestObserved": false,
+        "stablePrefixObserved": false,
+        "repeatedManifestObserved": true,
+        "retryAfterInjectedFailureObserved": false
+      },
+      "sanitizedTrace": {
+        "file": "benchmarks/traces/agent-gate/claude-join-5.jsonl",
+        "bytes": 77458,
+        "sha256": "249c9d1425fac7812ed0186a4b8650593b59d0504eb025fb26826a5c76cedcdf"
+      },
+      "replay": {
+        "records": 1,
+        "replayable": 1,
+        "matched": 1,
+        "changed": 0,
+        "failed": 0,
+        "tokensSaved": 16669,
+        "errors": []
+      },
+      "sourceBodiesPersisted": false,
+      "agentOutputPersisted": false,
+      "stderrTail": ""
+    },
+    {
+      "id": "codex-lookup-1",
+      "agent": "codex",
+      "join": false,
+      "injectedRetry": false,
+      "agentExitCode": 0,
+      "agentSignal": null,
+      "agentCorrect": true,
+      "agentOutputSha256": "b76de852816d51ae999386952ed922dca52ccba2eae400b28f17919e4cd9581c",
+      "sourceCaptureSha256": "6db8cbfc29d5d688265d4619328efc6943d58a1d16348ff5595a136eec5786e8",
+      "sourceRecords": 2,
+      "qcvAppliedRecords": 0,
+      "stablePrefixObserved": true,
+      "repeatedManifestObserved": false,
+      "retryObserved": false,
+      "forwarder": {
+        "requests": 3,
+        "injectedFailures": 0,
+        "errors": [],
+        "duplicateRequestObserved": false,
+        "stablePrefixObserved": true,
+        "repeatedManifestObserved": false,
+        "retryAfterInjectedFailureObserved": false
+      },
+      "sanitizedTrace": {
+        "file": "benchmarks/traces/agent-gate/codex-lookup-1.jsonl",
+        "bytes": 3278,
+        "sha256": "651b3fa4395a533646ef1ea5b94de6b18bc162e6f021d690f3fcfed62d858f30"
+      },
+      "replay": {
+        "records": 1,
+        "replayable": 1,
+        "matched": 1,
+        "changed": 0,
+        "failed": 0,
+        "tokensSaved": 0,
+        "errors": []
+      },
+      "sourceBodiesPersisted": false,
+      "agentOutputPersisted": false,
+      "stderrTail": ""
+    },
+    {
+      "id": "codex-lookup-2",
+      "agent": "codex",
+      "join": false,
+      "injectedRetry": false,
+      "agentExitCode": 0,
+      "agentSignal": null,
+      "agentCorrect": true,
+      "agentOutputSha256": "b8fce16e2ea874dca1c7a8a5a3d56890e5261929d4f34a960968da67c8b3de3a",
+      "sourceCaptureSha256": "473bde18c1ecfe1ed766f053d0ac8ef57009169d1ec1032611f5d27f2359dda8",
+      "sourceRecords": 2,
+      "qcvAppliedRecords": 0,
+      "stablePrefixObserved": true,
+      "repeatedManifestObserved": false,
+      "retryObserved": false,
+      "forwarder": {
+        "requests": 3,
+        "injectedFailures": 0,
+        "errors": [],
+        "duplicateRequestObserved": false,
+        "stablePrefixObserved": true,
+        "repeatedManifestObserved": false,
+        "retryAfterInjectedFailureObserved": false
+      },
+      "sanitizedTrace": {
+        "file": "benchmarks/traces/agent-gate/codex-lookup-2.jsonl",
+        "bytes": 3278,
+        "sha256": "7441cd3eae79ab7a37837325f4ee3104953389027e0d0708ae386bbf74989e6a"
+      },
+      "replay": {
+        "records": 1,
+        "replayable": 1,
+        "matched": 1,
+        "changed": 0,
+        "failed": 0,
+        "tokensSaved": 0,
+        "errors": []
+      },
+      "sourceBodiesPersisted": false,
+      "agentOutputPersisted": false,
+      "stderrTail": ""
+    },
+    {
+      "id": "codex-lookup-3",
+      "agent": "codex",
+      "join": false,
+      "injectedRetry": true,
+      "agentExitCode": 0,
+      "agentSignal": null,
+      "agentCorrect": true,
+      "agentOutputSha256": "946cae52f2bf8df0c69824cf34c515a99a71cf5d2dd584b5b9e45dcf59ca8cbd",
+      "sourceCaptureSha256": "0aa2835ab707347d6eccc955b923aac28025e03860219f06e77b7a3f3a5e7b7c",
+      "sourceRecords": 2,
+      "qcvAppliedRecords": 0,
+      "stablePrefixObserved": true,
+      "repeatedManifestObserved": false,
+      "retryObserved": true,
+      "forwarder": {
+        "requests": 4,
+        "injectedFailures": 1,
+        "errors": [],
+        "duplicateRequestObserved": true,
+        "stablePrefixObserved": true,
+        "repeatedManifestObserved": false,
+        "retryAfterInjectedFailureObserved": true
+      },
+      "sanitizedTrace": {
+        "file": "benchmarks/traces/agent-gate/codex-lookup-3.jsonl",
+        "bytes": 3278,
+        "sha256": "ff8bc0e4c93c9bf8e5739fb4a24e6af2c87519181000a804bac4d5246f0d350f"
+      },
+      "replay": {
+        "records": 1,
+        "replayable": 1,
+        "matched": 1,
+        "changed": 0,
+        "failed": 0,
+        "tokensSaved": 0,
+        "errors": []
+      },
+      "sourceBodiesPersisted": false,
+      "agentOutputPersisted": false,
+      "stderrTail": ""
+    },
+    {
+      "id": "codex-join-4",
+      "agent": "codex",
+      "join": true,
+      "injectedRetry": false,
+      "agentExitCode": 0,
+      "agentSignal": null,
+      "agentCorrect": true,
+      "agentOutputSha256": "990f6d92462345be284b60ec5f17750b79cbd4c1abb9afcced52373458c8c4fa",
+      "sourceCaptureSha256": "171ed23c9c9a3cb9f31ce7840fcafd54f55861c098d3fb42f95d6a0eebd82448",
+      "sourceRecords": 3,
+      "qcvAppliedRecords": 0,
+      "stablePrefixObserved": true,
+      "repeatedManifestObserved": false,
+      "retryObserved": false,
+      "forwarder": {
+        "requests": 4,
+        "injectedFailures": 0,
+        "errors": [],
+        "duplicateRequestObserved": false,
+        "stablePrefixObserved": true,
+        "repeatedManifestObserved": false,
+        "retryAfterInjectedFailureObserved": false
+      },
+      "sanitizedTrace": {
+        "file": "benchmarks/traces/agent-gate/codex-join-4.jsonl",
+        "bytes": 4201,
+        "sha256": "61120d18e01d7f780497202a574e5ebd5a77590c753b06a56abc8515994ab013"
+      },
+      "replay": {
+        "records": 1,
+        "replayable": 1,
+        "matched": 1,
+        "changed": 0,
+        "failed": 0,
+        "tokensSaved": 0,
+        "errors": []
+      },
+      "sourceBodiesPersisted": false,
+      "agentOutputPersisted": false,
+      "stderrTail": ""
+    },
+    {
+      "id": "codex-join-5",
+      "agent": "codex",
+      "join": true,
+      "injectedRetry": false,
+      "agentExitCode": 0,
+      "agentSignal": null,
+      "agentCorrect": true,
+      "agentOutputSha256": "603ae3b1563e11e075cd0dcc8ecae8529ed0a8f60b270a24fc75c1eefcbbb944",
+      "sourceCaptureSha256": "328fd1d9abcfcd49cf8cc508e0f28210c9d9f60af9d37c70c861751a2c18455d",
+      "sourceRecords": 3,
+      "qcvAppliedRecords": 0,
+      "stablePrefixObserved": true,
+      "repeatedManifestObserved": false,
+      "retryObserved": false,
+      "forwarder": {
+        "requests": 4,
+        "injectedFailures": 0,
+        "errors": [],
+        "duplicateRequestObserved": false,
+        "stablePrefixObserved": true,
+        "repeatedManifestObserved": false,
+        "retryAfterInjectedFailureObserved": false
+      },
+      "sanitizedTrace": {
+        "file": "benchmarks/traces/agent-gate/codex-join-5.jsonl",
+        "bytes": 4202,
+        "sha256": "fc538e60bf87aa30f0f042ed8e9193e7482f588524ca599a6e32690dd3f68720"
+      },
+      "replay": {
+        "records": 1,
+        "replayable": 1,
+        "matched": 1,
+        "changed": 0,
+        "failed": 0,
+        "tokensSaved": 0,
+        "errors": []
+      },
+      "sourceBodiesPersisted": false,
+      "agentOutputPersisted": false,
+      "stderrTail": ""
+    }
+  ]
+}

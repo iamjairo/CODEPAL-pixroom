@@ -3,16 +3,17 @@
   "evidenceLevel": "live-controlled",
   "kind": "multi-provider-repeated-qcv-evidence-gate",
   "status": "complete",
-  "generatedAt": "2026-07-15T06:58:57.798Z",
+  "generatedAt": "2026-07-15T08:03:55.934Z",
   "environment": {
     "node": "v26.0.0",
     "platform": "darwin",
     "release": "25.5.0",
     "arch": "arm64",
     "git": {
-      "commit": "ac339ebbae920bbb55b9aa6bb7003a396cc43859",
+      "commit": "11c7e7f95b85a333b650baa3684ff1390de2a291",
       "dirty": true
-    }
+    },
+    "implementationSha256": "c265e53a22c09d231b3c1f7e8785ab33867ab21fd2468cad6ccf3bb5b50b2aea"
   },
   "models": {
     "anthropic": "claude-haiku-4-5-20251001",
@@ -80,8 +81,8 @@
     "maxUSD": 12,
     "maxRequests": 450,
     "paidRequests": 450,
-    "observedUSD": 1.3386903999999995,
-    "conservativeExposureUSD": 1.338690400000001
+    "observedUSD": 1.348252,
+    "conservativeExposureUSD": 1.3482520000000002
   },
   "tasks": [
     {
@@ -2266,26 +2267,26 @@
         },
         "inputTokens": 1307685,
         "outputTokens": 840,
-        "costUSD": 0.6917059999999999,
+        "costUSD": 0.6987715999999999,
         "latencyMs": {
-          "median": 1026.6907710000232,
-          "p95": 2059.230906549993
+          "median": 1058.7784784999967,
+          "p95": 1745.5055373499908
         }
       },
       "headroom": {
         "observations": 150,
-        "correct": 121,
-        "accuracy": 0.8066666666666666,
+        "correct": 120,
+        "accuracy": 0.8,
         "accuracy95": {
-          "low": 0.7361371418228314,
-          "high": 0.8618811082980816
+          "low": 0.7288586692020037,
+          "high": 0.8561591841771504
         },
         "inputTokens": 1175570,
         "outputTokens": 840,
-        "costUSD": 0.6140553999999995,
+        "costUSD": 0.6165513999999994,
         "latencyMs": {
-          "median": 1137.063833000022,
-          "p95": 2324.9423706500074
+          "median": 1007.1497494999858,
+          "p95": 2162.4622874999804
         }
       },
       "qcv": {
@@ -2300,8 +2301,8 @@
         "outputTokens": 840,
         "costUSD": 0.03292900000000003,
         "latencyMs": {
-          "median": 900.2912289999658,
-          "p95": 1821.2558609000116
+          "median": 829.3685625000217,
+          "p95": 1624.0366251500286
         }
       }
     },
@@ -2318,10 +2319,10 @@
           "low": 0.15333333333333332,
           "high": 0.2866666666666667
         },
-        "costReduction": 0.9523945144324323,
+        "costReduction": 0.952875875321779,
         "costReduction95": {
-          "low": 0.9488341053475016,
-          "high": 0.9556633312259878
+          "low": 0.9493930715769173,
+          "high": 0.9561479964842253
         },
         "inputReduction": 0.9636915618057865,
         "inputReduction95": {
@@ -2333,18 +2334,18 @@
         "baselineArm": "headroom",
         "observations": 150,
         "harms": 0,
-        "improvements": 29,
+        "improvements": 30,
         "harmRate": 0,
         "harmRateOneSided95Upper": 0.019773438164508446,
-        "accuracyDelta": 0.19333333333333333,
+        "accuracyDelta": 0.2,
         "accuracyDelta95": {
-          "low": 0.13333333333333333,
-          "high": 0.26
+          "low": 0.14,
+          "high": 0.26666666666666666
         },
-        "costReduction": 0.9463745453586109,
+        "costReduction": 0.9465916385884452,
         "costReduction95": {
-          "low": 0.9426042045122055,
-          "high": 0.9498535371123538
+          "low": 0.9427911034907188,
+          "high": 0.9501371821576937
         },
         "inputReduction": 0.959611082283488,
         "inputReduction95": {
@@ -2366,26 +2367,26 @@
           },
           "inputTokens": 428220,
           "outputTokens": 235,
-          "costUSD": 0.16256320000000005,
+          "costUSD": 0.16248640000000003,
           "latencyMs": {
-            "median": 1245.0006460000004,
-            "p95": 2213.747256250005
+            "median": 1193.5362500000047,
+            "p95": 1687.9271935999957
           }
         },
         "headroom": {
           "observations": 50,
-          "correct": 36,
-          "accuracy": 0.72,
+          "correct": 35,
+          "accuracy": 0.7,
           "accuracy95": {
-            "low": 0.5833487630404344,
-            "high": 0.8252582933408878
+            "low": 0.562496495355466,
+            "high": 0.8089644649911906
           },
           "inputTokens": 428220,
           "outputTokens": 235,
-          "costUSD": 0.16260160000000004,
+          "costUSD": 0.16256320000000005,
           "latencyMs": {
-            "median": 1233.5259164999952,
-            "p95": 3176.5431829999807
+            "median": 1139.0085414999921,
+            "p95": 3100.602124850007
           }
         },
         "qcv": {
@@ -2400,8 +2401,8 @@
           "outputTokens": 235,
           "costUSD": 0.006092,
           "latencyMs": {
-            "median": 990.5442709999552,
-            "p95": 1511.3196623500119
+            "median": 965.7137715000135,
+            "p95": 1804.7981850500137
           }
         }
       },
@@ -2419,8 +2420,8 @@
           "outputTokens": 410,
           "costUSD": 0.4574200000000001,
           "latencyMs": {
-            "median": 962.6287920000032,
-            "p95": 2366.1731375000118
+            "median": 1137.5244585000037,
+            "p95": 1995.7804935999998
           }
         },
         "headroom": {
@@ -2435,8 +2436,8 @@
           "outputTokens": 410,
           "costUSD": 0.3900949999999999,
           "latencyMs": {
-            "median": 1216.7216245000309,
-            "p95": 2251.037520650004
+            "median": 1020.7912079999951,
+            "p95": 1928.23271874999
           }
         },
         "qcv": {
@@ -2451,8 +2452,8 @@
           "outputTokens": 410,
           "costUSD": 0.020715000000000008,
           "latencyMs": {
-            "median": 862.4051665000006,
-            "p95": 2238.7042001500154
+            "median": 826.7528750000056,
+            "p95": 1597.097389399983
           }
         }
       },
@@ -2468,10 +2469,10 @@
           },
           "inputTokens": 424095,
           "outputTokens": 195,
-          "costUSD": 0.07172280000000002,
+          "costUSD": 0.07886520000000001,
           "latencyMs": {
-            "median": 711.7296455000178,
-            "p95": 1402.6054081499933
+            "median": 773.2958335000149,
+            "p95": 1493.984193749996
           }
         },
         "headroom": {
@@ -2484,10 +2485,10 @@
           },
           "inputTokens": 359305,
           "outputTokens": 195,
-          "costUSD": 0.06135879999999999,
+          "costUSD": 0.0638932,
           "latencyMs": {
-            "median": 780.3658754999924,
-            "p95": 1604.667912799998
+            "median": 717.9635830000334,
+            "p95": 1514.8169162999957
           }
         },
         "qcv": {
@@ -2502,8 +2503,8 @@
           "outputTokens": 195,
           "costUSD": 0.006122000000000001,
           "latencyMs": {
-            "median": 634.701458000025,
-            "p95": 1655.8396524499835
+            "median": 625.7955205000035,
+            "p95": 1109.5042292000046
           }
         }
       }
@@ -2549,8 +2550,8 @@
             "output": 2
           },
           "costUSD": 0.0026724,
-          "latencyMs": 2783.769374999996,
-          "requestId": "req_841be24ba03445aab8869ce6cc3b499a",
+          "latencyMs": 1309.3480839999975,
+          "requestId": "req_03eb9eae5652449c8fb80b9389866237",
           "stopReason": "completed"
         },
         "headroom": {
@@ -2562,8 +2563,8 @@
             "output": 2
           },
           "costUSD": 0.0026724,
-          "latencyMs": 2506.166333000001,
-          "requestId": "req_324d1be3199e4a18946011ff000c8989",
+          "latencyMs": 1255.1567090000026,
+          "requestId": "req_119770b322d94fe78d4d9d89d2690e73",
           "stopReason": "completed"
         },
         "qcv": {
@@ -2575,8 +2576,8 @@
             "output": 2
           },
           "costUSD": 0.00010360000000000001,
-          "latencyMs": 1418.4645830000081,
-          "requestId": "req_dcb2f2e5470f416787e51edd09a3f1a6",
+          "latencyMs": 937.1844999999958,
+          "requestId": "req_b2c9a3b2ea4d426798af84ff1a21af21",
           "stopReason": "completed"
         }
       }
@@ -2602,8 +2603,8 @@
             "output": 5
           },
           "costUSD": 0.008254,
-          "latencyMs": 2002.7758329999924,
-          "requestId": "req_011Cd3Q4omo1w6qHwF5nuMQX",
+          "latencyMs": 1021.0156670000069,
+          "requestId": "req_011Cd3V4d3TfgNmF749qddKp",
           "stopReason": "end_turn"
         },
         "headroom": {
@@ -2615,8 +2616,8 @@
             "output": 5
           },
           "costUSD": 0.007238,
-          "latencyMs": 2331.4275830000115,
-          "requestId": "req_011Cd3Q4xdr4F3wCGC5PBTYC",
+          "latencyMs": 1058.802499999998,
+          "requestId": "req_011Cd3V4hfGeqBnjnH2KqgQW",
           "stopReason": "end_turn"
         },
         "qcv": {
@@ -2628,8 +2629,8 @@
             "output": 5
           },
           "costUSD": 0.000349,
-          "latencyMs": 1026.1028340000048,
-          "requestId": "req_011Cd3Q58VS2NiiUZbh4ALbt",
+          "latencyMs": 711.1647500000036,
+          "requestId": "req_011Cd3V4mzxxxrJfHcWihz2a",
           "stopReason": "end_turn"
         }
       }
@@ -2655,8 +2656,8 @@
             "output": 7
           },
           "costUSD": 0.0048864,
-          "latencyMs": 2317.0160000000033,
-          "requestId": "req_573a79c1434f4cf1a107590fb6b2800a",
+          "latencyMs": 1552.2274170000019,
+          "requestId": "req_5014f2f509ad433882e7a9241eb51ceb",
           "stopReason": "completed"
         },
         "raw": {
@@ -2668,8 +2669,8 @@
             "output": 7
           },
           "costUSD": 0.0048864,
-          "latencyMs": 1524.2174590000068,
-          "requestId": "req_104cae9953e24ef49db49236753d1112",
+          "latencyMs": 1553.588708000003,
+          "requestId": "req_584154bbc1864517b27fa40a7b3c2b16",
           "stopReason": "completed"
         },
         "qcv": {
@@ -2681,8 +2682,8 @@
             "output": 7
           },
           "costUSD": 0.0001692,
-          "latencyMs": 1046.076291999998,
-          "requestId": "req_17812928156e45679cc9aa4c5a10b698",
+          "latencyMs": 1112.238750000004,
+          "requestId": "req_2bb43c3e93514ef79b5bf77179a63a98",
           "stopReason": "completed"
         }
       }
@@ -2708,8 +2709,8 @@
             "output": 6
           },
           "costUSD": 0.000174,
-          "latencyMs": 616.2107499999984,
-          "requestId": "req_62d6b3a6e93642078b39b0138a746e16",
+          "latencyMs": 769.742459000001,
+          "requestId": "req_f2f7c871d51a4bc5a0a1080a4eca9a47",
           "stopReason": "stop"
         },
         "raw": {
@@ -2721,8 +2722,8 @@
             "output": 6
           },
           "costUSD": 0.004886400000000001,
-          "latencyMs": 1096.3087919999962,
-          "requestId": "req_42adf9acde9d4ed08b78e6363738569e",
+          "latencyMs": 1949.7540829999998,
+          "requestId": "req_d60372b42e7e4c5f9c520e4ff5d2ed5a",
           "stopReason": "stop"
         },
         "headroom": {
@@ -2734,8 +2735,8 @@
             "output": 6
           },
           "costUSD": 0.004620000000000001,
-          "latencyMs": 880.5199160000047,
-          "requestId": "req_3ab711c6b85a496cb7f5580d2e86e272",
+          "latencyMs": 885.3270410000041,
+          "requestId": "req_228245bb916940418a33e52c2ca91891",
           "stopReason": "stop"
         }
       }
@@ -2761,8 +2762,8 @@
             "output": 6
           },
           "costUSD": 0.0012024,
-          "latencyMs": 715.5944589999999,
-          "requestId": "req_097b1d8b1a464bcdaadffb910cbcd3f5",
+          "latencyMs": 1096.9119160000046,
+          "requestId": "req_96b55557049b45a9a97ba54d5e676cca",
           "stopReason": "stop"
         },
         "qcv": {
@@ -2774,8 +2775,8 @@
             "output": 6
           },
           "costUSD": 0.000174,
-          "latencyMs": 1065.320458000002,
-          "requestId": "req_962c328a8516432abf214e166b543b3d",
+          "latencyMs": 608.3175000000047,
+          "requestId": "req_8d991c7eea13421dba52a3f88a511681",
           "stopReason": "stop"
         },
         "raw": {
@@ -2787,8 +2788,8 @@
             "output": 6
           },
           "costUSD": 0.0012768,
-          "latencyMs": 1252.4472499999974,
-          "requestId": "req_77ba0d7ff38b41baa79e901f3c9ecdb0",
+          "latencyMs": 643.0595829999947,
+          "requestId": "req_49074b2236024fc6a120e5835063e170",
           "stopReason": "stop"
         }
       }
@@ -2814,8 +2815,8 @@
             "output": 6
           },
           "costUSD": 0.00016720000000000003,
-          "latencyMs": 652.9224160000012,
-          "requestId": "req_61b0470fb4d94235b8cdbf7612c94fc1",
+          "latencyMs": 904.6748329999973,
+          "requestId": "req_dc1d9866faa34e59a6c504493f62685c",
           "stopReason": "stop"
         },
         "headroom": {
@@ -2827,8 +2828,8 @@
             "output": 6
           },
           "costUSD": 0.0046188,
-          "latencyMs": 1576.309958999991,
-          "requestId": "req_ac408674e80f42ff875a074c9ce2420f",
+          "latencyMs": 1281.1856249999983,
+          "requestId": "req_714a458470964ace88b9dd60d8d4dab4",
           "stopReason": "stop"
         },
         "raw": {
@@ -2840,8 +2841,8 @@
             "output": 6
           },
           "costUSD": 0.004886400000000001,
-          "latencyMs": 1010.4722500000062,
-          "requestId": "req_787fd4d75db14a8cbfc12e2a81aa6997",
+          "latencyMs": 1258.801459000002,
+          "requestId": "req_dd7b559a9bb148cd97673bcbd8f593cb",
           "stopReason": "stop"
         }
       }
@@ -2867,8 +2868,8 @@
             "output": 2
           },
           "costUSD": 0.00009680000000000001,
-          "latencyMs": 866.8392089999979,
-          "requestId": "req_335e6e099062423e859e72e750a0ce7c",
+          "latencyMs": 1399.750791999999,
+          "requestId": "req_8e71b2da7bc44a1795d5adb22ef9ada7",
           "stopReason": "completed"
         },
         "headroom": {
@@ -2880,8 +2881,8 @@
             "output": 2
           },
           "costUSD": 0.0047112,
-          "latencyMs": 1828.7773749999906,
-          "requestId": "req_dc4f48e15d574066b2519e9dde3a707d",
+          "latencyMs": 1160.1294579999958,
+          "requestId": "req_e64c53993e52450099716e3b4e2ebb9e",
           "stopReason": "completed"
         },
         "raw": {
@@ -2893,8 +2894,8 @@
             "output": 2
           },
           "costUSD": 0.0047112,
-          "latencyMs": 1440.6961670000019,
-          "requestId": "req_090e080396f440f6b8a54a05ef4e1228",
+          "latencyMs": 1298.1290829999998,
+          "requestId": "req_46ea80b3571946b5a2b8d84c3a690468",
           "stopReason": "completed"
         }
       }
@@ -2920,8 +2921,8 @@
             "output": 7
           },
           "costUSD": 0.0001716,
-          "latencyMs": 988.813249999992,
-          "requestId": "req_00384ccd006142949bb15bd270021c04",
+          "latencyMs": 960.3756670000002,
+          "requestId": "req_ac7df8b5039949bb9c778a969320990c",
           "stopReason": "completed"
         },
         "raw": {
@@ -2933,8 +2934,8 @@
             "output": 7
           },
           "costUSD": 0.0048864,
-          "latencyMs": 1109.1432499999937,
-          "requestId": "req_06a3c3e1f0b34cf0bf2a3fe366a997b7",
+          "latencyMs": 1353.4232920000068,
+          "requestId": "req_76c59b67e7f144138d7d439026d9e474",
           "stopReason": "completed"
         },
         "headroom": {
@@ -2946,8 +2947,8 @@
             "output": 7
           },
           "costUSD": 0.0048864,
-          "latencyMs": 1278.148874999999,
-          "requestId": "req_e1f24c1686e043aaadc6a853bc9a7e10",
+          "latencyMs": 1477.7751250000001,
+          "requestId": "req_dde11422dbb84570bd8bd85ae2d15df5",
           "stopReason": "completed"
         }
       }
@@ -2973,8 +2974,8 @@
             "output": 4
           },
           "costUSD": 0.00011720000000000002,
-          "latencyMs": 968.864333000005,
-          "requestId": "req_53b7fb6a7029400f8061e3522d3e13c8",
+          "latencyMs": 908.7324579999986,
+          "requestId": "req_973034bcfa824fe2974646e7fc89a4f9",
           "stopReason": "completed"
         },
         "headroom": {
@@ -2986,8 +2987,8 @@
             "output": 4
           },
           "costUSD": 0.0024284000000000003,
-          "latencyMs": 2072.922749999998,
-          "requestId": "req_5f95f680baba408bae39891faaaf3596",
+          "latencyMs": 1100.7034589999967,
+          "requestId": "req_c4b5c45fc02142e69cb26685d38b8ccb",
           "stopReason": "completed"
         },
         "raw": {
@@ -2999,8 +3000,8 @@
             "output": 4
           },
           "costUSD": 0.0024284000000000003,
-          "latencyMs": 2086.0502500000002,
-          "requestId": "req_af368bc86c5d4612acd0fe3bd6a05576",
+          "latencyMs": 1088.2335420000018,
+          "requestId": "req_66c4c11d87eb4d94b14792fad7fb67ba",
           "stopReason": "completed"
         }
       }
@@ -3026,8 +3027,8 @@
             "output": 2
           },
           "costUSD": 0.00009640000000000001,
-          "latencyMs": 981.1597909999982,
-          "requestId": "req_898e98faa31f4828b68c801de4f88ccf",
+          "latencyMs": 880.5802919999987,
+          "requestId": "req_7fcb71beec774c54bba944415895369c",
           "stopReason": "completed"
         },
         "headroom": {
@@ -3039,8 +3040,8 @@
             "output": 2
           },
           "costUSD": 0.0026724,
-          "latencyMs": 1269.7753340000054,
-          "requestId": "req_4d855cfd98954511bedea11dd088d2f7",
+          "latencyMs": 1037.7574590000004,
+          "requestId": "req_1c3b83366a714d498e34f7ad5314f9b5",
           "stopReason": "completed"
         },
         "raw": {
@@ -3052,8 +3053,8 @@
             "output": 2
           },
           "costUSD": 0.0026724,
-          "latencyMs": 970.7610419999983,
-          "requestId": "req_5231655ed3904a7b9add6289bd407adb",
+          "latencyMs": 1019.539082999996,
+          "requestId": "req_b0dabe3bd7784771a248bafedeececc0",
           "stopReason": "completed"
         }
       }
@@ -3079,8 +3080,8 @@
             "output": 6
           },
           "costUSD": 0.0020372,
-          "latencyMs": 685.1497499999969,
-          "requestId": "req_6bb2fef0ae7447f99d17b3edc0fbaf8d",
+          "latencyMs": 1808.925166999994,
+          "requestId": "req_2dea6a78d59442b192e07fa767ad2b4a",
           "stopReason": "stop"
         },
         "qcv": {
@@ -3092,8 +3093,8 @@
             "output": 6
           },
           "costUSD": 0.0001176,
-          "latencyMs": 544.6050839999953,
-          "requestId": "req_d2b2768b8d1c48c6834a03ed81fb03ac",
+          "latencyMs": 877.1931249999907,
+          "requestId": "req_551ef3079abb496bb06a6c7110b08aa6",
           "stopReason": "stop"
         },
         "raw": {
@@ -3105,8 +3106,8 @@
             "output": 6
           },
           "costUSD": 0.0023924000000000003,
-          "latencyMs": 725.9640829999989,
-          "requestId": "req_e055762ad59c4b7793711986bcfeead7",
+          "latencyMs": 799.1916670000064,
+          "requestId": "req_be0aa9fed8aa444188204ac80b62c239",
           "stopReason": "stop"
         }
       }
@@ -3132,8 +3133,8 @@
             "output": 6
           },
           "costUSD": 0.0012024,
-          "latencyMs": 1020.4742909999914,
-          "requestId": "req_75cb63c7d6194e70b5ce839e239fb608",
+          "latencyMs": 1705.969790999996,
+          "requestId": "req_1690bc9d30a6420891811538470e0d87",
           "stopReason": "stop"
         },
         "qcv": {
@@ -3145,8 +3146,8 @@
             "output": 6
           },
           "costUSD": 0.000174,
-          "latencyMs": 647.7465419999935,
-          "requestId": "req_bef8fd2f5dee47f281cb86fbd012268b",
+          "latencyMs": 874.2477910000016,
+          "requestId": "req_ae8992eb13c14a3598973eaa659deb8d",
           "stopReason": "stop"
         },
         "raw": {
@@ -3158,8 +3159,8 @@
             "output": 6
           },
           "costUSD": 0.0012768,
-          "latencyMs": 607.9286670000001,
-          "requestId": "req_bc312309ccd24410956d747fcf239120",
+          "latencyMs": 689.1228750000009,
+          "requestId": "req_85442d38aa7c49889444e82cae170e85",
           "stopReason": "stop"
         }
       }
@@ -3185,8 +3186,8 @@
             "output": 3
           },
           "costUSD": 0.0020908000000000003,
-          "latencyMs": 749.2598340000113,
-          "requestId": "req_67b6dd86c6334d5abcb995fec9f2dd93",
+          "latencyMs": 562.9143750000076,
+          "requestId": "req_9281bbb425e84818b4842027921c6166",
           "stopReason": "stop"
         },
         "qcv": {
@@ -3198,8 +3199,8 @@
             "output": 3
           },
           "costUSD": 0.00011520000000000001,
-          "latencyMs": 519.1735000000044,
-          "requestId": "req_711271a083534c2585dfad574d6a08aa",
+          "latencyMs": 655.981667,
+          "requestId": "req_239274bfb2a24e29bf4ea0e9fb110029",
           "stopReason": "stop"
         },
         "raw": {
@@ -3211,8 +3212,8 @@
             "output": 3
           },
           "costUSD": 0.0024276000000000002,
-          "latencyMs": 596.7877909999952,
-          "requestId": "req_e7126c6e606c4564a8ac65b444a1cef6",
+          "latencyMs": 918.5585419999989,
+          "requestId": "req_4d2eb138e0ec4e2fbcd6a19cd37124f2",
           "stopReason": "stop"
         }
       }
@@ -3238,8 +3239,8 @@
             "output": 6
           },
           "costUSD": 0.0006260000000000001,
-          "latencyMs": 701.0557499999995,
-          "requestId": "req_68235bde6a3c4b1ca62706158a2577eb",
+          "latencyMs": 587.630999999994,
+          "requestId": "req_c97851e0381a47b2800fded9ae74caf0",
           "stopReason": "stop"
         },
         "headroom": {
@@ -3251,8 +3252,8 @@
             "output": 6
           },
           "costUSD": 0.0005396,
-          "latencyMs": 724.7305829999968,
-          "requestId": "req_a6ee039d0dac48bfaf36b2a667b132c6",
+          "latencyMs": 626.9866249999905,
+          "requestId": "req_b55b634bb14145e49c9c9bba6c5ba001",
           "stopReason": "stop"
         },
         "qcv": {
@@ -3264,8 +3265,8 @@
             "output": 6
           },
           "costUSD": 0.0001176,
-          "latencyMs": 589.1506250000093,
-          "requestId": "req_e7e93972d1d641279a58e01ffef6cf47",
+          "latencyMs": 603.551833000005,
+          "requestId": "req_79095d474704416bab8ec9ab29e81a25",
           "stopReason": "stop"
         }
       }
@@ -3291,8 +3292,8 @@
             "output": 5
           },
           "costUSD": 0.007238,
-          "latencyMs": 1630.0697500000097,
-          "requestId": "req_011Cd3Q7zr8ogq1G8gBJnHBG",
+          "latencyMs": 1006.2827909999905,
+          "requestId": "req_011Cd3V7eDEiGZ5pgC3nZhjo",
           "stopReason": "end_turn"
         },
         "qcv": {
@@ -3304,8 +3305,8 @@
             "output": 5
           },
           "costUSD": 0.000352,
-          "latencyMs": 3322.635957999999,
-          "requestId": "req_011Cd3Q87isoYgJzQbUT6FxH",
+          "latencyMs": 775.3474590000114,
+          "requestId": "req_011Cd3V7iRjuGZwTWKyMeEFA",
           "stopReason": "end_turn"
         },
         "raw": {
@@ -3317,8 +3318,8 @@
             "output": 5
           },
           "costUSD": 0.008254,
-          "latencyMs": 1112.875874999998,
-          "requestId": "req_011Cd3Q8Mw9ZH2cvV4VCERvm",
+          "latencyMs": 1158.882375000001,
+          "requestId": "req_011Cd3V7mu6pwz9dFnZQCtHF",
           "stopReason": "end_turn"
         }
       }
@@ -3344,8 +3345,8 @@
             "output": 5
           },
           "costUSD": 0.007238,
-          "latencyMs": 2152.782999999996,
-          "requestId": "req_011Cd3Q8USKUpVX2RVh2dSV8",
+          "latencyMs": 1152.902166999993,
+          "requestId": "req_011Cd3V7sFozR5N4Tgk1L5up",
           "stopReason": "end_turn"
         },
         "raw": {
@@ -3357,8 +3358,8 @@
             "output": 5
           },
           "costUSD": 0.008254,
-          "latencyMs": 928.3520830000052,
-          "requestId": "req_011Cd3Q8cWzShThtG355Pafi",
+          "latencyMs": 1015.2801670000044,
+          "requestId": "req_011Cd3V7x6293ks2QsGh3wMV",
           "stopReason": "end_turn"
         },
         "qcv": {
@@ -3370,8 +3371,8 @@
             "output": 5
           },
           "costUSD": 0.000352,
-          "latencyMs": 679.3129590000026,
-          "requestId": "req_011Cd3Q8gQQ9L9zKAJuvyYxP",
+          "latencyMs": 838.6483749999898,
+          "requestId": "req_011Cd3V82VvxVtfXLKD9hRUW",
           "stopReason": "end_turn"
         }
       }
@@ -3397,8 +3398,8 @@
             "output": 6
           },
           "costUSD": 0.006368,
-          "latencyMs": 3030.162832999995,
-          "requestId": "req_011Cd3Q8uDq25S1kCKzoUtQA",
+          "latencyMs": 1091.6847500000003,
+          "requestId": "req_011Cd3V86ghmfMbQFYnoG9xL",
           "stopReason": "end_turn"
         },
         "raw": {
@@ -3410,8 +3411,8 @@
             "output": 6
           },
           "costUSD": 0.007442,
-          "latencyMs": 879.2010420000006,
-          "requestId": "req_011Cd3Q8xHd1f4p5TRm4iAg9",
+          "latencyMs": 1463.7437499999942,
+          "requestId": "req_011Cd3V8AoFSB5rZoBJb22Uz",
           "stopReason": "end_turn"
         },
         "qcv": {
@@ -3423,8 +3424,8 @@
             "output": 6
           },
           "costUSD": 0.000402,
-          "latencyMs": 871.8640420000011,
-          "requestId": "req_011Cd3Q92XcnHzcyBwWuK5Gf",
+          "latencyMs": 712.669292000006,
+          "requestId": "req_011Cd3V8GwLreVhXK2hAarJR",
           "stopReason": "end_turn"
         }
       }
@@ -3450,8 +3451,8 @@
             "output": 11
           },
           "costUSD": 0.006192,
-          "latencyMs": 863.9984160000022,
-          "requestId": "req_011Cd3Q95wkCJMFhoL8zqhjy",
+          "latencyMs": 1343.4797499999986,
+          "requestId": "req_011Cd3V8L85pxXpDYK8U2vGn",
           "stopReason": "end_turn"
         },
         "raw": {
@@ -3463,8 +3464,8 @@
             "output": 11
           },
           "costUSD": 0.007326,
-          "latencyMs": 1196.1077920000098,
-          "requestId": "req_011Cd3Q99VKU5ait3pTz41Dd",
+          "latencyMs": 1371.36316600001,
+          "requestId": "req_011Cd3V8Rp9ENqhBRzysmjjN",
           "stopReason": "end_turn"
         },
         "qcv": {
@@ -3476,8 +3477,8 @@
             "output": 11
           },
           "costUSD": 0.000413,
-          "latencyMs": 1120.7323749999923,
-          "requestId": "req_011Cd3Q9F9tGyQaWRM4b4TJt",
+          "latencyMs": 701.15625,
+          "requestId": "req_011Cd3V8XdPDdXU51RUZRJDb",
           "stopReason": "end_turn"
         }
       }
@@ -3503,8 +3504,8 @@
             "output": 7
           },
           "costUSD": 0.0001692,
-          "latencyMs": 1151.0904169999994,
-          "requestId": "req_cc13df29326146b18bbd6f852e3e6fc4",
+          "latencyMs": 1276.293749999997,
+          "requestId": "req_0cb664c47a2a46138ccaccf0bc0fe04f",
           "stopReason": "completed"
         },
         "headroom": {
@@ -3516,8 +3517,8 @@
             "output": 7
           },
           "costUSD": 0.0048864,
-          "latencyMs": 1213.8132919999916,
-          "requestId": "req_951373ef282a45cd8a95d36fc8d999e8",
+          "latencyMs": 1163.852040999991,
+          "requestId": "req_2e6ee5a4324c4f59b431190d9738cff4",
           "stopReason": "completed"
         },
         "raw": {
@@ -3529,8 +3530,8 @@
             "output": 7
           },
           "costUSD": 0.0048864,
-          "latencyMs": 3327.5315409999894,
-          "requestId": "req_1eaeff4edb6a450aa6f38865d4421a8a",
+          "latencyMs": 1305.7518750000017,
+          "requestId": "req_c07ff185b84c4b288040c73a1d4decfd",
           "stopReason": "completed"
         }
       }
@@ -3556,8 +3557,8 @@
             "output": 3
           },
           "costUSD": 0.0006612,
-          "latencyMs": 1664.8534579999978,
-          "requestId": "req_91c2a93ab4154911867dd347e5422950",
+          "latencyMs": 688.0774999999994,
+          "requestId": "req_53f28919957f4cedb414205282413bbb",
           "stopReason": "stop"
         },
         "qcv": {
@@ -3569,8 +3570,8 @@
             "output": 3
           },
           "costUSD": 0.00011520000000000001,
-          "latencyMs": 523.7306659999886,
-          "requestId": "req_49c09037977c47de933ab9451741e702",
+          "latencyMs": 817.2741669999959,
+          "requestId": "req_96a7759d591b4905878763375c3cd64e",
           "stopReason": "stop"
         },
         "headroom": {
@@ -3582,8 +3583,8 @@
             "output": 3
           },
           "costUSD": 0.0005932,
-          "latencyMs": 867.7709589999868,
-          "requestId": "req_1d1050f3061d46d08d8332c84ad318d8",
+          "latencyMs": 575.486333000008,
+          "requestId": "req_3307c6c465a449699264abb9d679912f",
           "stopReason": "stop"
         }
       }
@@ -3609,8 +3610,8 @@
             "output": 11
           },
           "costUSD": 0.000413,
-          "latencyMs": 808.8310420000053,
-          "requestId": "req_011Cd3Q9yQNZDUxFeccX1stu",
+          "latencyMs": 717.075250000009,
+          "requestId": "req_011Cd3V922vwbnp7ji73EQdi",
           "stopReason": "end_turn"
         },
         "headroom": {
@@ -3622,8 +3623,8 @@
             "output": 11
           },
           "costUSD": 0.006192,
-          "latencyMs": 1200.611292000016,
-          "requestId": "req_011Cd3QA2tE9hWbPJrRPC7ma",
+          "latencyMs": 1333.1076250000042,
+          "requestId": "req_011Cd3V957EFfugYTrSyFDvT",
           "stopReason": "end_turn"
         },
         "raw": {
@@ -3635,8 +3636,8 @@
             "output": 11
           },
           "costUSD": 0.007326,
-          "latencyMs": 1911.250874999998,
-          "requestId": "req_011Cd3QA7z4FL3dcRgd1Dtit",
+          "latencyMs": 1194.9926250000135,
+          "requestId": "req_011Cd3V9Amo5EmMECZCMCo1Q",
           "stopReason": "end_turn"
         }
       }
@@ -3662,21 +3663,21 @@
             "output": 2
           },
           "costUSD": 0.00010360000000000001,
-          "latencyMs": 835.121375000017,
-          "requestId": "req_272f5f2588fa456c9650f5a4e7dd60cf",
+          "latencyMs": 878.281415999998,
+          "requestId": "req_52a166838be64e00ba57f91defa4bb2f",
           "stopReason": "completed"
         },
         "headroom": {
-          "correct": true,
-          "text": "30",
+          "correct": false,
+          "text": "36",
           "usage": {
             "input": 6673,
             "cachedInput": 0,
             "output": 2
           },
           "costUSD": 0.0026724,
-          "latencyMs": 1678.3152919999848,
-          "requestId": "req_5064f632cfc54f8ab044842a1a8fc28a",
+          "latencyMs": 1005.9765830000106,
+          "requestId": "req_ff7becf6f47d40379e1bfd4b9ae184b3",
           "stopReason": "completed"
         },
         "raw": {
@@ -3688,8 +3689,8 @@
             "output": 2
           },
           "costUSD": 0.0026724,
-          "latencyMs": 1214.4193749999977,
-          "requestId": "req_78dde1c8e525427e95d479e13d11f7a1",
+          "latencyMs": 951.9240409999911,
+          "requestId": "req_8e631358f2424178b9ae96e97dcd3f91",
           "stopReason": "completed"
         }
       }
@@ -3715,8 +3716,8 @@
             "output": 5
           },
           "costUSD": 0.000334,
-          "latencyMs": 708.8969169999764,
-          "requestId": "req_011Cd3QAY1vcJNDP3psptGXu",
+          "latencyMs": 1348.8118329999998,
+          "requestId": "req_011Cd3V9TzPYvcMDSjq6kjy7",
           "stopReason": "end_turn"
         },
         "raw": {
@@ -3728,8 +3729,8 @@
             "output": 5
           },
           "costUSD": 0.015023,
-          "latencyMs": 3044.0042079999985,
-          "requestId": "req_011Cd3QAbKropM9hmoQGRTSR",
+          "latencyMs": 1253.3296249999985,
+          "requestId": "req_011Cd3V9Zodv1PHoMMrqZDXt",
           "stopReason": "end_turn"
         },
         "headroom": {
@@ -3741,8 +3742,8 @@
             "output": 5
           },
           "costUSD": 0.01104,
-          "latencyMs": 1030.7778749999998,
-          "requestId": "req_011Cd3QApeYmvYad3pEDpaJD",
+          "latencyMs": 1213.0122909999918,
+          "requestId": "req_011Cd3V9fDpBWkZm7ifYsw9h",
           "stopReason": "end_turn"
         }
       }
@@ -3768,8 +3769,8 @@
             "output": 6
           },
           "costUSD": 0.0023924000000000003,
-          "latencyMs": 832.8400419999962,
-          "requestId": "req_ec0c5b035ae846c1ad2b52ef458083bd",
+          "latencyMs": 825.1252499999973,
+          "requestId": "req_c57e5ffa726343c4a6d173998991bbf6",
           "stopReason": "stop"
         },
         "qcv": {
@@ -3781,8 +3782,8 @@
             "output": 6
           },
           "costUSD": 0.0001224,
-          "latencyMs": 1171.3237500000105,
-          "requestId": "req_f92e8148e26547f591163cf9222bc10f",
+          "latencyMs": 1618.1704170000012,
+          "requestId": "req_1ae088f3bc6845e09508c4e88c31bbe6",
           "stopReason": "stop"
         },
         "headroom": {
@@ -3794,8 +3795,8 @@
             "output": 6
           },
           "costUSD": 0.002038,
-          "latencyMs": 750.893207999994,
-          "requestId": "req_b44158b7b010487d9fd19f8111c94d1d",
+          "latencyMs": 752.9506250000122,
+          "requestId": "req_8d05d6951f4f4acbb8b49848ea193757",
           "stopReason": "stop"
         }
       }
@@ -3821,8 +3822,8 @@
             "output": 6
           },
           "costUSD": 0.0024848,
-          "latencyMs": 1601.3550420000101,
-          "requestId": "req_225423a893d3459cbefeb3465b0682ea",
+          "latencyMs": 819.0726670000004,
+          "requestId": "req_937cb4ddc7a14c49b5b3a384889c2592",
           "stopReason": "stop"
         },
         "qcv": {
@@ -3834,8 +3835,8 @@
             "output": 6
           },
           "costUSD": 0.000124,
-          "latencyMs": 7806.134499999986,
-          "requestId": "req_586bbae2c3614e289e7e273f7621a6b4",
+          "latencyMs": 749.4037499999977,
+          "requestId": "req_d8c995c6038c45c1a2737f4331858eb5",
           "stopReason": "stop"
         },
         "headroom": {
@@ -3847,8 +3848,8 @@
             "output": 6
           },
           "costUSD": 0.002152,
-          "latencyMs": 1077.63070899999,
-          "requestId": "req_8f0ef65bf08c4de39372ecce97464c08",
+          "latencyMs": 748.1077079999959,
+          "requestId": "req_db2691d3471642b8baaf43f61dac8452",
           "stopReason": "stop"
         }
       }
@@ -3874,8 +3875,8 @@
             "output": 1
           },
           "costUSD": 0.0026716,
-          "latencyMs": 587.0319580000069,
-          "requestId": "req_4eaf23eb5baf482d86db7dca1d77ca05",
+          "latencyMs": 803.8718749999971,
+          "requestId": "req_ad88ccfa2fd14401948086a1e3194ecd",
           "stopReason": "stop"
         },
         "qcv": {
@@ -3887,8 +3888,8 @@
             "output": 1
           },
           "costUSD": 0.0000968,
-          "latencyMs": 550.6005000000005,
-          "requestId": "req_714af0f3177b40128277365f68fed257",
+          "latencyMs": 5803.621291999996,
+          "requestId": "req_b7e5701460444bdebc97580aadb41ae5",
           "stopReason": "stop"
         },
         "headroom": {
@@ -3900,8 +3901,8 @@
             "output": 1
           },
           "costUSD": 0.0023684,
-          "latencyMs": 749.414334000001,
-          "requestId": "req_ec672ae35d1f4ed9bf79fcf7f6f6e418",
+          "latencyMs": 1009.9056249999994,
+          "requestId": "req_623f409d8a66466b9b88d825894b3ddc",
           "stopReason": "stop"
         }
       }
@@ -3927,8 +3928,8 @@
             "output": 6
           },
           "costUSD": 0.000395,
-          "latencyMs": 2519.646999999997,
-          "requestId": "req_011Cd3QC1zhgNnYD5WYUt91d",
+          "latencyMs": 879.614625000002,
+          "requestId": "req_011Cd3VAiv6e8hgB18ZSWnmH",
           "stopReason": "end_turn"
         },
         "headroom": {
@@ -3940,8 +3941,8 @@
             "output": 6
           },
           "costUSD": 0.006365,
-          "latencyMs": 1648.799708000006,
-          "requestId": "req_011Cd3QCF9EDCj1aQNakm3SV",
+          "latencyMs": 987.9387920000008,
+          "requestId": "req_011Cd3VAnk2kFZNGh3vvzzuZ",
           "stopReason": "end_turn"
         },
         "raw": {
@@ -3953,8 +3954,8 @@
             "output": 6
           },
           "costUSD": 0.007442,
-          "latencyMs": 766.4871660000063,
-          "requestId": "req_011Cd3QCKtyCMbsfCHQKvptp",
+          "latencyMs": 1271.9423750000133,
+          "requestId": "req_011Cd3VAs5EbVsQgZFuPXr3N",
           "stopReason": "end_turn"
         }
       }
@@ -3980,8 +3981,8 @@
             "output": 6
           },
           "costUSD": 0.00068,
-          "latencyMs": 909.8831669999927,
-          "requestId": "req_4a2f2c99e6b14bc9b8e2ba58240b189f",
+          "latencyMs": 641.0446250000095,
+          "requestId": "req_982d9ec89f214116923fc0200ae75773",
           "stopReason": "stop"
         },
         "qcv": {
@@ -3993,8 +3994,8 @@
             "output": 6
           },
           "costUSD": 0.000124,
-          "latencyMs": 554.2881249999919,
-          "requestId": "req_dab2f1e406cf4f3e9cdadf61b4e056be",
+          "latencyMs": 567.8403330000001,
+          "requestId": "req_0f5f95966bd54488ba2f61b37224aae4",
           "stopReason": "stop"
         },
         "headroom": {
@@ -4006,8 +4007,8 @@
             "output": 6
           },
           "costUSD": 0.000616,
-          "latencyMs": 731.7354580000101,
-          "requestId": "req_3f2ac5096cbb487aa9acdc944c8c755e",
+          "latencyMs": 549.3155839999963,
+          "requestId": "req_35ed53639a2241c69b8256bc2e585f95",
           "stopReason": "stop"
         }
       }
@@ -4033,8 +4034,8 @@
             "output": 1
           },
           "costUSD": 0.0007132000000000001,
-          "latencyMs": 557.9514159999962,
-          "requestId": "req_ecae184efa7e4e72991b09ab4c22c3c2",
+          "latencyMs": 1081.2140419999778,
+          "requestId": "req_45c281ca599e484fb82fc580343839bb",
           "stopReason": "stop"
         },
         "qcv": {
@@ -4046,8 +4047,8 @@
             "output": 1
           },
           "costUSD": 0.0000968,
-          "latencyMs": 473.00158399998327,
-          "requestId": "req_a0d76bb57cb54249a625d12582eb51cf",
+          "latencyMs": 824.7923339999979,
+          "requestId": "req_9e722c43f8d14da7a5d447485651b553",
           "stopReason": "stop"
         },
         "headroom": {
@@ -4059,8 +4060,8 @@
             "output": 1
           },
           "costUSD": 0.0006404,
-          "latencyMs": 1277.0325420000008,
-          "requestId": "req_e87ccfb3fa3e45e285d26b8b1ea03dc2",
+          "latencyMs": 578.9234160000051,
+          "requestId": "req_0ff26ae005fe49f989283713a5dd9a53",
           "stopReason": "stop"
         }
       }
@@ -4086,8 +4087,8 @@
             "output": 11
           },
           "costUSD": 0.006192,
-          "latencyMs": 1559.3014590000093,
-          "requestId": "req_011Cd3QCmVrEmGMC3B7Z9mhk",
+          "latencyMs": 815.0821250000154,
+          "requestId": "req_011Cd3VBGaMFtvyaNDvbo3fa",
           "stopReason": "end_turn"
         },
         "qcv": {
@@ -4099,8 +4100,8 @@
             "output": 11
           },
           "costUSD": 0.000413,
-          "latencyMs": 727.220834000007,
-          "requestId": "req_011Cd3QCq5tomhuhhm8Jw5bu",
+          "latencyMs": 1358.6133329999866,
+          "requestId": "req_011Cd3VBMWGQ7C2JQQ2nNvMU",
           "stopReason": "end_turn"
         },
         "raw": {
@@ -4112,8 +4113,8 @@
             "output": 11
           },
           "costUSD": 0.007326,
-          "latencyMs": 791.6572910000104,
-          "requestId": "req_011Cd3QCtBS3pe9ebsLiDSGr",
+          "latencyMs": 2252.885875000007,
+          "requestId": "req_011Cd3VBSVuD6d28YmJPiPEg",
           "stopReason": "end_turn"
         }
       }
@@ -4139,8 +4140,8 @@
             "output": 11
           },
           "costUSD": 0.007597,
-          "latencyMs": 770.7586249999877,
-          "requestId": "req_011Cd3QCxPwKqdtKDNYPDp48",
+          "latencyMs": 1681.5405829999945,
+          "requestId": "req_011Cd3VBbwva4Hy7pAFw2cxx",
           "stopReason": "end_turn"
         },
         "qcv": {
@@ -4152,8 +4153,8 @@
             "output": 11
           },
           "costUSD": 0.000431,
-          "latencyMs": 834.1632080000127,
-          "requestId": "req_011Cd3QD1h7ue9ab6vZaZsxM",
+          "latencyMs": 827.3030000000144,
+          "requestId": "req_011Cd3VBjAG1UeMFNcqk473s",
           "stopReason": "end_turn"
         },
         "headroom": {
@@ -4165,8 +4166,8 @@
             "output": 11
           },
           "costUSD": 0.00653,
-          "latencyMs": 2346.7672909999965,
-          "requestId": "req_011Cd3QD5VKzH1fFdycCr43M",
+          "latencyMs": 1124.5080829999933,
+          "requestId": "req_011Cd3VBnmoEdzvFyLiuSsX6",
           "stopReason": "end_turn"
         }
       }
@@ -4192,8 +4193,8 @@
             "output": 2
           },
           "costUSD": 0.0047112,
-          "latencyMs": 1195.0223330000008,
-          "requestId": "req_bb79a62bde8f4f4c8a5441d3571d3e6e",
+          "latencyMs": 2885.109832999995,
+          "requestId": "req_6fa0b3dd08fd41969d3dc52b9b283a6e",
           "stopReason": "completed"
         },
         "qcv": {
@@ -4205,8 +4206,8 @@
             "output": 2
           },
           "costUSD": 0.00009680000000000001,
-          "latencyMs": 936.9884580000071,
-          "requestId": "req_3d1f7c490c41443c84b3a8d22fefe955",
+          "latencyMs": 867.7228330000071,
+          "requestId": "req_bda9d9c4d1e2421585355ec885445c29",
           "stopReason": "completed"
         },
         "raw": {
@@ -4218,8 +4219,8 @@
             "output": 2
           },
           "costUSD": 0.0047112,
-          "latencyMs": 1258.6280419999966,
-          "requestId": "req_f3c18ec333ec41ff82ff0b6b07062ae3",
+          "latencyMs": 1026.4479159999755,
+          "requestId": "req_d07b7386f9a241709faafeb649148bf6",
           "stopReason": "completed"
         }
       }
@@ -4245,8 +4246,8 @@
             "output": 6
           },
           "costUSD": 0.0012024,
-          "latencyMs": 714.3706250000105,
-          "requestId": "req_dbae344432b64df692014104464dbea5",
+          "latencyMs": 719.2551250000251,
+          "requestId": "req_f220bc1692144ef5950c35a1eeeac549",
           "stopReason": "stop"
         },
         "raw": {
@@ -4258,8 +4259,8 @@
             "output": 6
           },
           "costUSD": 0.0012768,
-          "latencyMs": 700.9326669999864,
-          "requestId": "req_51a755152574462787ab43ad6793077f",
+          "latencyMs": 820.5899170000048,
+          "requestId": "req_7b0671620d8646fc81bd9596524eb815",
           "stopReason": "stop"
         },
         "qcv": {
@@ -4271,8 +4272,8 @@
             "output": 6
           },
           "costUSD": 0.000174,
-          "latencyMs": 2330.6871249999967,
-          "requestId": "req_a3a01e261a0f40ceb0f22dd0a7c3c390",
+          "latencyMs": 640.3704579999903,
+          "requestId": "req_619f7e39e1fc43f489286a78e0018a88",
           "stopReason": "stop"
         }
       }
@@ -4298,8 +4299,8 @@
             "output": 4
           },
           "costUSD": 0.0024284000000000003,
-          "latencyMs": 2026.4517089999863,
-          "requestId": "req_af5a553f49de4767b18cd49f992fc049",
+          "latencyMs": 1077.8378329999978,
+          "requestId": "req_5238ebdb9ad846f394e60312cfb63bac",
           "stopReason": "completed"
         },
         "qcv": {
@@ -4311,8 +4312,8 @@
             "output": 4
           },
           "costUSD": 0.00011720000000000002,
-          "latencyMs": 985.2052919999987,
-          "requestId": "req_05f910ce261640ebb93f9bb11e74c958",
+          "latencyMs": 1329.7048749999958,
+          "requestId": "req_37011120645e4142ba85d87ed41b1ee7",
           "stopReason": "completed"
         },
         "headroom": {
@@ -4324,8 +4325,8 @@
             "output": 4
           },
           "costUSD": 0.0024284000000000003,
-          "latencyMs": 996.398291999998,
-          "requestId": "req_b58ad7ca4b6a4a5194b24e20f964c12c",
+          "latencyMs": 3276.914000000019,
+          "requestId": "req_042fff2316044644a488a0402f3299e9",
           "stopReason": "completed"
         }
       }
@@ -4351,8 +4352,8 @@
             "output": 6
           },
           "costUSD": 0.0012012000000000001,
-          "latencyMs": 1505.440249999985,
-          "requestId": "req_ffb25086fcf94e3084f1db47185c50ba",
+          "latencyMs": 770.6736250000249,
+          "requestId": "req_e85eca9471d446aebadf4b303566db49",
           "stopReason": "stop"
         },
         "qcv": {
@@ -4364,8 +4365,8 @@
             "output": 6
           },
           "costUSD": 0.00016720000000000003,
-          "latencyMs": 696.7808340000047,
-          "requestId": "req_df63473113c24c27a1f43032be80200b",
+          "latencyMs": 569.235416999989,
+          "requestId": "req_17216722b48d493d99c8c47c7ad7c108",
           "stopReason": "stop"
         },
         "raw": {
@@ -4377,8 +4378,8 @@
             "output": 6
           },
           "costUSD": 0.0012768,
-          "latencyMs": 882.3787500000035,
-          "requestId": "req_62b89b1da80f4d3cbc43e2367c7dc00f",
+          "latencyMs": 915.6263749999925,
+          "requestId": "req_8343051959ec46e09aef3f60022b7f13",
           "stopReason": "stop"
         }
       }
@@ -4404,8 +4405,8 @@
             "output": 11
           },
           "costUSD": 0.000431,
-          "latencyMs": 1059.2922499999986,
-          "requestId": "req_011Cd3QELF7UJN5mFgxXqQR8",
+          "latencyMs": 756.1237499999988,
+          "requestId": "req_011Cd3VCyjP5QYsJeu3cxJa7",
           "stopReason": "end_turn"
         },
         "raw": {
@@ -4417,8 +4418,8 @@
             "output": 11
           },
           "costUSD": 0.007597,
-          "latencyMs": 3377.3310829999973,
-          "requestId": "req_011Cd3QER6KDCNigni18X1yZ",
+          "latencyMs": 1180.677457999991,
+          "requestId": "req_011Cd3VD2z6Dp681zYC9SUiY",
           "stopReason": "end_turn"
         },
         "headroom": {
@@ -4430,8 +4431,8 @@
             "output": 11
           },
           "costUSD": 0.00653,
-          "latencyMs": 1212.9558329999854,
-          "requestId": "req_011Cd3QEfJLgNs8X1YdoE3R6",
+          "latencyMs": 2389.5028750000056,
+          "requestId": "req_011Cd3VD9K6bu6Y7R9kXghne",
           "stopReason": "end_turn"
         }
       }
@@ -4457,8 +4458,8 @@
             "output": 6
           },
           "costUSD": 0.0005788000000000001,
-          "latencyMs": 762.8985840000096,
-          "requestId": "req_845d5ff390454d6fae572da81d0dfdb5",
+          "latencyMs": 1235.575375000015,
+          "requestId": "req_0d1acc8886164a619e5818b8d9069a32",
           "stopReason": "stop"
         },
         "raw": {
@@ -4470,8 +4471,8 @@
             "output": 6
           },
           "costUSD": 0.0006644,
-          "latencyMs": 721.44741600001,
-          "requestId": "req_7f517560c07846d49dd7943a7a6986a0",
+          "latencyMs": 1154.840750000003,
+          "requestId": "req_7a0ac480691a4a3cac928e2ef6c5f628",
           "stopReason": "stop"
         },
         "qcv": {
@@ -4483,8 +4484,8 @@
             "output": 6
           },
           "costUSD": 0.0001224,
-          "latencyMs": 634.3900830000057,
-          "requestId": "req_cc605e4928c34c29ba4de304d59dfd3c",
+          "latencyMs": 694.2322500000009,
+          "requestId": "req_d71f3e960da64b8eb8b08faeed59b5de",
           "stopReason": "stop"
         }
       }
@@ -4510,8 +4511,8 @@
             "output": 2
           },
           "costUSD": 0.0047112,
-          "latencyMs": 2318.2266250000102,
-          "requestId": "req_dc7614c3b2504188a1c16e6b04cb242b",
+          "latencyMs": 1086.6958330000052,
+          "requestId": "req_c50642a28d1f4051af992c5ada582fa9",
           "stopReason": "completed"
         },
         "qcv": {
@@ -4523,8 +4524,8 @@
             "output": 2
           },
           "costUSD": 0.0000932,
-          "latencyMs": 843.651125000004,
-          "requestId": "req_f497ff0e62c64ad9bf920000f6e34248",
+          "latencyMs": 1948.7670409999846,
+          "requestId": "req_5d96303156714217ac949ef444b2fc03",
           "stopReason": "completed"
         },
         "headroom": {
@@ -4536,8 +4537,8 @@
             "output": 2
           },
           "costUSD": 0.0047112,
-          "latencyMs": 1547.5193750000035,
-          "requestId": "req_ae65908bf2dd44b8aa12bccc9e55c8dc",
+          "latencyMs": 1114.5466669999878,
+          "requestId": "req_c9d53a33a6bd4bc8a9edd08289ed460b",
           "stopReason": "completed"
         }
       }
@@ -4563,8 +4564,8 @@
             "output": 6
           },
           "costUSD": 0.0012024,
-          "latencyMs": 1016.7723330000008,
-          "requestId": "req_41a9b136c66b4ed4a558b1a60bd87599",
+          "latencyMs": 643.0902500000084,
+          "requestId": "req_6555fbdb633a4075b4214fb6afe1f093",
           "stopReason": "stop"
         },
         "qcv": {
@@ -4576,8 +4577,8 @@
             "output": 6
           },
           "costUSD": 0.000174,
-          "latencyMs": 742.557375000004,
-          "requestId": "req_9ec2816b25284c459858c69f915d17c6",
+          "latencyMs": 565.8596660000039,
+          "requestId": "req_0cafe3b4fd084b559199674f9d3daf9a",
           "stopReason": "stop"
         },
         "raw": {
@@ -4589,8 +4590,8 @@
             "output": 6
           },
           "costUSD": 0.0012768,
-          "latencyMs": 965.857874999987,
-          "requestId": "req_8ab66329e4f04aedacf4e281ea422358",
+          "latencyMs": 706.2347500000033,
+          "requestId": "req_0e8d41affbd048f39cb189c3b8b09aa7",
           "stopReason": "stop"
         }
       }
@@ -4616,8 +4617,8 @@
             "output": 3
           },
           "costUSD": 0.0005932,
-          "latencyMs": 1060.7612090000184,
-          "requestId": "req_03d204688b5d4a8eaac415cb39ab7dcd",
+          "latencyMs": 721.5492080000113,
+          "requestId": "req_2753626d56904b7c872bdafcb98b71c3",
           "stopReason": "stop"
         },
         "qcv": {
@@ -4629,8 +4630,8 @@
             "output": 3
           },
           "costUSD": 0.00011520000000000001,
-          "latencyMs": 684.4373749999795,
-          "requestId": "req_967b485b895d4ca4813a36d11448149a",
+          "latencyMs": 623.3149580000027,
+          "requestId": "req_f1a439aad85849008daf32211a270fae",
           "stopReason": "stop"
         },
         "raw": {
@@ -4642,8 +4643,8 @@
             "output": 3
           },
           "costUSD": 0.0006612,
-          "latencyMs": 512.773749999993,
-          "requestId": "req_f255faf0d6634079874106bf48636aa7",
+          "latencyMs": 3310.3487500000047,
+          "requestId": "req_e80f8891c7a249a1a5e4f144f9cca8f6",
           "stopReason": "stop"
         }
       }
@@ -4669,8 +4670,8 @@
             "output": 2
           },
           "costUSD": 0.0047112,
-          "latencyMs": 1253.2385409999988,
-          "requestId": "req_fe629b4f622244a6977715044708ca5b",
+          "latencyMs": 1145.7946249999804,
+          "requestId": "req_fc4b1cc155914712b52e14560a6ee661",
           "stopReason": "completed"
         },
         "qcv": {
@@ -4682,8 +4683,8 @@
             "output": 2
           },
           "costUSD": 0.0000932,
-          "latencyMs": 1349.0696659999958,
-          "requestId": "req_33da9d541dd348beb4ffaf034749e6fd",
+          "latencyMs": 735.370666999981,
+          "requestId": "req_e3d596edabe84e3b9a971197ee536741",
           "stopReason": "completed"
         },
         "raw": {
@@ -4695,8 +4696,8 @@
             "output": 2
           },
           "costUSD": 0.0047112,
-          "latencyMs": 1136.3917089999886,
-          "requestId": "req_eb95c65f304344ceb15b052d871b2074",
+          "latencyMs": 1365.3335840000072,
+          "requestId": "req_37da56af4ebd43db8f59b66057ec3ad5",
           "stopReason": "completed"
         }
       }
@@ -4722,8 +4723,8 @@
             "output": 6
           },
           "costUSD": 0.0006644,
-          "latencyMs": 999.4870830000145,
-          "requestId": "req_3f60c2e0fbe747efb3d36cc87251d1bc",
+          "latencyMs": 673.6474170000001,
+          "requestId": "req_01c6fe63bc13434aba16420e4ac523e1",
           "stopReason": "stop"
         },
         "qcv": {
@@ -4735,8 +4736,8 @@
             "output": 6
           },
           "costUSD": 0.0001224,
-          "latencyMs": 757.7617090000131,
-          "requestId": "req_e1491b3990104285b580751a617eaa80",
+          "latencyMs": 735.5482499999925,
+          "requestId": "req_31dffb1cff124f87b46200596702fa88",
           "stopReason": "stop"
         },
         "headroom": {
@@ -4748,8 +4749,8 @@
             "output": 6
           },
           "costUSD": 0.0005788000000000001,
-          "latencyMs": 3967.7725830000127,
-          "requestId": "req_d38d6d0488cd4c90a3d0fe0ada671ac6",
+          "latencyMs": 781.1560839999875,
+          "requestId": "req_3756152689df4c08bd3e194321723103",
           "stopReason": "stop"
         }
       }
@@ -4771,12 +4772,12 @@
           "text": "lookup1-36@example.com",
           "usage": {
             "input": 5069,
-            "cachedInput": 0,
+            "cachedInput": 4992,
             "output": 6
           },
-          "costUSD": 0.0020372,
-          "latencyMs": 721.6573750000098,
-          "requestId": "req_eb9a815c56ea4bba81dc2ae141fa41ac",
+          "costUSD": 0.0005396,
+          "latencyMs": 642.421291000006,
+          "requestId": "req_f33575daba9d4908b8f03c90d21890a7",
           "stopReason": "stop"
         },
         "raw": {
@@ -4788,8 +4789,8 @@
             "output": 6
           },
           "costUSD": 0.0006260000000000001,
-          "latencyMs": 702.0118750000256,
-          "requestId": "req_c7a9bb9aacfd47d598004c9052b0516e",
+          "latencyMs": 992.484999999986,
+          "requestId": "req_9e62811987e34c989ba25435827d054d",
           "stopReason": "stop"
         },
         "qcv": {
@@ -4801,8 +4802,8 @@
             "output": 6
           },
           "costUSD": 0.0001176,
-          "latencyMs": 630.6115409999911,
-          "requestId": "req_dc26070f37104afca531434d8cbb0d3c",
+          "latencyMs": 795.3909579999745,
+          "requestId": "req_0dfba8adf3d64f419b10d8d01e9f7ef9",
           "stopReason": "stop"
         }
       }
@@ -4828,8 +4829,8 @@
             "output": 6
           },
           "costUSD": 0.0001176,
-          "latencyMs": 859.8599579999864,
-          "requestId": "req_d5c277a83f3f4dc7bef47425f4aca4cc",
+          "latencyMs": 627.6649160000088,
+          "requestId": "req_c65b28599ef14426ba5a3b94815c9fba",
           "stopReason": "stop"
         },
         "headroom": {
@@ -4841,8 +4842,8 @@
             "output": 6
           },
           "costUSD": 0.0005396,
-          "latencyMs": 1627.869875000004,
-          "requestId": "req_842ab260faa04fd9bd278816d6d3285d",
+          "latencyMs": 604.1511670000036,
+          "requestId": "req_bb1e7e78d43f4684be8e74f1b2e830d6",
           "stopReason": "stop"
         },
         "raw": {
@@ -4854,8 +4855,8 @@
             "output": 6
           },
           "costUSD": 0.0006260000000000001,
-          "latencyMs": 665.4270839999954,
-          "requestId": "req_1f9334d0e58c43689d2445fe26afd382",
+          "latencyMs": 545.581291999988,
+          "requestId": "req_fed51635566a4201b119c7502b804ca5",
           "stopReason": "stop"
         }
       }
@@ -4881,8 +4882,8 @@
             "output": 7
           },
           "costUSD": 0.0024855999999999997,
-          "latencyMs": 1527.80929200002,
-          "requestId": "req_1e58a360280344f4b9074e98be5b8804",
+          "latencyMs": 1179.0034999999916,
+          "requestId": "req_b864b1eeb21643aca692952a8aef736d",
           "stopReason": "completed"
         },
         "raw": {
@@ -4894,8 +4895,8 @@
             "output": 7
           },
           "costUSD": 0.0024855999999999997,
-          "latencyMs": 1092.6378339999937,
-          "requestId": "req_472d02fc84a64c189906b259ce17919a",
+          "latencyMs": 1197.9155829999945,
+          "requestId": "req_a9d03793cae149c1945c74a83e380f3b",
           "stopReason": "completed"
         },
         "qcv": {
@@ -4907,8 +4908,8 @@
             "output": 7
           },
           "costUSD": 0.00012480000000000002,
-          "latencyMs": 978.9765419999894,
-          "requestId": "req_b2ce1e067f3a4c3b8f1b00b5b3a1cd10",
+          "latencyMs": 969.3290840000263,
+          "requestId": "req_5d71555f405b499489d39125de51a5ec",
           "stopReason": "completed"
         }
       }
@@ -4934,8 +4935,8 @@
             "output": 11
           },
           "costUSD": 0.015223,
-          "latencyMs": 1102.5140830000164,
-          "requestId": "req_011Cd3QH1RrjMjhpMBrAGMuZ",
+          "latencyMs": 1376.4048330000078,
+          "requestId": "req_011Cd3VFJKdaJp7VNCbukcr7",
           "stopReason": "end_turn"
         },
         "headroom": {
@@ -4947,8 +4948,8 @@
             "output": 11
           },
           "costUSD": 0.014327,
-          "latencyMs": 1010.24337500002,
-          "requestId": "req_011Cd3QH6YBpM1brV1PBnaws",
+          "latencyMs": 891.7921670000069,
+          "requestId": "req_011Cd3VFQCbrgL877yt19cFA",
           "stopReason": "end_turn"
         },
         "qcv": {
@@ -4960,8 +4961,8 @@
             "output": 11
           },
           "costUSD": 0.000621,
-          "latencyMs": 852.9462910000002,
-          "requestId": "req_011Cd3QHAEC37xgxfp6bNoKs",
+          "latencyMs": 1653.0552079999761,
+          "requestId": "req_011Cd3VFUChnpxw3rCzcPEWC",
           "stopReason": "end_turn"
         }
       }
@@ -4987,8 +4988,8 @@
             "output": 5
           },
           "costUSD": 0.000349,
-          "latencyMs": 992.1544590000121,
-          "requestId": "req_011Cd3QHDzQgW8YyCkiHfxrU",
+          "latencyMs": 624.3278750000172,
+          "requestId": "req_011Cd3VFat3ZkJGDX6ev7NKn",
           "stopReason": "end_turn"
         },
         "headroom": {
@@ -5000,8 +5001,8 @@
             "output": 5
           },
           "costUSD": 0.007238,
-          "latencyMs": 1260.7345830000122,
-          "requestId": "req_011Cd3QHJJNH3YFw2rgeN6HL",
+          "latencyMs": 1033.7251660000184,
+          "requestId": "req_011Cd3VFdv6xXzTfAxcXtwEa",
           "stopReason": "end_turn"
         },
         "raw": {
@@ -5013,8 +5014,8 @@
             "output": 5
           },
           "costUSD": 0.008254,
-          "latencyMs": 1015.6749160000181,
-          "requestId": "req_011Cd3QHPa7y7sF2e8nn1ei3",
+          "latencyMs": 1064.4399170000106,
+          "requestId": "req_011Cd3VFiG3ZiDH55PNYYjyt",
           "stopReason": "end_turn"
         }
       }
@@ -5040,8 +5041,8 @@
             "output": 5
           },
           "costUSD": 0.000352,
-          "latencyMs": 1076.5022499999905,
-          "requestId": "req_011Cd3QHTqrHUts4BXotJCyJ",
+          "latencyMs": 626.3369590000075,
+          "requestId": "req_011Cd3VFnYWnpqmQW4ToiRej",
           "stopReason": "end_turn"
         },
         "headroom": {
@@ -5053,8 +5054,8 @@
             "output": 5
           },
           "costUSD": 0.007238,
-          "latencyMs": 1460.2107090000063,
-          "requestId": "req_011Cd3QHYxvGcMk88EE1FAzY",
+          "latencyMs": 750.0030830000178,
+          "requestId": "req_011Cd3VFqHTz9Xq5gqiysLMP",
           "stopReason": "end_turn"
         },
         "raw": {
@@ -5066,8 +5067,8 @@
             "output": 5
           },
           "costUSD": 0.008254,
-          "latencyMs": 1290.6596250000002,
-          "requestId": "req_011Cd3QHets7793Le24cBn9m",
+          "latencyMs": 1327.8863750000019,
+          "requestId": "req_011Cd3VFtUD6djP4JhMBuUAb",
           "stopReason": "end_turn"
         }
       }
@@ -5093,8 +5094,8 @@
             "output": 11
           },
           "costUSD": 0.000418,
-          "latencyMs": 809.7282079999859,
-          "requestId": "req_011Cd3QHkEawn4KDTGz23D7m",
+          "latencyMs": 1061.8134580000187,
+          "requestId": "req_011Cd3VFz832ZpeJzVudkzNo",
           "stopReason": "end_turn"
         },
         "raw": {
@@ -5106,8 +5107,8 @@
             "output": 11
           },
           "costUSD": 0.007326,
-          "latencyMs": 2326.7751249999856,
-          "requestId": "req_011Cd3QHohwcSGAfB3Kt684n",
+          "latencyMs": 789.9969999999739,
+          "requestId": "req_011Cd3VG4dQ24An349ZZnpj6",
           "stopReason": "end_turn"
         },
         "headroom": {
@@ -5119,8 +5120,8 @@
             "output": 11
           },
           "costUSD": 0.006191,
-          "latencyMs": 1694.7359999999753,
-          "requestId": "req_011Cd3QHz52jxDuQzJdyBAQd",
+          "latencyMs": 1344.119417000009,
+          "requestId": "req_011Cd3VG86kXCHFk69SEk3Pn",
           "stopReason": "end_turn"
         }
       }
@@ -5146,8 +5147,8 @@
             "output": 7
           },
           "costUSD": 0.0023932,
-          "latencyMs": 1049.2558749999735,
-          "requestId": "req_7c65eca865c449d98ded8d4a3ccb0471",
+          "latencyMs": 1322.9860000000044,
+          "requestId": "req_aab92f4a48524fad965bc4bff32acaf0",
           "stopReason": "completed"
         },
         "raw": {
@@ -5159,8 +5160,8 @@
             "output": 7
           },
           "costUSD": 0.0023932,
-          "latencyMs": 1339.0462080000143,
-          "requestId": "req_b0493b970261412385cad1e5b0836b0d",
+          "latencyMs": 1018.9738750000251,
+          "requestId": "req_3790d21183814837bf9870c0008540c9",
           "stopReason": "completed"
         },
         "qcv": {
@@ -5172,8 +5173,8 @@
             "output": 7
           },
           "costUSD": 0.0001232,
-          "latencyMs": 859.9307919999992,
-          "requestId": "req_a34c0eb40526458f9660d2bc24254f50",
+          "latencyMs": 974.9020420000015,
+          "requestId": "req_d977dce946034428aa3134ddee0bf1e7",
           "stopReason": "completed"
         }
       }
@@ -5199,8 +5200,8 @@
             "output": 11
           },
           "costUSD": 0.015223,
-          "latencyMs": 1977.447542000009,
-          "requestId": "req_011Cd3QJN9a1n9G6L5qqrULK",
+          "latencyMs": 1124.7395419999957,
+          "requestId": "req_011Cd3VGUoCRqrmGTeW6BfAa",
           "stopReason": "end_turn"
         },
         "headroom": {
@@ -5212,8 +5213,8 @@
             "output": 11
           },
           "costUSD": 0.014327,
-          "latencyMs": 1259.3188750000263,
-          "requestId": "req_011Cd3QJWzPQQ6pQdwYZcBUd",
+          "latencyMs": 1081.4405829999887,
+          "requestId": "req_011Cd3VGZh8mzSXU9aTMSfSW",
           "stopReason": "end_turn"
         },
         "qcv": {
@@ -5225,8 +5226,8 @@
             "output": 11
           },
           "costUSD": 0.000621,
-          "latencyMs": 912.1936670000141,
-          "requestId": "req_011Cd3QJbuK1fhrHrXGFGJKb",
+          "latencyMs": 826.2027499999967,
+          "requestId": "req_011Cd3VGe4oruB1x8NfMSfLS",
           "stopReason": "end_turn"
         }
       }
@@ -5252,8 +5253,8 @@
             "output": 6
           },
           "costUSD": 0.000395,
-          "latencyMs": 808.472415999975,
-          "requestId": "req_011Cd3QJfrS7k82mocDwUjHB",
+          "latencyMs": 1014.1520829999936,
+          "requestId": "req_011Cd3VGhbtXAauhMDdjQfzL",
           "stopReason": "end_turn"
         },
         "headroom": {
@@ -5265,8 +5266,8 @@
             "output": 6
           },
           "costUSD": 0.006365,
-          "latencyMs": 2120.405541999993,
-          "requestId": "req_011Cd3QJjWTFWkL4res396Je",
+          "latencyMs": 1421.7360409999965,
+          "requestId": "req_011Cd3VGnUL1CTHDDwCmEppn",
           "stopReason": "end_turn"
         },
         "raw": {
@@ -5278,8 +5279,8 @@
             "output": 6
           },
           "costUSD": 0.007442,
-          "latencyMs": 823.6773749999993,
-          "requestId": "req_011Cd3QJtPzbqenDQUVSL1i6",
+          "latencyMs": 770.140625,
+          "requestId": "req_011Cd3VGt7QiSF95Umc256rn",
           "stopReason": "end_turn"
         }
       }
@@ -5305,8 +5306,8 @@
             "output": 5
           },
           "costUSD": 0.01104,
-          "latencyMs": 1090.0480830000015,
-          "requestId": "req_011Cd3QJxLdcjTFbCuvHuCW1",
+          "latencyMs": 948.6383750000095,
+          "requestId": "req_011Cd3VGwRaygdsFAGH9etuL",
           "stopReason": "end_turn"
         },
         "raw": {
@@ -5318,8 +5319,8 @@
             "output": 5
           },
           "costUSD": 0.015023,
-          "latencyMs": 1306.0647499999905,
-          "requestId": "req_011Cd3QK2YPJYhB4rN6FTTnN",
+          "latencyMs": 1387.6861670000071,
+          "requestId": "req_011Cd3VH1RhDPt9jqHy2KUQ7",
           "stopReason": "end_turn"
         },
         "qcv": {
@@ -5331,8 +5332,8 @@
             "output": 5
           },
           "costUSD": 0.000334,
-          "latencyMs": 825.7255000000005,
-          "requestId": "req_011Cd3QK88ErJ5m9d63q1WL7",
+          "latencyMs": 1385.4540829999896,
+          "requestId": "req_011Cd3VH7PccGm4ZMPvAmgFv",
           "stopReason": "end_turn"
         }
       }
@@ -5358,8 +5359,8 @@
             "output": 3
           },
           "costUSD": 0.0005932,
-          "latencyMs": 626.116875000007,
-          "requestId": "req_0a052e545512488aa637a5009e538b8e",
+          "latencyMs": 564.7610409999907,
+          "requestId": "req_101b7d22ce984442a02b86ada50aa14c",
           "stopReason": "stop"
         },
         "qcv": {
@@ -5371,8 +5372,8 @@
             "output": 3
           },
           "costUSD": 0.00011520000000000001,
-          "latencyMs": 1104.0407089999644,
-          "requestId": "req_f3bd4c2929e1487fa70c28ac09c1d7d0",
+          "latencyMs": 589.4415419999859,
+          "requestId": "req_7280c50367f4425a938b59514dba468c",
           "stopReason": "stop"
         },
         "raw": {
@@ -5384,8 +5385,8 @@
             "output": 3
           },
           "costUSD": 0.0006612,
-          "latencyMs": 549.9982500000042,
-          "requestId": "req_a89fb0ad2f764ea4a7640cab20ad1458",
+          "latencyMs": 511.896207999991,
+          "requestId": "req_5815b8b152dd45ab9cd5dd4b7ed88c08",
           "stopReason": "stop"
         }
       }
@@ -5411,8 +5412,8 @@
             "output": 7
           },
           "costUSD": 0.0023932,
-          "latencyMs": 1275.4634579999838,
-          "requestId": "req_b1c5b226e1ff4421a82f02aaf4b1d71c",
+          "latencyMs": 1257.825375000015,
+          "requestId": "req_0e9f9db3411948819381f8f29d4b69de",
           "stopReason": "completed"
         },
         "qcv": {
@@ -5424,8 +5425,8 @@
             "output": 7
           },
           "costUSD": 0.0001232,
-          "latencyMs": 967.8007089999737,
-          "requestId": "req_d73dbf354dd34ef4bea2ad8bd6769674",
+          "latencyMs": 887.16737499999,
+          "requestId": "req_82034051362e4617b3bb3f37e18a3603",
           "stopReason": "completed"
         },
         "headroom": {
@@ -5437,8 +5438,8 @@
             "output": 7
           },
           "costUSD": 0.0023932,
-          "latencyMs": 1136.5636250000098,
-          "requestId": "req_2b0160fe84404a03a05608874f8ea794",
+          "latencyMs": 991.6223750000063,
+          "requestId": "req_dd60b1755b764358953b11b3dfa13e6d",
           "stopReason": "completed"
         }
       }
@@ -5464,8 +5465,8 @@
             "output": 7
           },
           "costUSD": 0.0024855999999999997,
-          "latencyMs": 1277.0084999999963,
-          "requestId": "req_b2c4a9d891ac4a59a9055eda4b4737a5",
+          "latencyMs": 1314.2561250000144,
+          "requestId": "req_4413556b787040a697b5b8ea067a71cc",
           "stopReason": "completed"
         },
         "qcv": {
@@ -5477,8 +5478,8 @@
             "output": 7
           },
           "costUSD": 0.00012480000000000002,
-          "latencyMs": 1120.4525419999845,
-          "requestId": "req_11471e00da1549caa006ab9c8c92474a",
+          "latencyMs": 1112.9273749999993,
+          "requestId": "req_0e5e6c6d6fe848079cea8069e0525ab4",
           "stopReason": "completed"
         },
         "raw": {
@@ -5486,12 +5487,12 @@
           "text": "nested0-13@example.com",
           "usage": {
             "input": 6186,
-            "cachedInput": 6016,
+            "cachedInput": 0,
             "output": 7
           },
-          "costUSD": 0.0006808000000000001,
-          "latencyMs": 1090.530541999964,
-          "requestId": "req_24730dcc396c4277ad63756a44b2cd5d",
+          "costUSD": 0.0024855999999999997,
+          "latencyMs": 1094.6518750000105,
+          "requestId": "req_1afca19c008c41d6995d668d135e8e31",
           "stopReason": "completed"
         }
       }
@@ -5517,8 +5518,8 @@
             "output": 2
           },
           "costUSD": 0.0047112,
-          "latencyMs": 1102.5012080000015,
-          "requestId": "req_e62938b45cfc4d5fa383746e264cf01e",
+          "latencyMs": 1248.6751670000085,
+          "requestId": "req_a46ac1c97cae41f283f63728dedd2fda",
           "stopReason": "completed"
         },
         "raw": {
@@ -5530,8 +5531,8 @@
             "output": 2
           },
           "costUSD": 0.0047112,
-          "latencyMs": 1079.6544170000125,
-          "requestId": "req_735a71257fe64d9aa3212f34fb42ce92",
+          "latencyMs": 1340.2079579999845,
+          "requestId": "req_a39dab4ae7b549e0b35ddb9b1825271e",
           "stopReason": "completed"
         },
         "qcv": {
@@ -5543,8 +5544,8 @@
             "output": 2
           },
           "costUSD": 0.0000932,
-          "latencyMs": 908.9207919999608,
-          "requestId": "req_c636dfea05b049439bf910a91d68b7ea",
+          "latencyMs": 1508.9935840000107,
+          "requestId": "req_f36eb8e06519466ab75cd47c319d1a12",
           "stopReason": "completed"
         }
       }
@@ -5570,8 +5571,8 @@
             "output": 5
           },
           "costUSD": 0.008254,
-          "latencyMs": 956.2380419999827,
-          "requestId": "req_011Cd3QL9k1HEiDVZtaeTiEi",
+          "latencyMs": 1230.569415999984,
+          "requestId": "req_011Cd3VJB4uUyDHt5pQXHHmX",
           "stopReason": "end_turn"
         },
         "headroom": {
@@ -5583,8 +5584,8 @@
             "output": 5
           },
           "costUSD": 0.007238,
-          "latencyMs": 1320.3483329999726,
-          "requestId": "req_011Cd3QLEWVoUHwoWcYHHkFv",
+          "latencyMs": 945.6234579999873,
+          "requestId": "req_011Cd3VJGNPmRQjwhk8v7WhQ",
           "stopReason": "end_turn"
         },
         "qcv": {
@@ -5596,8 +5597,8 @@
             "output": 5
           },
           "costUSD": 0.000352,
-          "latencyMs": 965.0942910000449,
-          "requestId": "req_011Cd3QLKVdesYpCRYTMJcc6",
+          "latencyMs": 638.308708000026,
+          "requestId": "req_011Cd3VJLJXZSH9L1NeB9fti",
           "stopReason": "end_turn"
         }
       }
@@ -5623,8 +5624,8 @@
             "output": 1
           },
           "costUSD": 0.00009120000000000001,
-          "latencyMs": 715.2494169999845,
-          "requestId": "req_1dc735de6ede4f7781e919336b9ccbd9",
+          "latencyMs": 584.0057500000112,
+          "requestId": "req_fbb54fc310ea4bc9b821072d8ad9aece",
           "stopReason": "stop"
         },
         "headroom": {
@@ -5636,8 +5637,8 @@
             "output": 1
           },
           "costUSD": 0.0033948000000000003,
-          "latencyMs": 938.0848750000005,
-          "requestId": "req_e68be95ac0be47c89945f47d3aba9a00",
+          "latencyMs": 707.8237500000105,
+          "requestId": "req_868a3a4e32d24cf3ae620e24e57cc9ea",
           "stopReason": "stop"
         },
         "raw": {
@@ -5649,8 +5650,8 @@
             "output": 1
           },
           "costUSD": 0.004710400000000001,
-          "latencyMs": 1525.4620829999913,
-          "requestId": "req_be011acf889240d5bd3c3e3381cd4662",
+          "latencyMs": 816.1254160000244,
+          "requestId": "req_1fe0ad24c29644dba51dd4e60f71acf5",
           "stopReason": "stop"
         }
       }
@@ -5676,8 +5677,8 @@
             "output": 2
           },
           "costUSD": 0.0026724,
-          "latencyMs": 1322.1197089999914,
-          "requestId": "req_5171519d62364842945ab595fe59199e",
+          "latencyMs": 1044.4111250000133,
+          "requestId": "req_c06b9ec82d8c4048a60f893d3ce2ff7d",
           "stopReason": "completed"
         },
         "qcv": {
@@ -5689,8 +5690,8 @@
             "output": 2
           },
           "costUSD": 0.00010360000000000001,
-          "latencyMs": 925.8208749999758,
-          "requestId": "req_c2f275470bd645eda372c903f6102470",
+          "latencyMs": 889.4904169999936,
+          "requestId": "req_772b6aa88a6443f0b2a147a87c30f87c",
           "stopReason": "completed"
         },
         "headroom": {
@@ -5702,8 +5703,8 @@
             "output": 2
           },
           "costUSD": 0.0026724,
-          "latencyMs": 1158.9622090000194,
-          "requestId": "req_83185f7edc8a48c095c74b35d41dad67",
+          "latencyMs": 865.5253749999974,
+          "requestId": "req_b46d061dfd644002a8278a8cf045608c",
           "stopReason": "completed"
         }
       }
@@ -5729,8 +5730,8 @@
             "output": 11
           },
           "costUSD": 0.000418,
-          "latencyMs": 724.2252089999965,
-          "requestId": "req_011Cd3QLvFRRxyqExQ5C8511",
+          "latencyMs": 1528.7044999999925,
+          "requestId": "req_011Cd3VJkt93p9UkWwgrEvyt",
           "stopReason": "end_turn"
         },
         "raw": {
@@ -5742,8 +5743,8 @@
             "output": 11
           },
           "costUSD": 0.007326,
-          "latencyMs": 899.3103330000304,
-          "requestId": "req_011Cd3QLyBnP3ZsZF2xb1cr3",
+          "latencyMs": 854.8168339999975,
+          "requestId": "req_011Cd3VJsRYDbB48yKi7TRkk",
           "stopReason": "end_turn"
         },
         "headroom": {
@@ -5755,8 +5756,8 @@
             "output": 11
           },
           "costUSD": 0.006191,
-          "latencyMs": 1098.8454589999747,
-          "requestId": "req_011Cd3QM3S22T86NkiJodQV2",
+          "latencyMs": 1724.4961250000051,
+          "requestId": "req_011Cd3VJw9Gx4pQ8ck1oBjNs",
           "stopReason": "end_turn"
         }
       }
@@ -5775,15 +5776,15 @@
       "results": {
         "headroom": {
           "correct": false,
-          "text": "64",
+          "text": "52",
           "usage": {
             "input": 8483,
             "cachedInput": 8320,
             "output": 1
           },
           "costUSD": 0.0008988000000000001,
-          "latencyMs": 824.1680000000051,
-          "requestId": "req_134090ee97254f15b3b6b2e1fa6b303c",
+          "latencyMs": 675.6551249999902,
+          "requestId": "req_7b6c8a2f9eaa4b64a0257504fc0b1cca",
           "stopReason": "stop"
         },
         "raw": {
@@ -5795,8 +5796,8 @@
             "output": 1
           },
           "costUSD": 0.0012159999999999999,
-          "latencyMs": 626.3619159999653,
-          "requestId": "req_b64f83492af54a198ab172da0ca291c1",
+          "latencyMs": 932.4064580000122,
+          "requestId": "req_8aab62a26ae94b69b4ac2e3437903aa1",
           "stopReason": "stop"
         },
         "qcv": {
@@ -5808,8 +5809,8 @@
             "output": 1
           },
           "costUSD": 0.00009120000000000001,
-          "latencyMs": 543.6721670000115,
-          "requestId": "req_e4d0abd23d384b51afb992bf56baca9b",
+          "latencyMs": 520.4650419999962,
+          "requestId": "req_b70405ce5772471d96ce9abf100ed422",
           "stopReason": "stop"
         }
       }
@@ -5835,8 +5836,8 @@
             "output": 3
           },
           "costUSD": 0.0005932,
-          "latencyMs": 714.6279590000049,
-          "requestId": "req_8a7c05fcf3d7438892247cc5d7bb82b3",
+          "latencyMs": 700.9109170000011,
+          "requestId": "req_fc86a855377e4238a4e4ebeacab55552",
           "stopReason": "stop"
         },
         "qcv": {
@@ -5848,8 +5849,8 @@
             "output": 3
           },
           "costUSD": 0.00011520000000000001,
-          "latencyMs": 635.0128330000443,
-          "requestId": "req_3ab1130c3dcb414ba1c7bba4dcad127d",
+          "latencyMs": 654.3313330000092,
+          "requestId": "req_2179faa3de03436a9ccda16fd5641a66",
           "stopReason": "stop"
         },
         "raw": {
@@ -5857,12 +5858,12 @@
           "text": "team-7",
           "usage": {
             "input": 6057,
-            "cachedInput": 0,
+            "cachedInput": 5888,
             "output": 3
           },
-          "costUSD": 0.0024276000000000002,
-          "latencyMs": 535.765374999959,
-          "requestId": "req_a7a6b866b3594d2b8f30c262630ba4c6",
+          "costUSD": 0.0006612,
+          "latencyMs": 522.2939170000027,
+          "requestId": "req_c03bb15ca9c245ba8b992009217c1f20",
           "stopReason": "stop"
         }
       }
@@ -5888,8 +5889,8 @@
             "output": 1
           },
           "costUSD": 0.0007132000000000001,
-          "latencyMs": 456.9628329999978,
-          "requestId": "req_d119c319f87c4ce28697164ab8a4cebf",
+          "latencyMs": 511.9356249999837,
+          "requestId": "req_54061cb7105649138bbefd1af004cf4c",
           "stopReason": "stop"
         },
         "qcv": {
@@ -5901,8 +5902,8 @@
             "output": 1
           },
           "costUSD": 0.0000968,
-          "latencyMs": 553.5379170000087,
-          "requestId": "req_da51f5a221d14b61b8738631d1562db5",
+          "latencyMs": 623.9261249999981,
+          "requestId": "req_31a8161185c74e1ab37921dd1fa81648",
           "stopReason": "stop"
         },
         "headroom": {
@@ -5914,8 +5915,8 @@
             "output": 1
           },
           "costUSD": 0.0006404,
-          "latencyMs": 609.344167000032,
-          "requestId": "req_8c0820cd4c8a41228e3df8ed4a178307",
+          "latencyMs": 555.6809160000121,
+          "requestId": "req_221799fc94f34ff58a77a2dd06c8ba41",
           "stopReason": "stop"
         }
       }
@@ -5941,8 +5942,8 @@
             "output": 11
           },
           "costUSD": 0.00653,
-          "latencyMs": 1027.417666000023,
-          "requestId": "req_011Cd3QMXKK41Tb9H6uc1UQU",
+          "latencyMs": 1020.5131659999897,
+          "requestId": "req_011Cd3VKUskLF381rBuAi9r8",
           "stopReason": "end_turn"
         },
         "qcv": {
@@ -5954,8 +5955,8 @@
             "output": 11
           },
           "costUSD": 0.000428,
-          "latencyMs": 994.757500000007,
-          "requestId": "req_011Cd3QMc2abFfpNtuTyKACe",
+          "latencyMs": 681.5650000000023,
+          "requestId": "req_011Cd3VKZ9UPzTranoVSVQq8",
           "stopReason": "end_turn"
         },
         "raw": {
@@ -5967,8 +5968,8 @@
             "output": 11
           },
           "costUSD": 0.007597,
-          "latencyMs": 1176.8741670000018,
-          "requestId": "req_011Cd3QMfskqaHEsfwJKsM79",
+          "latencyMs": 1264.6807910000207,
+          "requestId": "req_011Cd3VKc8ZaJcN5PGF1qtVg",
           "stopReason": "end_turn"
         }
       }
@@ -5994,8 +5995,8 @@
             "output": 5
           },
           "costUSD": 0.008254,
-          "latencyMs": 1034.1723749999655,
-          "requestId": "req_011Cd3QMneoVKCWhndd3LYif",
+          "latencyMs": 1026.9834579999733,
+          "requestId": "req_011Cd3VKiQ6JHdKhXCtDiT32",
           "stopReason": "end_turn"
         },
         "qcv": {
@@ -6007,8 +6008,8 @@
             "output": 5
           },
           "costUSD": 0.000349,
-          "latencyMs": 808.1776250000112,
-          "requestId": "req_011Cd3QMs6Sy5F3vpn6ESG3v",
+          "latencyMs": 686.6008750000037,
+          "requestId": "req_011Cd3VKnokrYvHtm3fRUfEf",
           "stopReason": "end_turn"
         },
         "headroom": {
@@ -6020,8 +6021,8 @@
             "output": 5
           },
           "costUSD": 0.007238,
-          "latencyMs": 951.4175830000313,
-          "requestId": "req_011Cd3QMvkxtN9VU9RTQArtP",
+          "latencyMs": 902.4132500000123,
+          "requestId": "req_011Cd3VKqnLncavu4nCQ1ET4",
           "stopReason": "end_turn"
         }
       }
@@ -6047,8 +6048,8 @@
             "output": 6
           },
           "costUSD": 0.007442,
-          "latencyMs": 867.0208749999874,
-          "requestId": "req_011Cd3QMzaQBUV9bTZEwbfo4",
+          "latencyMs": 1606.6474589999998,
+          "requestId": "req_011Cd3VKufG37TNysoyQiGNs",
           "stopReason": "end_turn"
         },
         "qcv": {
@@ -6060,8 +6061,8 @@
             "output": 6
           },
           "costUSD": 0.000402,
-          "latencyMs": 823.0308749999967,
-          "requestId": "req_011Cd3QN4McGdSnHMtS7Aqqt",
+          "latencyMs": 1132.4537500000151,
+          "requestId": "req_011Cd3VL3eUXc3uRuWSrznVY",
           "stopReason": "end_turn"
         },
         "headroom": {
@@ -6073,8 +6074,8 @@
             "output": 6
           },
           "costUSD": 0.006368,
-          "latencyMs": 1266.5595830000238,
-          "requestId": "req_011Cd3QN88aSKJ81x6C2WXbs",
+          "latencyMs": 974.4276250000112,
+          "requestId": "req_011Cd3VL7QwMXYoEySB8b9jk",
           "stopReason": "end_turn"
         }
       }
@@ -6100,8 +6101,8 @@
             "output": 6
           },
           "costUSD": 0.007442,
-          "latencyMs": 913.4399170000106,
-          "requestId": "req_011Cd3QNDEuEfhqkKGfschYh",
+          "latencyMs": 836.7499580000003,
+          "requestId": "req_011Cd3VLBVG3zJkdFPLt4Ui3",
           "stopReason": "end_turn"
         },
         "headroom": {
@@ -6113,8 +6114,8 @@
             "output": 6
           },
           "costUSD": 0.006368,
-          "latencyMs": 1427.63916599995,
-          "requestId": "req_011Cd3QNHQBZvRr7GBNyCJFW",
+          "latencyMs": 1011.3141670000041,
+          "requestId": "req_011Cd3VLF9HAofGtudjigG2i",
           "stopReason": "end_turn"
         },
         "qcv": {
@@ -6126,8 +6127,8 @@
             "output": 6
           },
           "costUSD": 0.000402,
-          "latencyMs": 599.2956249999697,
-          "requestId": "req_011Cd3QNPFQnk4NynmbdnXLx",
+          "latencyMs": 904.4950829999871,
+          "requestId": "req_011Cd3VLKPGeJ6iBA67Uq4XC",
           "stopReason": "end_turn"
         }
       }
@@ -6153,8 +6154,8 @@
             "output": 6
           },
           "costUSD": 0.0005788000000000001,
-          "latencyMs": 664.3141249999753,
-          "requestId": "req_51938e7ac6b248bbb99c21fc1700beef",
+          "latencyMs": 993.2118750000081,
+          "requestId": "req_0324a1299a5a40419a447de310e77e3b",
           "stopReason": "stop"
         },
         "raw": {
@@ -6166,8 +6167,8 @@
             "output": 6
           },
           "costUSD": 0.0006644,
-          "latencyMs": 1001.2643329999992,
-          "requestId": "req_00e183efb4704190b3d607f58da47731",
+          "latencyMs": 666.3929999999818,
+          "requestId": "req_ce1b98820ea24685abd33f087c66ec97",
           "stopReason": "stop"
         },
         "qcv": {
@@ -6179,8 +6180,8 @@
             "output": 6
           },
           "costUSD": 0.0001224,
-          "latencyMs": 570.8319170000032,
-          "requestId": "req_cf1ec044b3d045e9a5345590f21160d2",
+          "latencyMs": 613.786791999999,
+          "requestId": "req_a64445a5a43c4aeabb6ae77de89b991d",
           "stopReason": "stop"
         }
       }
@@ -6206,8 +6207,8 @@
             "output": 3
           },
           "costUSD": 0.0024276000000000002,
-          "latencyMs": 1043.3497920000227,
-          "requestId": "req_963cb69a8aed4f728c9f474d1f2f0be1",
+          "latencyMs": 815.9041250000009,
+          "requestId": "req_3c279287aa7f4c9cbe6ccf1585cdd0f0",
           "stopReason": "stop"
         },
         "headroom": {
@@ -6219,8 +6220,8 @@
             "output": 3
           },
           "costUSD": 0.0020920000000000005,
-          "latencyMs": 961.8270839999896,
-          "requestId": "req_6e23edf56b144e83b4c91047d718eedb",
+          "latencyMs": 783.9880419999827,
+          "requestId": "req_fe3e242269ef4671b46b5e3f3eea7f28",
           "stopReason": "stop"
         },
         "qcv": {
@@ -6232,8 +6233,8 @@
             "output": 3
           },
           "costUSD": 0.00011640000000000001,
-          "latencyMs": 667.9329579999903,
-          "requestId": "req_d391ca549d3b46ec98ea53ecf5d9e67b",
+          "latencyMs": 566.6129160000128,
+          "requestId": "req_092557f953704f1290709f6603f7d962",
           "stopReason": "stop"
         }
       }
@@ -6259,8 +6260,8 @@
             "output": 4
           },
           "costUSD": 0.0024284000000000003,
-          "latencyMs": 1066.3496250000317,
-          "requestId": "req_d48585b1629d4a0f85c5eba443fdbaea",
+          "latencyMs": 1060.6050410000025,
+          "requestId": "req_14f1991c1bd34b3a86a54a4533559e9e",
           "stopReason": "completed"
         },
         "qcv": {
@@ -6272,8 +6273,8 @@
             "output": 4
           },
           "costUSD": 0.00011720000000000002,
-          "latencyMs": 916.6017910000519,
-          "requestId": "req_c94b47cfa3de4b74b8d948f40e934521",
+          "latencyMs": 2531.2422079999815,
+          "requestId": "req_ee28aabdf5db46e99778801d9a0b7b92",
           "stopReason": "completed"
         },
         "headroom": {
@@ -6281,12 +6282,12 @@
           "text": "team-3",
           "usage": {
             "input": 6055,
-            "cachedInput": 0,
+            "cachedInput": 5888,
             "output": 4
           },
-          "costUSD": 0.0024284000000000003,
-          "latencyMs": 954.2639160000253,
-          "requestId": "req_029a3731f42248bdaf60f48f5c9ae7bd",
+          "costUSD": 0.000662,
+          "latencyMs": 876.0728750000126,
+          "requestId": "req_241057dad27943669acfea753e2d8c85",
           "stopReason": "completed"
         }
       }
@@ -6312,8 +6313,8 @@
             "output": 2
           },
           "costUSD": 0.0047112,
-          "latencyMs": 2086.6094170000288,
-          "requestId": "req_e641099fc29a468ba5d0c06febd78915",
+          "latencyMs": 1334.6884169999976,
+          "requestId": "req_404ed41dbf3946dfa951463b90359a4e",
           "stopReason": "completed"
         },
         "raw": {
@@ -6325,8 +6326,8 @@
             "output": 2
           },
           "costUSD": 0.0047112,
-          "latencyMs": 1148.4670000000042,
-          "requestId": "req_53ac55d378ad429e89f57ba0aed69cd6",
+          "latencyMs": 978.3841249999823,
+          "requestId": "req_d1e4457a64f641d6bb6de6e177df4ec7",
           "stopReason": "completed"
         },
         "qcv": {
@@ -6338,8 +6339,8 @@
             "output": 2
           },
           "costUSD": 0.00009680000000000001,
-          "latencyMs": 1010.8765840000124,
-          "requestId": "req_648404c91afe47e2a8590c4f3f11d6db",
+          "latencyMs": 831.4341250000289,
+          "requestId": "req_c848062710b14a5e90ca0e30a89d0d73",
           "stopReason": "completed"
         }
       }
@@ -6365,8 +6366,8 @@
             "output": 7
           },
           "costUSD": 0.0024855999999999997,
-          "latencyMs": 1213.3702080000076,
-          "requestId": "req_14676bf3d7b74e8ead657b1e87056ca1",
+          "latencyMs": 1062.4987090000068,
+          "requestId": "req_d62048025be1477293210858b957edf4",
           "stopReason": "completed"
         },
         "headroom": {
@@ -6378,8 +6379,8 @@
             "output": 7
           },
           "costUSD": 0.0024855999999999997,
-          "latencyMs": 1113.0442499999772,
-          "requestId": "req_b9e573b2f8bc4f65b5b9122b3702f3c2",
+          "latencyMs": 1057.2291669999831,
+          "requestId": "req_3238d719e53246b48e5353706770349b",
           "stopReason": "completed"
         },
         "qcv": {
@@ -6391,8 +6392,8 @@
             "output": 7
           },
           "costUSD": 0.0001224,
-          "latencyMs": 1062.8142499999958,
-          "requestId": "req_14135fdbcb604f61a2e6af66b1861906",
+          "latencyMs": 723.2628339999937,
+          "requestId": "req_1230a89351c542af8fca8e7dd69d0499",
           "stopReason": "completed"
         }
       }
@@ -6418,8 +6419,8 @@
             "output": 6
           },
           "costUSD": 0.00068,
-          "latencyMs": 677.7336670000223,
-          "requestId": "req_987984ed8aa346efb6bc074fb43941b4",
+          "latencyMs": 860.2406670000055,
+          "requestId": "req_86b5dcb066b44ba49465f8389be9c7e2",
           "stopReason": "stop"
         },
         "headroom": {
@@ -6431,8 +6432,8 @@
             "output": 6
           },
           "costUSD": 0.000616,
-          "latencyMs": 641.7470420000027,
-          "requestId": "req_9c65642ea5674b868e3e6c96e7205856",
+          "latencyMs": 526.045999999973,
+          "requestId": "req_d8a678110b314bd89ff400ece5e9e1fb",
           "stopReason": "stop"
         },
         "qcv": {
@@ -6444,8 +6445,8 @@
             "output": 6
           },
           "costUSD": 0.000124,
-          "latencyMs": 564.2834999999614,
-          "requestId": "req_eb48972062ee41b4921ad51f43bf8710",
+          "latencyMs": 703.9286250000005,
+          "requestId": "req_a2eb2a1cb24c41a482b6bda857c76085",
           "stopReason": "stop"
         }
       }
@@ -6471,8 +6472,8 @@
             "output": 1
           },
           "costUSD": 0.00009120000000000001,
-          "latencyMs": 539.9928749999963,
-          "requestId": "req_a52705d4a0134e4883465adeaa170612",
+          "latencyMs": 501.2802500000107,
+          "requestId": "req_a28915edda0c49129246f63b89da0426",
           "stopReason": "stop"
         },
         "raw": {
@@ -6484,8 +6485,8 @@
             "output": 1
           },
           "costUSD": 0.0012159999999999999,
-          "latencyMs": 772.7378329999628,
-          "requestId": "req_94fefe086f96402eaf541f4646f0713d",
+          "latencyMs": 699.593041999964,
+          "requestId": "req_a8da09dda18c45ebb60ae4de8358c4f5",
           "stopReason": "stop"
         },
         "headroom": {
@@ -6493,12 +6494,12 @@
           "text": "64",
           "usage": {
             "input": 8483,
-            "cachedInput": 8320,
+            "cachedInput": 0,
             "output": 1
           },
-          "costUSD": 0.0008988000000000001,
-          "latencyMs": 703.695624999993,
-          "requestId": "req_f65fbe6559604c69aeac84a1fc3edade",
+          "costUSD": 0.0033948000000000003,
+          "latencyMs": 766.4024999999674,
+          "requestId": "req_c065f6f7feb74e9cac7950d2a1c42797",
           "stopReason": "stop"
         }
       }
@@ -6524,8 +6525,8 @@
             "output": 3
           },
           "costUSD": 0.0006612,
-          "latencyMs": 863.3727080000099,
-          "requestId": "req_54a83b07d65e401dafe787b88ae8e653",
+          "latencyMs": 648.9680420000223,
+          "requestId": "req_751455fd349d46a09c7f18acf438ffe7",
           "stopReason": "stop"
         },
         "headroom": {
@@ -6537,8 +6538,8 @@
             "output": 3
           },
           "costUSD": 0.0005944,
-          "latencyMs": 616.1754169999622,
-          "requestId": "req_66d853d081714ed283990bdadb21563a",
+          "latencyMs": 855.8839160000207,
+          "requestId": "req_d941374f95b14796b2aac2381aea9003",
           "stopReason": "stop"
         },
         "qcv": {
@@ -6550,8 +6551,8 @@
             "output": 3
           },
           "costUSD": 0.00011640000000000001,
-          "latencyMs": 575.7175000000279,
-          "requestId": "req_9e58e2190e4a462f83c3f1ac8bfcfdc1",
+          "latencyMs": 558.3413750000182,
+          "requestId": "req_8aec472b930647c79252809f095d1e4d",
           "stopReason": "stop"
         }
       }
@@ -6577,8 +6578,8 @@
             "output": 11
           },
           "costUSD": 0.007326,
-          "latencyMs": 721.4245419999934,
-          "requestId": "req_011Cd3QQ65rQcBQkiuFWCyiY",
+          "latencyMs": 799.9953340000357,
+          "requestId": "req_011Cd3VMyLaEmRmQ5cw8BuHo",
           "stopReason": "end_turn"
         },
         "headroom": {
@@ -6590,8 +6591,8 @@
             "output": 11
           },
           "costUSD": 0.006191,
-          "latencyMs": 1122.3715420000372,
-          "requestId": "req_011Cd3QQ9NnizfS8LGCA9ubK",
+          "latencyMs": 995.8820000000414,
+          "requestId": "req_011Cd3VN2V5SK5dQr8Y4ztD7",
           "stopReason": "end_turn"
         },
         "qcv": {
@@ -6603,8 +6604,8 @@
             "output": 11
           },
           "costUSD": 0.000418,
-          "latencyMs": 1321.9622499999823,
-          "requestId": "req_011Cd3QQDyrf1N5teCRGvRDS",
+          "latencyMs": 936.9723749999539,
+          "requestId": "req_011Cd3VN6hqKbdC5gAFP7tck",
           "stopReason": "end_turn"
         }
       }
@@ -6630,8 +6631,8 @@
             "output": 7
           },
           "costUSD": 0.0048864,
-          "latencyMs": 1870.9491670000134,
-          "requestId": "req_842bfad7f11544f88dfb03540518a364",
+          "latencyMs": 1275.5473749999655,
+          "requestId": "req_939a44cc815d447f85c3ff59b15f09b6",
           "stopReason": "completed"
         },
         "headroom": {
@@ -6643,8 +6644,8 @@
             "output": 7
           },
           "costUSD": 0.0048864,
-          "latencyMs": 1315.4001249999856,
-          "requestId": "req_625a49c19f00421fbad9a424001bfdf1",
+          "latencyMs": 4017.9262920000474,
+          "requestId": "req_2ba1e8f48086416686ce8434000e7a26",
           "stopReason": "completed"
         },
         "qcv": {
@@ -6656,8 +6657,8 @@
             "output": 7
           },
           "costUSD": 0.0001692,
-          "latencyMs": 909.2582089999923,
-          "requestId": "req_d4079ee0048b4635a61ed6627dcac1ee",
+          "latencyMs": 1161.8832910000347,
+          "requestId": "req_1dfd21941843454f8ea99aafd6e2f925",
           "stopReason": "completed"
         }
       }
@@ -6683,24 +6684,11 @@
             "output": 7
           },
           "costUSD": 0.0001692,
-          "latencyMs": 1049.5022079999908,
-          "requestId": "req_c5cb29ae3ead43598d9c3128cd121614",
+          "latencyMs": 1101.9345840000315,
+          "requestId": "req_13042419be7f4373a3617a26553b5e3f",
           "stopReason": "completed"
         },
         "raw": {
-          "correct": true,
-          "text": "joined4-87@example.com",
-          "usage": {
-            "input": 12188,
-            "cachedInput": 12032,
-            "output": 7
-          },
-          "costUSD": 0.0012768000000000002,
-          "latencyMs": 1277.2355000000098,
-          "requestId": "req_2bfe410b440b4450b2f44befcabdf3cb",
-          "stopReason": "completed"
-        },
-        "headroom": {
           "correct": true,
           "text": "joined4-87@example.com",
           "usage": {
@@ -6709,8 +6697,21 @@
             "output": 7
           },
           "costUSD": 0.0048864,
-          "latencyMs": 1379.6816659999895,
-          "requestId": "req_0de560de5fcb464eb4fadad7c97827c1",
+          "latencyMs": 1263.4983749999665,
+          "requestId": "req_12eed1a94f0142969231acb8d65157da",
+          "stopReason": "completed"
+        },
+        "headroom": {
+          "correct": true,
+          "text": "joined4-87@example.com",
+          "usage": {
+            "input": 12188,
+            "cachedInput": 12032,
+            "output": 7
+          },
+          "costUSD": 0.0012768000000000002,
+          "latencyMs": 905.1713340000133,
+          "requestId": "req_a61bb3a1acc649ca870dd4f5519e6823",
           "stopReason": "completed"
         }
       }
@@ -6736,8 +6737,8 @@
             "output": 7
           },
           "costUSD": 0.0048864,
-          "latencyMs": 1939.9904579999857,
-          "requestId": "req_9458acc2ca104230875052651ec7690b",
+          "latencyMs": 1058.0022500000196,
+          "requestId": "req_c12f48939c874a7fb1980e92a1fbab88",
           "stopReason": "completed"
         },
         "qcv": {
@@ -6749,8 +6750,8 @@
             "output": 7
           },
           "costUSD": 0.0001716,
-          "latencyMs": 1260.3247919999994,
-          "requestId": "req_62b13fccf30e40b4b34c204765dd05a6",
+          "latencyMs": 1269.5101659999928,
+          "requestId": "req_1993fcea84fc4266a9a80c07b12632c6",
           "stopReason": "completed"
         },
         "raw": {
@@ -6762,8 +6763,8 @@
             "output": 7
           },
           "costUSD": 0.0048864,
-          "latencyMs": 1394.380749999953,
-          "requestId": "req_4f4a9bd616ef47b7b3cd3f8f8022d34f",
+          "latencyMs": 1189.1569170000148,
+          "requestId": "req_f79d63cea1da4660bc16cb200f646f4c",
           "stopReason": "completed"
         }
       }
@@ -6789,8 +6790,8 @@
             "output": 6
           },
           "costUSD": 0.006368,
-          "latencyMs": 1321.266249999986,
-          "requestId": "req_011Cd3QRL4kbE8VEaqoRD9Rw",
+          "latencyMs": 1008.016707999981,
+          "requestId": "req_011Cd3VPAQrYi7Rg6QA5iJaY",
           "stopReason": "end_turn"
         },
         "raw": {
@@ -6802,8 +6803,8 @@
             "output": 6
           },
           "costUSD": 0.007442,
-          "latencyMs": 900.3572500000009,
-          "requestId": "req_011Cd3QRRF3y5a1z8zmHfyB4",
+          "latencyMs": 933.9699580000015,
+          "requestId": "req_011Cd3VPEfqV8XemDdb3JMvM",
           "stopReason": "end_turn"
         },
         "qcv": {
@@ -6815,8 +6816,8 @@
             "output": 6
           },
           "costUSD": 0.000402,
-          "latencyMs": 725.5663749999949,
-          "requestId": "req_011Cd3QRVBBtsVcyymKYN3TC",
+          "latencyMs": 658.680040999956,
+          "requestId": "req_011Cd3VPJhBe8LrpZWjFmope",
           "stopReason": "end_turn"
         }
       }
@@ -6842,21 +6843,21 @@
             "output": 1
           },
           "costUSD": 0.004710400000000001,
-          "latencyMs": 764.3893329999992,
-          "requestId": "req_905c0278207643949eb14547f50a914e",
+          "latencyMs": 720.5490419999696,
+          "requestId": "req_54706edf001b4552b4d24b91670a446a",
           "stopReason": "stop"
         },
         "headroom": {
           "correct": false,
-          "text": "88",
+          "text": "120",
           "usage": {
             "input": 8483,
             "cachedInput": 0,
             "output": 1
           },
           "costUSD": 0.0033948000000000003,
-          "latencyMs": 970.6776669999817,
-          "requestId": "req_3e0d8d63d50942f59ef31f42e38498c3",
+          "latencyMs": 696.8634580000071,
+          "requestId": "req_43e79feddee04df28b1b6a143b9aef9d",
           "stopReason": "stop"
         },
         "qcv": {
@@ -6868,8 +6869,8 @@
             "output": 1
           },
           "costUSD": 0.0000996,
-          "latencyMs": 1730.7212089999812,
-          "requestId": "req_7f80c5fdabcf48ab9549c4b2ff892fcd",
+          "latencyMs": 577.2270420000423,
+          "requestId": "req_30683caf786f4ce2ae7796b9c7f4f427",
           "stopReason": "stop"
         }
       }
@@ -6895,8 +6896,8 @@
             "output": 1
           },
           "costUSD": 0.0012159999999999999,
-          "latencyMs": 659.2728329999954,
-          "requestId": "req_145bd98e926745e284383406aeabb1f3",
+          "latencyMs": 610.6307500000112,
+          "requestId": "req_bf34f4e70eda452f9ce887790ed6af3c",
           "stopReason": "stop"
         },
         "qcv": {
@@ -6908,21 +6909,21 @@
             "output": 1
           },
           "costUSD": 0.0000996,
-          "latencyMs": 1564.3177499999874,
-          "requestId": "req_020b19bb5804470daf7cceca89f0538e",
+          "latencyMs": 530.5291659999639,
+          "requestId": "req_40314532353642b7b776d40de2c8b428",
           "stopReason": "stop"
         },
         "headroom": {
           "correct": false,
-          "text": "88",
+          "text": "120",
           "usage": {
             "input": 8483,
             "cachedInput": 8320,
             "output": 1
           },
           "costUSD": 0.0008988000000000001,
-          "latencyMs": 954.0901670000167,
-          "requestId": "req_1b6f831d1ba441cd9860d1a5bc94180a",
+          "latencyMs": 749.2581669999636,
+          "requestId": "req_8733532e08eb43edbf1b757818704b21",
           "stopReason": "stop"
         }
       }
@@ -6948,8 +6949,8 @@
             "output": 11
           },
           "costUSD": 0.000428,
-          "latencyMs": 936.6240830000024,
-          "requestId": "req_011Cd3QS2ZpXxT9J2G8hbdP7",
+          "latencyMs": 657.8646670000162,
+          "requestId": "req_011Cd3VPe7V5yzdE8TJJggBK",
           "stopReason": "end_turn"
         },
         "raw": {
@@ -6961,8 +6962,8 @@
             "output": 11
           },
           "costUSD": 0.007597,
-          "latencyMs": 1109.9380419999943,
-          "requestId": "req_011Cd3QS6cAGEjfYbST8uKbp",
+          "latencyMs": 998.3045830000192,
+          "requestId": "req_011Cd3VPgxPb4msy1qGcFUnT",
           "stopReason": "end_turn"
         },
         "headroom": {
@@ -6974,8 +6975,8 @@
             "output": 11
           },
           "costUSD": 0.00653,
-          "latencyMs": 1063.3850000000093,
-          "requestId": "req_011Cd3QSBrRQjoqvfmr9xDnz",
+          "latencyMs": 1030.2205829999875,
+          "requestId": "req_011Cd3VPmFrR8YRcrDi3NQN9",
           "stopReason": "end_turn"
         }
       }
@@ -7001,8 +7002,8 @@
             "output": 11
           },
           "costUSD": 0.000418,
-          "latencyMs": 1895.3296670000418,
-          "requestId": "req_011Cd3QSG1x8Rcvh4iBr6zRD",
+          "latencyMs": 874.4447090000031,
+          "requestId": "req_011Cd3VPqZZLkE77ecbW5te2",
           "stopReason": "end_turn"
         },
         "raw": {
@@ -7014,8 +7015,8 @@
             "output": 11
           },
           "costUSD": 0.007326,
-          "latencyMs": 850.1609999999637,
-          "requestId": "req_011Cd3QSQ87QUYPTFJ6jYmyr",
+          "latencyMs": 762.164999999979,
+          "requestId": "req_011Cd3VPuNkdNSvc6T25mCkd",
           "stopReason": "end_turn"
         },
         "headroom": {
@@ -7027,8 +7028,8 @@
             "output": 11
           },
           "costUSD": 0.006191,
-          "latencyMs": 2146.254457999952,
-          "requestId": "req_011Cd3QSVzqA429zatUJRFqb",
+          "latencyMs": 1260.8031249999767,
+          "requestId": "req_011Cd3VPxfCQAHxVaktwASby",
           "stopReason": "end_turn"
         }
       }
@@ -7050,12 +7051,12 @@
           "text": "75",
           "usage": {
             "input": 6673,
-            "cachedInput": 6528,
+            "cachedInput": 0,
             "output": 2
           },
-          "costUSD": 0.0007140000000000001,
-          "latencyMs": 1430.4309169999906,
-          "requestId": "req_95a3ec26e83146b18d5468dc2151be8e",
+          "costUSD": 0.0026724,
+          "latencyMs": 1066.5128329999861,
+          "requestId": "req_28292aadbbaa4adb93f64db7608c1254",
           "stopReason": "completed"
         },
         "qcv": {
@@ -7067,8 +7068,8 @@
             "output": 2
           },
           "costUSD": 0.00009640000000000001,
-          "latencyMs": 1217.140458000009,
-          "requestId": "req_8dcf7efd2b3f45e3a6e6c6178d87ae84",
+          "latencyMs": 881.1669589999947,
+          "requestId": "req_4deeca132bed4d728cb8b76ccef1e046",
           "stopReason": "completed"
         },
         "headroom": {
@@ -7076,12 +7077,12 @@
           "text": "75",
           "usage": {
             "input": 6673,
-            "cachedInput": 6528,
+            "cachedInput": 0,
             "output": 2
           },
-          "costUSD": 0.0007140000000000001,
-          "latencyMs": 939.94329200004,
-          "requestId": "req_711f8909e2bc4917868a0555d1a90805",
+          "costUSD": 0.0026724,
+          "latencyMs": 929.6581249999581,
+          "requestId": "req_a6e59be3d4eb419b98977a2b49ca0fc5",
           "stopReason": "completed"
         }
       }
@@ -7107,8 +7108,8 @@
             "output": 1
           },
           "costUSD": 0.0007132000000000001,
-          "latencyMs": 455.1704580000369,
-          "requestId": "req_8d31c77f457d485e83c9025e72574efa",
+          "latencyMs": 606.7475829999894,
+          "requestId": "req_a38cdf04b39b4c1a89c6f94479c75f5e",
           "stopReason": "stop"
         },
         "headroom": {
@@ -7120,8 +7121,8 @@
             "output": 1
           },
           "costUSD": 0.0006404,
-          "latencyMs": 953.1928750000079,
-          "requestId": "req_87bfeac7dc6a47fa9cb8cb56f0f2b5d0",
+          "latencyMs": 716.6720410000416,
+          "requestId": "req_76c2d9d5fe584b519568cd32198f2a26",
           "stopReason": "stop"
         },
         "qcv": {
@@ -7133,8 +7134,8 @@
             "output": 1
           },
           "costUSD": 0.0000968,
-          "latencyMs": 633.6469170000055,
-          "requestId": "req_618899b464e04827b24082c2c5f868e0",
+          "latencyMs": 759.2229999999981,
+          "requestId": "req_5552b4bd11e7427e87c711fd1785737a",
           "stopReason": "stop"
         }
       }
@@ -7160,21 +7161,21 @@
             "output": 1
           },
           "costUSD": 0.0012159999999999999,
-          "latencyMs": 1066.384875000047,
-          "requestId": "req_b6cf9b8a74ac4cfdb134ff80fe0e45b2",
+          "latencyMs": 734.8337079999619,
+          "requestId": "req_40c0570152d0499cb825614fa9be1cdb",
           "stopReason": "stop"
         },
         "headroom": {
           "correct": false,
-          "text": "88",
+          "text": "120",
           "usage": {
             "input": 8483,
             "cachedInput": 8320,
             "output": 1
           },
           "costUSD": 0.0008988000000000001,
-          "latencyMs": 797.8331669999752,
-          "requestId": "req_da213d0d51fc442181f5a4da5f75045d",
+          "latencyMs": 612.0277910000295,
+          "requestId": "req_f2747abaa7cc473dbeec5791855fa4e1",
           "stopReason": "stop"
         },
         "qcv": {
@@ -7186,8 +7187,8 @@
             "output": 1
           },
           "costUSD": 0.0000996,
-          "latencyMs": 559.1451670000097,
-          "requestId": "req_86926ee07b344707904ddd650c3f2938",
+          "latencyMs": 676.4107499999809,
+          "requestId": "req_052fc6272d0d4432b93479bde7169451",
           "stopReason": "stop"
         }
       }
@@ -7213,8 +7214,8 @@
             "output": 7
           },
           "costUSD": 0.0023932,
-          "latencyMs": 1065.864750000008,
-          "requestId": "req_54baf6650ff14734b7a436fcb623689e",
+          "latencyMs": 1317.879917000013,
+          "requestId": "req_d4b28ebb9a134f5f99d38b7a54d76789",
           "stopReason": "completed"
         },
         "qcv": {
@@ -7226,8 +7227,8 @@
             "output": 7
           },
           "costUSD": 0.0001232,
-          "latencyMs": 1013.2820000000065,
-          "requestId": "req_6c74dd1de01a4a608f8e8a520bf17966",
+          "latencyMs": 1483.585458000016,
+          "requestId": "req_592abfd378e34d3dadebea3dadd9c1b5",
           "stopReason": "completed"
         },
         "headroom": {
@@ -7239,8 +7240,8 @@
             "output": 7
           },
           "costUSD": 0.0023932,
-          "latencyMs": 1076.7587500000373,
-          "requestId": "req_e0bf31e96f2848b7bb423e52929db69a",
+          "latencyMs": 1036.7431660000002,
+          "requestId": "req_dd9825aa6e8b4e80a0d50254b2b646cd",
           "stopReason": "completed"
         }
       }
@@ -7266,8 +7267,8 @@
             "output": 5
           },
           "costUSD": 0.01104,
-          "latencyMs": 1830.1322500000242,
-          "requestId": "req_011Cd3QTWeYyDUUP2LEM3iPT",
+          "latencyMs": 987.7295000000158,
+          "requestId": "req_011Cd3VQsSCc1PPph9rB6GQt",
           "stopReason": "end_turn"
         },
         "raw": {
@@ -7279,8 +7280,8 @@
             "output": 5
           },
           "costUSD": 0.015023,
-          "latencyMs": 940.066165999975,
-          "requestId": "req_011Cd3QTeDTqDZiFqMcDJrBN",
+          "latencyMs": 2618.6873749999795,
+          "requestId": "req_011Cd3VQwbEQEwwJuKrsL1nh",
           "stopReason": "end_turn"
         },
         "qcv": {
@@ -7292,8 +7293,8 @@
             "output": 5
           },
           "costUSD": 0.000334,
-          "latencyMs": 755.4745409999741,
-          "requestId": "req_011Cd3QTiMkm6RWNAKTd5E3W",
+          "latencyMs": 685.6203749999986,
+          "requestId": "req_011Cd3VR8jxENmrsX5yV4GwB",
           "stopReason": "end_turn"
         }
       }
@@ -7315,12 +7316,12 @@
           "text": "lookup2-55@example.com",
           "usage": {
             "input": 5955,
-            "cachedInput": 5760,
+            "cachedInput": 0,
             "output": 7
           },
-          "costUSD": 0.0006652,
-          "latencyMs": 1031.511125000019,
-          "requestId": "req_4ef082b87f634e278516e99a568010cb",
+          "costUSD": 0.0023932,
+          "latencyMs": 1120.1760830000276,
+          "requestId": "req_625e0ac70f7a4037a5c3f7b62e0c5fb2",
           "stopReason": "completed"
         },
         "qcv": {
@@ -7332,8 +7333,8 @@
             "output": 7
           },
           "costUSD": 0.0001232,
-          "latencyMs": 1257.5102910000132,
-          "requestId": "req_605a8957770a4beaab9dea201e6410d0",
+          "latencyMs": 1096.7357500000508,
+          "requestId": "req_7b8e7d3cff1d4f39aa2784e58fbff5b5",
           "stopReason": "completed"
         },
         "headroom": {
@@ -7345,8 +7346,8 @@
             "output": 7
           },
           "costUSD": 0.0023932,
-          "latencyMs": 3725.0333329999703,
-          "requestId": "req_c5bda097eba84b32af5103362e1a6c20",
+          "latencyMs": 1121.3656249999767,
+          "requestId": "req_482b6930148c4c9dbc19831145ae1c8c",
           "stopReason": "completed"
         }
       }
@@ -7372,8 +7373,8 @@
             "output": 5
           },
           "costUSD": 0.007238,
-          "latencyMs": 1014.1643750000512,
-          "requestId": "req_011Cd3QUFHMh52Vx3L4mK5QT",
+          "latencyMs": 915.6633749999455,
+          "requestId": "req_011Cd3VRTEC9LtHQC9CcQ6ei",
           "stopReason": "end_turn"
         },
         "qcv": {
@@ -7385,21 +7386,21 @@
             "output": 5
           },
           "costUSD": 0.000349,
-          "latencyMs": 737.2210830000113,
-          "requestId": "req_011Cd3QUKBWC71zDTF3KJkVr",
+          "latencyMs": 632.4144170000218,
+          "requestId": "req_011Cd3VRWxva3JfSFA6yadkT",
           "stopReason": "end_turn"
         },
         "raw": {
           "correct": false,
-          "text": "15",
+          "text": "20",
           "usage": {
             "input": 8229,
             "cachedInput": 0,
             "output": 5
           },
           "costUSD": 0.008254,
-          "latencyMs": 1219.0861670000013,
-          "requestId": "req_011Cd3QUNM1NRgb3Jkcd72MQ",
+          "latencyMs": 1037.7182499999763,
+          "requestId": "req_011Cd3VRZi83eMi316EMSXfd",
           "stopReason": "end_turn"
         }
       }
@@ -7425,8 +7426,8 @@
             "output": 1
           },
           "costUSD": 0.0000996,
-          "latencyMs": 575.2143749999814,
-          "requestId": "req_04d4b51efa414677a6c4dca309db6a9d",
+          "latencyMs": 674.6608750000014,
+          "requestId": "req_1ff78308695a46f6aa5415cbc341c988",
           "stopReason": "stop"
         },
         "raw": {
@@ -7438,8 +7439,8 @@
             "output": 1
           },
           "costUSD": 0.0012159999999999999,
-          "latencyMs": 751.1068749999977,
-          "requestId": "req_829bb4b7b82848adaecb891793e03da9",
+          "latencyMs": 701.7200000000303,
+          "requestId": "req_0df2e69b8cfe4c4ea8a348a0e0971a32",
           "stopReason": "stop"
         },
         "headroom": {
@@ -7451,8 +7452,8 @@
             "output": 1
           },
           "costUSD": 0.0008988000000000001,
-          "latencyMs": 711.8252499999944,
-          "requestId": "req_6d98a8c070154c92bdfa8c30bc8bb392",
+          "latencyMs": 680.470250000013,
+          "requestId": "req_8ff100025a5841008f25994ca75d1b91",
           "stopReason": "stop"
         }
       }
@@ -7478,8 +7479,8 @@
             "output": 7
           },
           "costUSD": 0.0001716,
-          "latencyMs": 922.1170000000275,
-          "requestId": "req_8835f76a045a485f9b8133d0520c2857",
+          "latencyMs": 1058.1249579999712,
+          "requestId": "req_98de5749b21f4165900f6ff81231b1a0",
           "stopReason": "completed"
         },
         "headroom": {
@@ -7491,8 +7492,8 @@
             "output": 7
           },
           "costUSD": 0.0048864,
-          "latencyMs": 1456.1547910000081,
-          "requestId": "req_5500809fab3b42feb0fb314a77fbac0f",
+          "latencyMs": 1284.4175420000101,
+          "requestId": "req_9ed6c45417e44f56bdc4901bc302bb38",
           "stopReason": "completed"
         },
         "raw": {
@@ -7504,8 +7505,8 @@
             "output": 7
           },
           "costUSD": 0.0048864,
-          "latencyMs": 1250.598291000002,
-          "requestId": "req_98f211838e4a42098fd7100cf5ea5f53",
+          "latencyMs": 1102.3445840000059,
+          "requestId": "req_f08995de1a224aeb88213b3620a750be",
           "stopReason": "completed"
         }
       }
@@ -7531,8 +7532,8 @@
             "output": 11
           },
           "costUSD": 0.015223,
-          "latencyMs": 979.7757920000004,
-          "requestId": "req_011Cd3QUstWuWM2RGRUZRieM",
+          "latencyMs": 1247.31820899999,
+          "requestId": "req_011Cd3VS3hcZPPd97XCtVgfD",
           "stopReason": "end_turn"
         },
         "headroom": {
@@ -7544,8 +7545,8 @@
             "output": 11
           },
           "costUSD": 0.014327,
-          "latencyMs": 1098.7207499999786,
-          "requestId": "req_011Cd3QUxpgEEWHHUM9KisYz",
+          "latencyMs": 802.0437909999746,
+          "requestId": "req_011Cd3VS96KGa6YhJ5FL8Xuy",
           "stopReason": "end_turn"
         },
         "qcv": {
@@ -7557,8 +7558,8 @@
             "output": 11
           },
           "costUSD": 0.000621,
-          "latencyMs": 1224.6120409999858,
-          "requestId": "req_011Cd3QV31hQDs44Qqj2hBsC",
+          "latencyMs": 1505.101708000002,
+          "requestId": "req_011Cd3VSCQzZ1fo8mGsgyTUJ",
           "stopReason": "end_turn"
         }
       }
@@ -7584,8 +7585,8 @@
             "output": 2
           },
           "costUSD": 0.0026724,
-          "latencyMs": 1872.0445419999887,
-          "requestId": "req_8ae1324de6284a42ac9cebd5a6544878",
+          "latencyMs": 939.1576249999925,
+          "requestId": "req_ceb10dedc4ff461e9025855b58e10270",
           "stopReason": "completed"
         },
         "qcv": {
@@ -7597,8 +7598,8 @@
             "output": 2
           },
           "costUSD": 0.00009640000000000001,
-          "latencyMs": 833.5404999999446,
-          "requestId": "req_1d3c67182beb4301b1c109a970f58914",
+          "latencyMs": 1628.8362500000512,
+          "requestId": "req_238abf85b937484ea3b23c5e60f7e0df",
           "stopReason": "completed"
         },
         "raw": {
@@ -7610,8 +7611,8 @@
             "output": 2
           },
           "costUSD": 0.0026724,
-          "latencyMs": 1243.554833000002,
-          "requestId": "req_57419d9c9f21449ca23b029bb0e04e17",
+          "latencyMs": 1047.5873750000028,
+          "requestId": "req_1d47555a95634e8f9b7879067be434dc",
           "stopReason": "completed"
         }
       }
@@ -7637,8 +7638,8 @@
             "output": 6
           },
           "costUSD": 0.0012012000000000001,
-          "latencyMs": 1137.5640410000342,
-          "requestId": "req_c9e8cd5984e14a95b2a7e5341e582722",
+          "latencyMs": 1030.6992919999757,
+          "requestId": "req_8d29a33364fc4e749174eb703a723795",
           "stopReason": "stop"
         },
         "raw": {
@@ -7650,8 +7651,8 @@
             "output": 6
           },
           "costUSD": 0.0012768,
-          "latencyMs": 957.1159580000094,
-          "requestId": "req_c9c7e4b58291405c88506d5e0d5a4b26",
+          "latencyMs": 1407.0896250000224,
+          "requestId": "req_982052c97e574a12bc8092eaf65e6dc8",
           "stopReason": "stop"
         },
         "qcv": {
@@ -7663,8 +7664,8 @@
             "output": 6
           },
           "costUSD": 0.00016720000000000003,
-          "latencyMs": 837.1774999999907,
-          "requestId": "req_d94351cba54f464cba799f1529e5c1cd",
+          "latencyMs": 617.4542080000392,
+          "requestId": "req_1ae8cc5a4edc40e4a63a0e67a01bf780",
           "stopReason": "stop"
         }
       }
@@ -7690,8 +7691,8 @@
             "output": 6
           },
           "costUSD": 0.00016720000000000003,
-          "latencyMs": 658.6357079999871,
-          "requestId": "req_77abb9d1e1da4b63b84a82318489cc49",
+          "latencyMs": 561.844374999986,
+          "requestId": "req_f4e0aafd4696438abe428fe16b53ef65",
           "stopReason": "stop"
         },
         "headroom": {
@@ -7703,8 +7704,8 @@
             "output": 6
           },
           "costUSD": 0.0012012000000000001,
-          "latencyMs": 707.9715829999768,
-          "requestId": "req_56c7980516ed41e5805d33bae0ead36e",
+          "latencyMs": 1031.1351670000004,
+          "requestId": "req_8fced9830d084c99a543031886c91e4e",
           "stopReason": "stop"
         },
         "raw": {
@@ -7712,12 +7713,12 @@
           "text": "joined3-70@example.com",
           "usage": {
             "input": 12192,
-            "cachedInput": 12032,
+            "cachedInput": 0,
             "output": 6
           },
-          "costUSD": 0.0012768,
-          "latencyMs": 677.367082999961,
-          "requestId": "req_32b85096567f433e96f7f237427013e9",
+          "costUSD": 0.004886400000000001,
+          "latencyMs": 1310.2311660000123,
+          "requestId": "req_6495e5e71822476e8dfb7307b4c571cb",
           "stopReason": "stop"
         }
       }
@@ -7743,8 +7744,8 @@
             "output": 6
           },
           "costUSD": 0.0012012000000000001,
-          "latencyMs": 1259.4647909999476,
-          "requestId": "req_08c2b1e21f004ba6b2415a3eea9c6c8c",
+          "latencyMs": 766.3028329999652,
+          "requestId": "req_cd48341a448a4555973963e1ef233e49",
           "stopReason": "stop"
         },
         "raw": {
@@ -7756,8 +7757,8 @@
             "output": 6
           },
           "costUSD": 0.0012768,
-          "latencyMs": 1021.3847090000054,
-          "requestId": "req_204a628672b94c8a8de2f2d242ec012e",
+          "latencyMs": 1565.0797499999753,
+          "requestId": "req_8c1df49fe2eb4def9781dcaf81610d04",
           "stopReason": "stop"
         },
         "qcv": {
@@ -7769,8 +7770,8 @@
             "output": 6
           },
           "costUSD": 0.00016720000000000003,
-          "latencyMs": 892.6776250000112,
-          "requestId": "req_b8ff93c88fd342ec8b10e9bad85b92f9",
+          "latencyMs": 1277.0919170000125,
+          "requestId": "req_87fa906096f54cb1840fb09ea77866c2",
           "stopReason": "stop"
         }
       }
@@ -7792,12 +7793,12 @@
           "text": "team-3",
           "usage": {
             "input": 6055,
-            "cachedInput": 0,
+            "cachedInput": 5888,
             "output": 4
           },
-          "costUSD": 0.0024284000000000003,
-          "latencyMs": 1046.2842499999679,
-          "requestId": "req_86bac9f2bcf74ee4ae21386df348b253",
+          "costUSD": 0.000662,
+          "latencyMs": 999.1921250000014,
+          "requestId": "req_bb4f2423c4f640eb986ed64b82c85430",
           "stopReason": "completed"
         },
         "qcv": {
@@ -7809,8 +7810,8 @@
             "output": 4
           },
           "costUSD": 0.00011720000000000002,
-          "latencyMs": 934.4632090000086,
-          "requestId": "req_f6cfa8691b0e4651800e53eaf52d215f",
+          "latencyMs": 898.5355420000269,
+          "requestId": "req_e83b715a36774a72a71c7ebe70df19bc",
           "stopReason": "completed"
         },
         "raw": {
@@ -7822,8 +7823,8 @@
             "output": 4
           },
           "costUSD": 0.0024284000000000003,
-          "latencyMs": 1231.2568749999627,
-          "requestId": "req_8b782c4c36474be69c70df2ee89ed0d7",
+          "latencyMs": 1325.21875,
+          "requestId": "req_1bfa2d0c809a45a1a3bdc84f978def22",
           "stopReason": "completed"
         }
       }
@@ -7849,8 +7850,8 @@
             "output": 11
           },
           "costUSD": 0.000621,
-          "latencyMs": 792.5518750000047,
-          "requestId": "req_011Cd3QWLD5MsgFr8epvG33S",
+          "latencyMs": 943.2370830000145,
+          "requestId": "req_011Cd3VTZhw5Q3LcnBcLcqVm",
           "stopReason": "end_turn"
         },
         "raw": {
@@ -7862,8 +7863,8 @@
             "output": 11
           },
           "costUSD": 0.015223,
-          "latencyMs": 923.1941669999505,
-          "requestId": "req_011Cd3QWPQp65BwRpaNe6LN8",
+          "latencyMs": 1056.951915999991,
+          "requestId": "req_011Cd3VTdgJBabvk3ukmf49x",
           "stopReason": "end_turn"
         },
         "headroom": {
@@ -7875,8 +7876,8 @@
             "output": 11
           },
           "costUSD": 0.014327,
-          "latencyMs": 935.2677920000278,
-          "requestId": "req_011Cd3QWTfo41QgrENjU2thC",
+          "latencyMs": 1032.2857920000097,
+          "requestId": "req_011Cd3VTindP5481yhdG37Lz",
           "stopReason": "end_turn"
         }
       }
@@ -7902,8 +7903,8 @@
             "output": 7
           },
           "costUSD": 0.0024855999999999997,
-          "latencyMs": 1131.8953329999931,
-          "requestId": "req_55869f8cbd724ef28b66008440c57e22",
+          "latencyMs": 1132.2224580000038,
+          "requestId": "req_1f2e468f293a4009a866adcbf91c4818",
           "stopReason": "completed"
         },
         "raw": {
@@ -7911,12 +7912,12 @@
           "text": "nested0-13@example.com",
           "usage": {
             "input": 6186,
-            "cachedInput": 0,
+            "cachedInput": 6016,
             "output": 7
           },
-          "costUSD": 0.0024855999999999997,
-          "latencyMs": 1592.7977919999976,
-          "requestId": "req_73a20bca1ae14a88a4aa0368716e97d1",
+          "costUSD": 0.0006808000000000001,
+          "latencyMs": 1860.5514170000097,
+          "requestId": "req_43cead2117924f47a325aeefdc521a92",
           "stopReason": "completed"
         },
         "qcv": {
@@ -7928,8 +7929,8 @@
             "output": 7
           },
           "costUSD": 0.00012480000000000002,
-          "latencyMs": 996.8969159999979,
-          "requestId": "req_bb9b9706ee8248fdaaa827d063819538",
+          "latencyMs": 913.3924579999875,
+          "requestId": "req_46cf7f516c754c98b7e19f18db442bb5",
           "stopReason": "completed"
         }
       }
@@ -7955,8 +7956,8 @@
             "output": 6
           },
           "costUSD": 0.006365,
-          "latencyMs": 1874.8256249999977,
-          "requestId": "req_011Cd3QWoRwGP1XJs9YhFC3D",
+          "latencyMs": 852.3214169999701,
+          "requestId": "req_011Cd3VU5P8BX6p7Mz94UqjM",
           "stopReason": "end_turn"
         },
         "qcv": {
@@ -7968,8 +7969,8 @@
             "output": 6
           },
           "costUSD": 0.000395,
-          "latencyMs": 1077.65625,
-          "requestId": "req_011Cd3QWwGDmmwTVdYxQh2q4",
+          "latencyMs": 651.7806669999845,
+          "requestId": "req_011Cd3VU94ssierWSVgVVraG",
           "stopReason": "end_turn"
         },
         "raw": {
@@ -7981,8 +7982,8 @@
             "output": 6
           },
           "costUSD": 0.007442,
-          "latencyMs": 772.2322910000221,
-          "requestId": "req_011Cd3QX1uXGnDEr25Q1ouZN",
+          "latencyMs": 1622.6325420000358,
+          "requestId": "req_011Cd3VUBxkvz9x1WFTJL5Yk",
           "stopReason": "end_turn"
         }
       }
@@ -8008,8 +8009,8 @@
             "output": 2
           },
           "costUSD": 0.00009680000000000001,
-          "latencyMs": 4141.439083000005,
-          "requestId": "req_5610ff563b504ecebba1e713e609aa49",
+          "latencyMs": 855.8591250000172,
+          "requestId": "req_04bc3b7eff304d548d961548c3b9ac1f",
           "stopReason": "completed"
         },
         "raw": {
@@ -8021,8 +8022,8 @@
             "output": 2
           },
           "costUSD": 0.0047112,
-          "latencyMs": 1667.193833999976,
-          "requestId": "req_4af3187163144ac18730d1b5a0d35e83",
+          "latencyMs": 984.310999999987,
+          "requestId": "req_d892e8375aab4c7eaaf9ecabfbe21e22",
           "stopReason": "completed"
         },
         "headroom": {
@@ -8030,12 +8031,12 @@
           "text": "40",
           "usage": {
             "input": 11770,
-            "cachedInput": 11648,
+            "cachedInput": 0,
             "output": 2
           },
-          "costUSD": 0.0012167999999999999,
-          "latencyMs": 2235.9840830000467,
-          "requestId": "req_6f91c69cc7d84b9a807a42c713b53c09",
+          "costUSD": 0.0047112,
+          "latencyMs": 1024.811875000014,
+          "requestId": "req_7f4fdd9cc14f4611bb57e6c2c0346678",
           "stopReason": "completed"
         }
       }
@@ -8061,8 +8062,8 @@
             "output": 1
           },
           "costUSD": 0.0008988000000000001,
-          "latencyMs": 2120.095708000008,
-          "requestId": "req_710c130bb92d41c8baed6218ec45dd5b",
+          "latencyMs": 755.1869589999551,
+          "requestId": "req_d0c3acd177a64521be5e6d5672214ed7",
           "stopReason": "stop"
         },
         "qcv": {
@@ -8074,8 +8075,8 @@
             "output": 1
           },
           "costUSD": 0.00009120000000000001,
-          "latencyMs": 588.1814170000143,
-          "requestId": "req_c43b09a5fa344a3098b16704440f5251",
+          "latencyMs": 536.6920829999726,
+          "requestId": "req_cd7ec6dd491b4e26a9e2087f6c414abb",
           "stopReason": "stop"
         },
         "raw": {
@@ -8083,12 +8084,12 @@
           "text": "64",
           "usage": {
             "input": 11772,
-            "cachedInput": 11648,
+            "cachedInput": 0,
             "output": 1
           },
-          "costUSD": 0.0012159999999999999,
-          "latencyMs": 919.1543329999549,
-          "requestId": "req_f6fdd85f20d94641b9eb392889830b2d",
+          "costUSD": 0.004710400000000001,
+          "latencyMs": 920.6036670000176,
+          "requestId": "req_958d06bff4e3470084c49ad3d1165986",
           "stopReason": "stop"
         }
       }
@@ -8114,8 +8115,8 @@
             "output": 2
           },
           "costUSD": 0.0026724,
-          "latencyMs": 1148.7626670000027,
-          "requestId": "req_0a889497217d47e69f1c028ada28389b",
+          "latencyMs": 1092.80441599997,
+          "requestId": "req_f6a67eb8876646689bb309ec4e07835d",
           "stopReason": "completed"
         },
         "headroom": {
@@ -8127,8 +8128,8 @@
             "output": 2
           },
           "costUSD": 0.0026724,
-          "latencyMs": 1168.1327920000185,
-          "requestId": "req_c3f6e6bfa9414d10b5a0dffbb530cd64",
+          "latencyMs": 1052.1671670000069,
+          "requestId": "req_2a6116f7206a403f9ae5128ad266a8db",
           "stopReason": "completed"
         },
         "qcv": {
@@ -8140,8 +8141,8 @@
             "output": 2
           },
           "costUSD": 0.00009640000000000001,
-          "latencyMs": 984.0082920000423,
-          "requestId": "req_baa2a2bcbfa84daaa73a5388095ba0e4",
+          "latencyMs": 785.3394589999807,
+          "requestId": "req_669eeaa4f40d4cb9959b3beb1aea5152",
           "stopReason": "completed"
         }
       }
@@ -8167,8 +8168,8 @@
             "output": 11
           },
           "costUSD": 0.007597,
-          "latencyMs": 947.3039160000044,
-          "requestId": "req_011Cd3QYH8b61tGrCZxuLkfT",
+          "latencyMs": 862.580083000008,
+          "requestId": "req_011Cd3VUv9mmW3nDLrFzMzn9",
           "stopReason": "end_turn"
         },
         "headroom": {
@@ -8180,8 +8181,8 @@
             "output": 11
           },
           "costUSD": 0.00653,
-          "latencyMs": 1219.372458000027,
-          "requestId": "req_011Cd3QYMbUPupcxsuvLgtJK",
+          "latencyMs": 805.0626250000205,
+          "requestId": "req_011Cd3VUywEbLPb26y7pwJyC",
           "stopReason": "end_turn"
         },
         "qcv": {
@@ -8193,8 +8194,8 @@
             "output": 11
           },
           "costUSD": 0.000431,
-          "latencyMs": 829.4876670000376,
-          "requestId": "req_011Cd3QYS85dyaZjSts53UEL",
+          "latencyMs": 1058.8790420000441,
+          "requestId": "req_011Cd3VV3KdVUQfg1RaKYnwa",
           "stopReason": "end_turn"
         }
       }
@@ -8220,8 +8221,8 @@
             "output": 7
           },
           "costUSD": 0.0024855999999999997,
-          "latencyMs": 1183.0165419999976,
-          "requestId": "req_d7ad50d3d9854f479c2b22c0d095b3c1",
+          "latencyMs": 1189.6057089999667,
+          "requestId": "req_f29a7159ab1442abb4d0485810590c7a",
           "stopReason": "completed"
         },
         "raw": {
@@ -8233,8 +8234,8 @@
             "output": 7
           },
           "costUSD": 0.0024855999999999997,
-          "latencyMs": 1420.9052919999813,
-          "requestId": "req_09abfceb0e884ebf99b6ecde3b5ae836",
+          "latencyMs": 1418.559499999974,
+          "requestId": "req_55f6c316fc2741938581a62b5274e4bc",
           "stopReason": "completed"
         },
         "qcv": {
@@ -8246,8 +8247,8 @@
             "output": 7
           },
           "costUSD": 0.0001224,
-          "latencyMs": 1113.676374999981,
-          "requestId": "req_b138c56d9c8f4587a14f2eaa3f615043",
+          "latencyMs": 1018.356792000006,
+          "requestId": "req_45ba52ad8ea44ef09469f938d8ffb469",
           "stopReason": "completed"
         }
       }
@@ -8273,8 +8274,8 @@
             "output": 6
           },
           "costUSD": 0.007442,
-          "latencyMs": 902.4028330000001,
-          "requestId": "req_011Cd3QYmZsaALk8M4py8QLA",
+          "latencyMs": 890.8208330000052,
+          "requestId": "req_011Cd3VVPSbs6PxtsXCR5JqG",
           "stopReason": "end_turn"
         },
         "headroom": {
@@ -8286,8 +8287,8 @@
             "output": 6
           },
           "costUSD": 0.006365,
-          "latencyMs": 914.6527500000084,
-          "requestId": "req_011Cd3QYqjtsTDD39BTj3JXt",
+          "latencyMs": 786.4338329999591,
+          "requestId": "req_011Cd3VVTC5QVnoKTVXA7yDv",
           "stopReason": "end_turn"
         },
         "qcv": {
@@ -8299,8 +8300,8 @@
             "output": 6
           },
           "costUSD": 0.000395,
-          "latencyMs": 794.6544579999754,
-          "requestId": "req_011Cd3QYuU8cCtxpDXgGNhhs",
+          "latencyMs": 831.9518749999697,
+          "requestId": "req_011Cd3VVWaxyC8CZKTFoQ2sX",
           "stopReason": "end_turn"
         }
       }
@@ -8326,8 +8327,8 @@
             "output": 11
           },
           "costUSD": 0.014327,
-          "latencyMs": 1314.8377919999766,
-          "requestId": "req_011Cd3QYzRXpL4fRVn2Tsp1E",
+          "latencyMs": 884.1455829999759,
+          "requestId": "req_011Cd3VVaC1YzZa3m8Y76qzY",
           "stopReason": "end_turn"
         },
         "raw": {
@@ -8339,8 +8340,8 @@
             "output": 11
           },
           "costUSD": 0.015223,
-          "latencyMs": 1730.5690829999512,
-          "requestId": "req_011Cd3QZ4RdfzmofoMaWuKcP",
+          "latencyMs": 1150.3093750000116,
+          "requestId": "req_011Cd3VVduVvwGhXfFXrXDvz",
           "stopReason": "end_turn"
         },
         "qcv": {
@@ -8352,8 +8353,8 @@
             "output": 11
           },
           "costUSD": 0.000621,
-          "latencyMs": 1357.5209579999791,
-          "requestId": "req_011Cd3QZC7jyYw8k7m1d37Vt",
+          "latencyMs": 1017.366250000021,
+          "requestId": "req_011Cd3VVikCvNhTx52VPBhMp",
           "stopReason": "end_turn"
         }
       }
@@ -8375,12 +8376,12 @@
           "text": "nested2-47@example.com",
           "usage": {
             "input": 6188,
-            "cachedInput": 6016,
+            "cachedInput": 0,
             "output": 6
           },
-          "costUSD": 0.00068,
-          "latencyMs": 693.2105419999571,
-          "requestId": "req_2c9f832f651f40cea6b0e0d69e82ea30",
+          "costUSD": 0.0024848,
+          "latencyMs": 722.7318749999977,
+          "requestId": "req_55e6b5ac9b574d26ad1750ac5e8af116",
           "stopReason": "stop"
         },
         "headroom": {
@@ -8388,12 +8389,12 @@
           "text": "nested2-47@example.com",
           "usage": {
             "input": 5356,
-            "cachedInput": 5120,
+            "cachedInput": 0,
             "output": 6
           },
-          "costUSD": 0.000616,
-          "latencyMs": 901.0911249999772,
-          "requestId": "req_5121997550cf45b59f620d5d7cbccdb4",
+          "costUSD": 0.002152,
+          "latencyMs": 781.1695840000175,
+          "requestId": "req_af6d2e5956d84a4d97069b1f7b31ce4b",
           "stopReason": "stop"
         },
         "qcv": {
@@ -8405,8 +8406,8 @@
             "output": 6
           },
           "costUSD": 0.000124,
-          "latencyMs": 618.9435829999857,
-          "requestId": "req_1ff5735be9134b188e9aea6ee4625c7f",
+          "latencyMs": 735.4254170000204,
+          "requestId": "req_2eea1e13dfd14d6dba17c27f07c9a088",
           "stopReason": "stop"
         }
       }
@@ -8428,12 +8429,12 @@
           "text": "36",
           "usage": {
             "input": 6673,
-            "cachedInput": 0,
+            "cachedInput": 6528,
             "output": 2
           },
-          "costUSD": 0.0026724,
-          "latencyMs": 1021.8704170000274,
-          "requestId": "req_c8cdbf319db14a75bc896caee3d87bed",
+          "costUSD": 0.0007140000000000001,
+          "latencyMs": 1458.7655420000083,
+          "requestId": "req_01901239ff1b4179b106010b18f66335",
           "stopReason": "completed"
         },
         "headroom": {
@@ -8445,8 +8446,8 @@
             "output": 2
           },
           "costUSD": 0.0026724,
-          "latencyMs": 7978.271416999982,
-          "requestId": "req_ccf42d8a78074f66a8ad4f46449bdb30",
+          "latencyMs": 975.5047500000219,
+          "requestId": "req_d58509692ad14e64a7c86527c686c443",
           "stopReason": "completed"
         },
         "qcv": {
@@ -8458,8 +8459,8 @@
             "output": 2
           },
           "costUSD": 0.00010360000000000001,
-          "latencyMs": 2978.864333000034,
-          "requestId": "req_1fc16558f3764c96966ac993201dfd11",
+          "latencyMs": 1017.2546250000014,
+          "requestId": "req_8a5fef8be87944c8af56379de37525bb",
           "stopReason": "completed"
         }
       }
@@ -8485,8 +8486,8 @@
             "output": 2
           },
           "costUSD": 0.0047112,
-          "latencyMs": 1200.22629099997,
-          "requestId": "req_cad57ed4970d4c89a8fd6c2f7a4282e6",
+          "latencyMs": 1080.8030409999774,
+          "requestId": "req_f76b1d9db3db49ed910463eb8307bdb9",
           "stopReason": "completed"
         },
         "qcv": {
@@ -8498,8 +8499,8 @@
             "output": 2
           },
           "costUSD": 0.0000932,
-          "latencyMs": 1154.211874999979,
-          "requestId": "req_15c3869f7c9c4d46a2503e44f3a021d8",
+          "latencyMs": 866.0930829999852,
+          "requestId": "req_bd2767bb97a24e74b4c9b45502e561f2",
           "stopReason": "completed"
         },
         "headroom": {
@@ -8511,8 +8512,8 @@
             "output": 2
           },
           "costUSD": 0.0047112,
-          "latencyMs": 1373.5581249999814,
-          "requestId": "req_b5b337117de14417af277ae15a873031",
+          "latencyMs": 1516.4565829999628,
+          "requestId": "req_d4e6567e987f4f21b03da9cc5576297a",
           "stopReason": "completed"
         }
       }
@@ -8538,8 +8539,8 @@
             "output": 7
           },
           "costUSD": 0.0001232,
-          "latencyMs": 1111.3182500000112,
-          "requestId": "req_0803a2f7739c44e2968a8d396f8fe66b",
+          "latencyMs": 1016.9002919999766,
+          "requestId": "req_8a10ee7682eb4b3cb1aed82cf3ec93c8",
           "stopReason": "completed"
         },
         "headroom": {
@@ -8551,8 +8552,8 @@
             "output": 7
           },
           "costUSD": 0.0023932,
-          "latencyMs": 1139.0939999999828,
-          "requestId": "req_ea247aa348bc46ce9f635276ad41645b",
+          "latencyMs": 990.0561250000028,
+          "requestId": "req_b4b211376198499fb3e90e82907a898d",
           "stopReason": "completed"
         },
         "raw": {
@@ -8564,8 +8565,8 @@
             "output": 7
           },
           "costUSD": 0.0023932,
-          "latencyMs": 1108.1587089999812,
-          "requestId": "req_374d46ec830b424dbba187b76e822edd",
+          "latencyMs": 1139.5623749999795,
+          "requestId": "req_dcdbb5d290244cefab5312e134152dc2",
           "stopReason": "completed"
         }
       }
@@ -8591,8 +8592,8 @@
             "output": 6
           },
           "costUSD": 0.0006260000000000001,
-          "latencyMs": 647.795541999978,
-          "requestId": "req_71f18b17f9f9487fa08ff13c187e4cfe",
+          "latencyMs": 1047.6647090000333,
+          "requestId": "req_420f3db57d094b7094cfa52a83c942af",
           "stopReason": "stop"
         },
         "qcv": {
@@ -8604,8 +8605,8 @@
             "output": 6
           },
           "costUSD": 0.0001176,
-          "latencyMs": 688.6109589999542,
-          "requestId": "req_026aaab3e47d4fd597cf0a7bfd540d89",
+          "latencyMs": 602.4600839999621,
+          "requestId": "req_2591d8901eb4434cb8bee3612496988b",
           "stopReason": "stop"
         },
         "headroom": {
@@ -8617,8 +8618,8 @@
             "output": 6
           },
           "costUSD": 0.0005396,
-          "latencyMs": 798.933916000009,
-          "requestId": "req_ac1c14f01d904dc4afe22437aa9fd83f",
+          "latencyMs": 685.0123330000206,
+          "requestId": "req_75739a5084db4b0687e45eb5385787d9",
           "stopReason": "stop"
         }
       }
@@ -8644,8 +8645,8 @@
             "output": 11
           },
           "costUSD": 0.00653,
-          "latencyMs": 1004.9937499999651,
-          "requestId": "req_011Cd3Qb9T4iqJZFTguAJhJQ",
+          "latencyMs": 914.570624999993,
+          "requestId": "req_011Cd3VWvQxeC4fQCTefZk6o",
           "stopReason": "end_turn"
         },
         "qcv": {
@@ -8657,8 +8658,8 @@
             "output": 11
           },
           "costUSD": 0.000431,
-          "latencyMs": 786.9835840000305,
-          "requestId": "req_011Cd3QbDYcyJiVnRJHQipsQ",
+          "latencyMs": 1144.7532500000088,
+          "requestId": "req_011Cd3VWzFtMifRCesfpBbWp",
           "stopReason": "end_turn"
         },
         "raw": {
@@ -8670,8 +8671,8 @@
             "output": 11
           },
           "costUSD": 0.007597,
-          "latencyMs": 902.8182910000323,
-          "requestId": "req_011Cd3QbGvH3FQhTRQBi5w32",
+          "latencyMs": 808.946791000024,
+          "requestId": "req_011Cd3VX5BJvr3FMWvHS7h95",
           "stopReason": "end_turn"
         }
       }
@@ -8697,8 +8698,8 @@
             "output": 11
           },
           "costUSD": 0.000413,
-          "latencyMs": 1102.6819999999716,
-          "requestId": "req_011Cd3QbLmCgq84bgAHwFfCw",
+          "latencyMs": 645.9857920000213,
+          "requestId": "req_011Cd3VX8bgsJLnYWo9yS2RB",
           "stopReason": "end_turn"
         },
         "headroom": {
@@ -8710,8 +8711,8 @@
             "output": 11
           },
           "costUSD": 0.006192,
-          "latencyMs": 1156.9380830000155,
-          "requestId": "req_011Cd3QbRcA3gMMgaFAyxdz7",
+          "latencyMs": 969.0806669999729,
+          "requestId": "req_011Cd3VXBV4nipAkSzmsfUjF",
           "stopReason": "end_turn"
         },
         "raw": {
@@ -8723,8 +8724,8 @@
             "output": 11
           },
           "costUSD": 0.007326,
-          "latencyMs": 1020.0874579999945,
-          "requestId": "req_011Cd3QbWU75SF8r3YVx9xzf",
+          "latencyMs": 938.6486670000013,
+          "requestId": "req_011Cd3VXFXA6XGzfP3pynX2S",
           "stopReason": "end_turn"
         }
       }
@@ -8750,8 +8751,8 @@
             "output": 6
           },
           "costUSD": 0.007442,
-          "latencyMs": 873.6787079999922,
-          "requestId": "req_011Cd3QbarHSii6u5povcjRv",
+          "latencyMs": 838.0174999999581,
+          "requestId": "req_011Cd3VXKcDb91CsqHsYgpck",
           "stopReason": "end_turn"
         },
         "qcv": {
@@ -8763,8 +8764,8 @@
             "output": 6
           },
           "costUSD": 0.000402,
-          "latencyMs": 1264.7281669999938,
-          "requestId": "req_011Cd3Qbec1A2gjMYZcoEWKa",
+          "latencyMs": 681.1755830000038,
+          "requestId": "req_011Cd3VXPGyooCdkFRCFqS2r",
           "stopReason": "end_turn"
         },
         "headroom": {
@@ -8776,8 +8777,8 @@
             "output": 6
           },
           "costUSD": 0.006368,
-          "latencyMs": 823.3355829999782,
-          "requestId": "req_011Cd3Qbk3RjVw4dLKmLbTbK",
+          "latencyMs": 1988.5656249999884,
+          "requestId": "req_011Cd3VXSANNFGNJ8Ud3c9S8",
           "stopReason": "end_turn"
         }
       }
@@ -8803,8 +8804,8 @@
             "output": 11
           },
           "costUSD": 0.00653,
-          "latencyMs": 910.6753749999916,
-          "requestId": "req_011Cd3Qbobk1YVMpc29EexVX",
+          "latencyMs": 935.6822919999831,
+          "requestId": "req_011Cd3VXaeM4Y2pJuBc2884Q",
           "stopReason": "end_turn"
         },
         "raw": {
@@ -8816,8 +8817,8 @@
             "output": 11
           },
           "costUSD": 0.007597,
-          "latencyMs": 824.262791999965,
-          "requestId": "req_011Cd3QbsPT4PYwubunniwmY",
+          "latencyMs": 2526.966958999983,
+          "requestId": "req_011Cd3VXeYkcsQaUw97iibDV",
           "stopReason": "end_turn"
         },
         "qcv": {
@@ -8829,8 +8830,8 @@
             "output": 11
           },
           "costUSD": 0.000428,
-          "latencyMs": 2969.9680830000434,
-          "requestId": "req_011Cd3Qc2Xs5VNS2ju8y4Yw7",
+          "latencyMs": 703.8496659999946,
+          "requestId": "req_011Cd3VXqSLsFrAyxDNRMvdd",
           "stopReason": "end_turn"
         }
       }
@@ -8856,8 +8857,8 @@
             "output": 4
           },
           "costUSD": 0.00011720000000000002,
-          "latencyMs": 983.3622500000056,
-          "requestId": "req_34b4a86313e94bf6b6378d24ab5e3072",
+          "latencyMs": 909.1580839999951,
+          "requestId": "req_e9172bf07b3a4b30ba22777e3102304f",
           "stopReason": "completed"
         },
         "headroom": {
@@ -8869,8 +8870,8 @@
             "output": 4
           },
           "costUSD": 0.0024284000000000003,
-          "latencyMs": 1175.8561249999912,
-          "requestId": "req_a02f6543aec4439598f57b4b029a608c",
+          "latencyMs": 981.8489999999874,
+          "requestId": "req_f6dfd0fdaac24986b447c84c34d6a669",
           "stopReason": "completed"
         },
         "raw": {
@@ -8882,8 +8883,8 @@
             "output": 4
           },
           "costUSD": 0.0024284000000000003,
-          "latencyMs": 1061.3333330000169,
-          "requestId": "req_aa5c7bdc8db045579a86b0f3740a65e4",
+          "latencyMs": 1251.9967919999617,
+          "requestId": "req_b2b3f4d2c4ba4467b3d15b8fb0cdcc2a",
           "stopReason": "completed"
         }
       }
@@ -8909,8 +8910,8 @@
             "output": 6
           },
           "costUSD": 0.000395,
-          "latencyMs": 662.1879590000026,
-          "requestId": "req_011Cd3QcRAPrVvLa74vFYF12",
+          "latencyMs": 682.9626249999856,
+          "requestId": "req_011Cd3VY97Dzm5bNrhypqiMu",
           "stopReason": "end_turn"
         },
         "headroom": {
@@ -8922,8 +8923,8 @@
             "output": 6
           },
           "costUSD": 0.006365,
-          "latencyMs": 896.6604170000064,
-          "requestId": "req_011Cd3QcU9EqVkmdv3ZhxfpJ",
+          "latencyMs": 1073.243582999974,
+          "requestId": "req_011Cd3VYC934ACVnj6tTJ8L6",
           "stopReason": "end_turn"
         },
         "raw": {
@@ -8935,8 +8936,8 @@
             "output": 6
           },
           "costUSD": 0.007442,
-          "latencyMs": 730.3441250000033,
-          "requestId": "req_011Cd3QcXqErgxqtwk7QCpwZ",
+          "latencyMs": 1300.7174999999697,
+          "requestId": "req_011Cd3VYGoL1Vm9Ce9NymWrb",
           "stopReason": "end_turn"
         }
       }
@@ -8962,8 +8963,8 @@
             "output": 6
           },
           "costUSD": 0.000124,
-          "latencyMs": 669.6572499999893,
-          "requestId": "req_64bf41dab19f4af196d4509cb99d717b",
+          "latencyMs": 592.8536249999888,
+          "requestId": "req_1c8bca62f4f74293a64e05ad93bfdbc7",
           "stopReason": "stop"
         },
         "headroom": {
@@ -8975,8 +8976,8 @@
             "output": 6
           },
           "costUSD": 0.000616,
-          "latencyMs": 581.9953749999986,
-          "requestId": "req_eeabe5b6dea24ae6a5de7af6cd7de729",
+          "latencyMs": 613.3545000000158,
+          "requestId": "req_48f37b13e6eb433e8218213ab6575e48",
           "stopReason": "stop"
         },
         "raw": {
@@ -8988,8 +8989,8 @@
             "output": 6
           },
           "costUSD": 0.00068,
-          "latencyMs": 1243.9104579999694,
-          "requestId": "req_a45e8c2e192e47e7b14c85c207f60032",
+          "latencyMs": 659.5445000000182,
+          "requestId": "req_4a4774fca00f4029ad5384a492ad1400",
           "stopReason": "stop"
         }
       }
@@ -9015,8 +9016,8 @@
             "output": 6
           },
           "costUSD": 0.0006644,
-          "latencyMs": 638.9142909999937,
-          "requestId": "req_5a969b57c0cc4884a6af5b78f6ab12bc",
+          "latencyMs": 959.4242499999818,
+          "requestId": "req_23b726b81ac3492fae4ccef3329a8089",
           "stopReason": "stop"
         },
         "qcv": {
@@ -9028,8 +9029,8 @@
             "output": 6
           },
           "costUSD": 0.0001224,
-          "latencyMs": 629.8407920000027,
-          "requestId": "req_630fb0b33d4448edbdad12fe6e93d128",
+          "latencyMs": 747.3507499999832,
+          "requestId": "req_ddc53a10ea394e7db971c3584051785d",
           "stopReason": "stop"
         },
         "headroom": {
@@ -9041,8 +9042,8 @@
             "output": 6
           },
           "costUSD": 0.0005788000000000001,
-          "latencyMs": 818.359415999963,
-          "requestId": "req_40c6e64798f64727be9f723d132c68dc",
+          "latencyMs": 670.1148340000072,
+          "requestId": "req_4b248657d5054692870527692e39e6a4",
           "stopReason": "stop"
         }
       }
@@ -9068,8 +9069,8 @@
             "output": 1
           },
           "costUSD": 0.0000996,
-          "latencyMs": 970.3270000000484,
-          "requestId": "req_c2d0af8db56948a2bd012a914a24a2ba",
+          "latencyMs": 551.6625000000349,
+          "requestId": "req_76fdd9f465bc4ba782a5cf854b2fba63",
           "stopReason": "stop"
         },
         "raw": {
@@ -9081,21 +9082,21 @@
             "output": 1
           },
           "costUSD": 0.0012159999999999999,
-          "latencyMs": 645.430250000034,
-          "requestId": "req_248a4a009b63421eab06e6032f89ad21",
+          "latencyMs": 936.7744170000078,
+          "requestId": "req_1b4218aa26c045b28667e8da3b6838bc",
           "stopReason": "stop"
         },
         "headroom": {
           "correct": false,
-          "text": "88",
+          "text": "120",
           "usage": {
             "input": 8483,
             "cachedInput": 8320,
             "output": 1
           },
           "costUSD": 0.0008988000000000001,
-          "latencyMs": 588.1548329999787,
-          "requestId": "req_17b72fc4820543729e8d930196e2fa86",
+          "latencyMs": 627.5711249999586,
+          "requestId": "req_72f056c309144ef0808bd669f6352472",
           "stopReason": "stop"
         }
       }
@@ -9121,8 +9122,8 @@
             "output": 3
           },
           "costUSD": 0.0005944,
-          "latencyMs": 1310.9331670000101,
-          "requestId": "req_110fa30bb02247bf95a3c8d8ccc02377",
+          "latencyMs": 4816.9534170000115,
+          "requestId": "req_c5704cb17a4c455b992b0470bcdfca25",
           "stopReason": "stop"
         },
         "raw": {
@@ -9134,8 +9135,8 @@
             "output": 3
           },
           "costUSD": 0.0006612,
-          "latencyMs": 620.4074999999721,
-          "requestId": "req_24ebe3dee4cf441983b4f327307abde4",
+          "latencyMs": 647.2327499999665,
+          "requestId": "req_9d2b25ca966b45d48de4282f62280803",
           "stopReason": "stop"
         },
         "qcv": {
@@ -9147,8 +9148,8 @@
             "output": 3
           },
           "costUSD": 0.00011640000000000001,
-          "latencyMs": 568.769083000021,
-          "requestId": "req_74f0cbf18df642b980351fde57dd981c",
+          "latencyMs": 673.960167000012,
+          "requestId": "req_f3b1af5ef05843ada815a3a2f75c86c1",
           "stopReason": "stop"
         }
       }
@@ -9174,8 +9175,8 @@
             "output": 3
           },
           "costUSD": 0.0006612,
-          "latencyMs": 634.949666999979,
-          "requestId": "req_4335ace77cf64c2b862d9262c6f02b22",
+          "latencyMs": 678.2766669999692,
+          "requestId": "req_3c64b5a19a074b979f929519d2398afb",
           "stopReason": "stop"
         },
         "qcv": {
@@ -9187,8 +9188,8 @@
             "output": 3
           },
           "costUSD": 0.00011640000000000001,
-          "latencyMs": 646.0307500000345,
-          "requestId": "req_0c49afc4508845b8b574807b716230bf",
+          "latencyMs": 663.9235000000335,
+          "requestId": "req_99a376b3465e4ec59953d41c984494c6",
           "stopReason": "stop"
         },
         "headroom": {
@@ -9200,8 +9201,8 @@
             "output": 3
           },
           "costUSD": 0.0005944,
-          "latencyMs": 664.6727499999688,
-          "requestId": "req_a401140727f54f0cbf0a2d94a73b2f24",
+          "latencyMs": 686.9336250000051,
+          "requestId": "req_7e6cfb7a9258418d9dffd843fb0cc801",
           "stopReason": "stop"
         }
       }
@@ -9227,8 +9228,8 @@
             "output": 1
           },
           "costUSD": 0.0007132000000000001,
-          "latencyMs": 475.2195000000065,
-          "requestId": "req_4c6ee5fdd432441ea5aee1b606ff29dd",
+          "latencyMs": 649.1795409999904,
+          "requestId": "req_7df7f9eb05a141f7aeb1fafd928c4363",
           "stopReason": "stop"
         },
         "headroom": {
@@ -9240,8 +9241,8 @@
             "output": 1
           },
           "costUSD": 0.0006404,
-          "latencyMs": 525.5247920000111,
-          "requestId": "req_6f3f708e6e3444ec93c34b5468125d57",
+          "latencyMs": 643.4093330000178,
+          "requestId": "req_09910dd6ce8243008aca73fe0a1ea967",
           "stopReason": "stop"
         },
         "qcv": {
@@ -9253,8 +9254,8 @@
             "output": 1
           },
           "costUSD": 0.0000968,
-          "latencyMs": 529.1291249999776,
-          "requestId": "req_67ca8c0a758f4599a6d26866d4668090",
+          "latencyMs": 610.8257500000182,
+          "requestId": "req_72768a1cc2534fe18f1a79e7eb1f649c",
           "stopReason": "stop"
         }
       }
@@ -9280,8 +9281,8 @@
             "output": 11
           },
           "costUSD": 0.00653,
-          "latencyMs": 933.6850420000264,
-          "requestId": "req_011Cd3QdbVnAgQR9TVyxrNfN",
+          "latencyMs": 1847.845874999999,
+          "requestId": "req_011Cd3VZenSoENB3zWhiD8Po",
           "stopReason": "end_turn"
         },
         "qcv": {
@@ -9293,8 +9294,8 @@
             "output": 11
           },
           "costUSD": 0.000428,
-          "latencyMs": 668.0171669999836,
-          "requestId": "req_011Cd3QdfMT8DfHTPiaiVapC",
+          "latencyMs": 678.9626660000067,
+          "requestId": "req_011Cd3VZjmqKVi5N9dKUkE7i",
           "stopReason": "end_turn"
         },
         "raw": {
@@ -9306,8 +9307,8 @@
             "output": 11
           },
           "costUSD": 0.007597,
-          "latencyMs": 903.4880000000121,
-          "requestId": "req_011Cd3QdiHKVyzeptcbMXmh9",
+          "latencyMs": 1480.0014589999919,
+          "requestId": "req_011Cd3VZnjvS68dP7Az8bzFg",
           "stopReason": "end_turn"
         }
       }
@@ -9333,8 +9334,8 @@
             "output": 2
           },
           "costUSD": 0.00009640000000000001,
-          "latencyMs": 1006.4253749999916,
-          "requestId": "req_2c8a0b28d091479c9ac13919910936b4",
+          "latencyMs": 808.5480000000098,
+          "requestId": "req_0cf703225f27462daff8893bba9ff64c",
           "stopReason": "completed"
         },
         "headroom": {
@@ -9342,12 +9343,12 @@
           "text": "75",
           "usage": {
             "input": 6673,
-            "cachedInput": 0,
+            "cachedInput": 6528,
             "output": 2
           },
-          "costUSD": 0.0026724,
-          "latencyMs": 1171.9262079999899,
-          "requestId": "req_49abaeddc467445ea3e3721390b9d7e9",
+          "costUSD": 0.0007140000000000001,
+          "latencyMs": 1891.8986670000013,
+          "requestId": "req_b3b88196240b42e5b6b96217b516f15d",
           "stopReason": "completed"
         },
         "raw": {
@@ -9359,8 +9360,8 @@
             "output": 2
           },
           "costUSD": 0.0026724,
-          "latencyMs": 1186.985708000022,
-          "requestId": "req_a1b1ce8a199e410693fb2ff29b438ac0",
+          "latencyMs": 1384.8005840000114,
+          "requestId": "req_94ccb69ff355413e858f6ba887ae5499",
           "stopReason": "completed"
         }
       }
@@ -9386,8 +9387,8 @@
             "output": 11
           },
           "costUSD": 0.007597,
-          "latencyMs": 900.4274580000201,
-          "requestId": "req_011Cd3Qe2UCYbgw7nYm5N5CW",
+          "latencyMs": 875.397416999971,
+          "requestId": "req_011Cd3VaCVfuRBBvgzfe4VB2",
           "stopReason": "end_turn"
         },
         "headroom": {
@@ -9399,8 +9400,8 @@
             "output": 11
           },
           "costUSD": 0.00653,
-          "latencyMs": 1063.0329999999958,
-          "requestId": "req_011Cd3Qe6kvCHzGMPRHGWfWT",
+          "latencyMs": 967.1972909999895,
+          "requestId": "req_011Cd3VaGH8kYvsyw6R1kDFQ",
           "stopReason": "end_turn"
         },
         "qcv": {
@@ -9412,8 +9413,8 @@
             "output": 11
           },
           "costUSD": 0.000428,
-          "latencyMs": 724.3624999999884,
-          "requestId": "req_011Cd3QeAqz6PvW7vMbfHXDX",
+          "latencyMs": 691.125,
+          "requestId": "req_011Cd3VaLMCnPbEyAeXzJ2Xh",
           "stopReason": "end_turn"
         }
       }
@@ -9439,8 +9440,8 @@
             "output": 5
           },
           "costUSD": 0.000352,
-          "latencyMs": 1674.1107079999638,
-          "requestId": "req_011Cd3QeG5W96kJSKnUefkaH",
+          "latencyMs": 1067.0135829999927,
+          "requestId": "req_011Cd3VaQmN2FoTusNZboGNu",
           "stopReason": "end_turn"
         },
         "raw": {
@@ -9452,8 +9453,8 @@
             "output": 5
           },
           "costUSD": 0.008254,
-          "latencyMs": 908.8552090000012,
-          "requestId": "req_011Cd3QePJ66LHSTfTiVJCy2",
+          "latencyMs": 1153.4308339999989,
+          "requestId": "req_011Cd3VaVrwxKjyfncw3Ta6Q",
           "stopReason": "end_turn"
         },
         "headroom": {
@@ -9465,8 +9466,8 @@
             "output": 5
           },
           "costUSD": 0.007238,
-          "latencyMs": 1101.6116669999901,
-          "requestId": "req_011Cd3QeTRdbxvJSdd1i68Eg",
+          "latencyMs": 1021.0692500000005,
+          "requestId": "req_011Cd3VaaR3NxZBd1YC8YVSF",
           "stopReason": "end_turn"
         }
       }
@@ -9492,8 +9493,8 @@
             "output": 7
           },
           "costUSD": 0.0048864,
-          "latencyMs": 1213.145790999988,
-          "requestId": "req_99b8b98bd3f24da8ae0ce74b7011b1ef",
+          "latencyMs": 1379.7992080000113,
+          "requestId": "req_6f48eaa62a544b9bba73317a8a39a788",
           "stopReason": "completed"
         },
         "raw": {
@@ -9505,8 +9506,8 @@
             "output": 7
           },
           "costUSD": 0.0048864,
-          "latencyMs": 1101.5962079999736,
-          "requestId": "req_6b33bddcdeb54823bc5cfca990e5005f",
+          "latencyMs": 1412.2054580000113,
+          "requestId": "req_e69513809ee44dd0b9bc7a227e97ee5f",
           "stopReason": "completed"
         },
         "qcv": {
@@ -9518,8 +9519,8 @@
             "output": 7
           },
           "costUSD": 0.0001716,
-          "latencyMs": 992.2752919999184,
-          "requestId": "req_d4377462ada64474a77c3d16b789e174",
+          "latencyMs": 1187.0295000000042,
+          "requestId": "req_8bbfadf7879144ccb9cd714f9c9face0",
           "stopReason": "completed"
         }
       }
@@ -9545,8 +9546,8 @@
             "output": 1
           },
           "costUSD": 0.0008988000000000001,
-          "latencyMs": 587.873459000024,
-          "requestId": "req_bad35f6f05bc48d9aa6339e736ac4b0d",
+          "latencyMs": 621.9227919999976,
+          "requestId": "req_d3d2a2547cb540ffbc9dc26874a3bacd",
           "stopReason": "stop"
         },
         "raw": {
@@ -9558,8 +9559,8 @@
             "output": 1
           },
           "costUSD": 0.0012159999999999999,
-          "latencyMs": 945.9628329999978,
-          "requestId": "req_ccb826f3358847ad82054ac2ba22bfd3",
+          "latencyMs": 779.6393750000279,
+          "requestId": "req_1110d81682fb4515b94e118f90b3b3b9",
           "stopReason": "stop"
         },
         "qcv": {
@@ -9571,8 +9572,8 @@
             "output": 1
           },
           "costUSD": 0.00009120000000000001,
-          "latencyMs": 562.1237909999909,
-          "requestId": "req_2142ec0045754c37904ad21f22f36c10",
+          "latencyMs": 555.9732500000391,
+          "requestId": "req_1dd95bc5b98e4193abbbb1850a59cabc",
           "stopReason": "stop"
         }
       }
@@ -9598,8 +9599,8 @@
             "output": 2
           },
           "costUSD": 0.00009680000000000001,
-          "latencyMs": 824.0830840000417,
-          "requestId": "req_c04ac0e60fb04ff98104aec4f400f485",
+          "latencyMs": 839.9616660000174,
+          "requestId": "req_2d0ba6daad5d4aa2843b62c861bc83ff",
           "stopReason": "completed"
         },
         "headroom": {
@@ -9611,8 +9612,8 @@
             "output": 2
           },
           "costUSD": 0.0047112,
-          "latencyMs": 1162.0648339999607,
-          "requestId": "req_e9f6bda2f7b04009baa4ad413fa351b8",
+          "latencyMs": 1280.616250000021,
+          "requestId": "req_5ff0846ecbf6420cb4b59e5486a425b4",
           "stopReason": "completed"
         },
         "raw": {
@@ -9624,8 +9625,8 @@
             "output": 2
           },
           "costUSD": 0.0047112,
-          "latencyMs": 1262.576457999996,
-          "requestId": "req_eee9a79eed8f4aac95d933896cdadc53",
+          "latencyMs": 1027.4051249999902,
+          "requestId": "req_e85560a2fb8c49a1892be149128318b0",
           "stopReason": "completed"
         }
       }
@@ -9651,8 +9652,8 @@
             "output": 11
           },
           "costUSD": 0.000413,
-          "latencyMs": 717.596833000076,
-          "requestId": "req_011Cd3QfAszdXDamU9WSio73",
+          "latencyMs": 701.9487080000108,
+          "requestId": "req_011Cd3VbKXsLajtBAUoRDBCb",
           "stopReason": "end_turn"
         },
         "headroom": {
@@ -9664,8 +9665,8 @@
             "output": 11
           },
           "costUSD": 0.006192,
-          "latencyMs": 1023.030374999973,
-          "requestId": "req_011Cd3QfE2WBrMzRT3gP2XaW",
+          "latencyMs": 1854.492499999993,
+          "requestId": "req_011Cd3VbNgd4CEB8fPotsQWi",
           "stopReason": "end_turn"
         },
         "raw": {
@@ -9677,8 +9678,8 @@
             "output": 11
           },
           "costUSD": 0.007326,
-          "latencyMs": 2398.4078750000335,
-          "requestId": "req_011Cd3QfJiHNCobzfn3zrgH6",
+          "latencyMs": 1003.482874999987,
+          "requestId": "req_011Cd3VbWTCYcRfpXFRF2zdf",
           "stopReason": "end_turn"
         }
       }
@@ -9704,8 +9705,8 @@
             "output": 11
           },
           "costUSD": 0.000431,
-          "latencyMs": 832.3824579999782,
-          "requestId": "req_011Cd3QfWZg81mqb2o5vaJ2Q",
+          "latencyMs": 1459.4664160000393,
+          "requestId": "req_011Cd3Vbec5xvJdxauNgMCnB",
           "stopReason": "end_turn"
         },
         "raw": {
@@ -9717,8 +9718,8 @@
             "output": 11
           },
           "costUSD": 0.007597,
-          "latencyMs": 969.0195420000236,
-          "requestId": "req_011Cd3Qfa8yd4nYU8kHHDYkC",
+          "latencyMs": 1027.3547499999986,
+          "requestId": "req_011Cd3VbknA4vYaPhfN6MDGQ",
           "stopReason": "end_turn"
         },
         "headroom": {
@@ -9730,8 +9731,8 @@
             "output": 11
           },
           "costUSD": 0.00653,
-          "latencyMs": 1214.0707910000347,
-          "requestId": "req_011Cd3QfeQx9M1Ao6TExZxch",
+          "latencyMs": 1356.3175829999964,
+          "requestId": "req_011Cd3VbqE3xFsmE81zipcdb",
           "stopReason": "end_turn"
         }
       }
@@ -9757,8 +9758,8 @@
             "output": 5
           },
           "costUSD": 0.015023,
-          "latencyMs": 1072.5590830000583,
-          "requestId": "req_011Cd3QfjVoBr1Eyp2RxpaVq",
+          "latencyMs": 1194.1312499999767,
+          "requestId": "req_011Cd3Vbwao8tGg2xLroDctw",
           "stopReason": "end_turn"
         },
         "headroom": {
@@ -9770,8 +9771,8 @@
             "output": 5
           },
           "costUSD": 0.01104,
-          "latencyMs": 1219.766707999981,
-          "requestId": "req_011Cd3QfpMzMiG55FjWnzpSN",
+          "latencyMs": 1131.0151249999763,
+          "requestId": "req_011Cd3Vc2UUMeWs3JtJeVY1W",
           "stopReason": "end_turn"
         },
         "qcv": {
@@ -9783,8 +9784,8 @@
             "output": 5
           },
           "costUSD": 0.000334,
-          "latencyMs": 951.7485419999575,
-          "requestId": "req_011Cd3QfuXoBM5JzFmcDNG42",
+          "latencyMs": 8856.435416999971,
+          "requestId": "req_011Cd3Vc6wMtLVw8dP8dBS5V",
           "stopReason": "end_turn"
         }
       }
@@ -9810,8 +9811,8 @@
             "output": 7
           },
           "costUSD": 0.0024855999999999997,
-          "latencyMs": 1175.752291000099,
-          "requestId": "req_c4f53f9b5e894d70aa98f838b69959ec",
+          "latencyMs": 1220.187666999991,
+          "requestId": "req_09c9589dc89842e3a384fa30ddea3687",
           "stopReason": "completed"
         },
         "raw": {
@@ -9823,8 +9824,8 @@
             "output": 7
           },
           "costUSD": 0.0024855999999999997,
-          "latencyMs": 1215.12491699995,
-          "requestId": "req_a3010659fdff4b7bb4b9024cd6c67df0",
+          "latencyMs": 1537.0890409999993,
+          "requestId": "req_f13ad933dd704bca86ba78c604f4daf4",
           "stopReason": "completed"
         },
         "qcv": {
@@ -9836,8 +9837,8 @@
             "output": 7
           },
           "costUSD": 0.00012480000000000002,
-          "latencyMs": 1258.0689169999678,
-          "requestId": "req_6b50948c9f4e4dc6b9d84d7cd7ecd040",
+          "latencyMs": 962.0984590000007,
+          "requestId": "req_5be4e3b25d494b31b9cd74b6c051016f",
           "stopReason": "completed"
         }
       }
@@ -9859,12 +9860,12 @@
           "text": "joined1-36@example.com",
           "usage": {
             "input": 12188,
-            "cachedInput": 0,
+            "cachedInput": 12032,
             "output": 7
           },
-          "costUSD": 0.0048864,
-          "latencyMs": 1246.4464589999989,
-          "requestId": "req_b0806f5d3bcc41eea8eac021fdff178f",
+          "costUSD": 0.0012768000000000002,
+          "latencyMs": 1025.1063330000034,
+          "requestId": "req_9f84d1d19248427d9a8d834272353a7e",
           "stopReason": "completed"
         },
         "qcv": {
@@ -9876,8 +9877,8 @@
             "output": 7
           },
           "costUSD": 0.0001716,
-          "latencyMs": 1004.6989160000812,
-          "requestId": "req_af46d9eb37704073a42f9b1261509bab",
+          "latencyMs": 855.46875,
+          "requestId": "req_e5ecfc005dc94643954525d1aec59736",
           "stopReason": "completed"
         },
         "headroom": {
@@ -9889,8 +9890,8 @@
             "output": 7
           },
           "costUSD": 0.0048864,
-          "latencyMs": 1405.681208999944,
-          "requestId": "req_1f618a1936a94c27ad45cabe16b6d8cb",
+          "latencyMs": 6466.99887499999,
+          "requestId": "req_1f60f190c2f946aeaa99538b63bdf76f",
           "stopReason": "completed"
         }
       }
@@ -9912,12 +9913,12 @@
           "text": "nested3-64@example.com",
           "usage": {
             "input": 6186,
-            "cachedInput": 0,
+            "cachedInput": 6016,
             "output": 7
           },
-          "costUSD": 0.0024855999999999997,
-          "latencyMs": 1301.625791999977,
-          "requestId": "req_e749743bf2c5498bb4b1a51e5d23dd10",
+          "costUSD": 0.0006808000000000001,
+          "latencyMs": 1380.6629169999505,
+          "requestId": "req_94b832054c774031843d30e1d364d7f5",
           "stopReason": "completed"
         },
         "headroom": {
@@ -9929,8 +9930,8 @@
             "output": 7
           },
           "costUSD": 0.0024855999999999997,
-          "latencyMs": 4429.324458000017,
-          "requestId": "req_77c50608ed414b40b949ab75c8294011",
+          "latencyMs": 1026.5308749999967,
+          "requestId": "req_83a2d5e15181455e9579990e94448f0a",
           "stopReason": "completed"
         },
         "qcv": {
@@ -9942,8 +9943,8 @@
             "output": 7
           },
           "costUSD": 0.0001224,
-          "latencyMs": 947.4985829999205,
-          "requestId": "req_39e4cdb4a60c49bc93ccc27a45fafde5",
+          "latencyMs": 921.0279999999912,
+          "requestId": "req_9945dde59e98452ebffcecddbd40639a",
           "stopReason": "completed"
         }
       }
@@ -9969,8 +9970,8 @@
             "output": 11
           },
           "costUSD": 0.007326,
-          "latencyMs": 1146.878040999989,
-          "requestId": "req_011Cd3Qh3T591MMgMZLwwzaN",
+          "latencyMs": 740.7702500000014,
+          "requestId": "req_011Cd3VdvR9rTwq1ABfwttdB",
           "stopReason": "end_turn"
         },
         "headroom": {
@@ -9982,8 +9983,8 @@
             "output": 11
           },
           "costUSD": 0.006191,
-          "latencyMs": 1389.965082999901,
-          "requestId": "req_011Cd3QhAGqRHPZsPmUu2kDN",
+          "latencyMs": 923.4708749999991,
+          "requestId": "req_011Cd3VdyYRWmhsjCvWPkDG6",
           "stopReason": "end_turn"
         },
         "qcv": {
@@ -9995,8 +9996,8 @@
             "output": 11
           },
           "costUSD": 0.000418,
-          "latencyMs": 877.3821250000037,
-          "requestId": "req_011Cd3QhEGSooGvt32Zgmxgd",
+          "latencyMs": 795.9337919999962,
+          "requestId": "req_011Cd3Ve3KPCoFjB4TkfzQt1",
           "stopReason": "end_turn"
         }
       }
@@ -10022,8 +10023,8 @@
             "output": 7
           },
           "costUSD": 0.0001224,
-          "latencyMs": 980.6059590000659,
-          "requestId": "req_9eebfb859eef45f1a03b9fa9c53b2af5",
+          "latencyMs": 1220.286167000013,
+          "requestId": "req_9cda5b8c33074bc2bc6e15f350809ffc",
           "stopReason": "completed"
         },
         "headroom": {
@@ -10035,8 +10036,8 @@
             "output": 7
           },
           "costUSD": 0.0024855999999999997,
-          "latencyMs": 1104.9302919999463,
-          "requestId": "req_d6a4be3e8d4d4d31855cae5ea482f150",
+          "latencyMs": 1459.123292000033,
+          "requestId": "req_47d9f8f8730047418259ed00ff63802d",
           "stopReason": "completed"
         },
         "raw": {
@@ -10048,8 +10049,8 @@
             "output": 7
           },
           "costUSD": 0.0024855999999999997,
-          "latencyMs": 1088.3434579999885,
-          "requestId": "req_33f2b077f2954f79adcdbfafd19d40d7",
+          "latencyMs": 1085.4619579999708,
+          "requestId": "req_402fc142031a4f6699e0c93fb12630f6",
           "stopReason": "completed"
         }
       }
@@ -10075,8 +10076,8 @@
             "output": 3
           },
           "costUSD": 0.0005944,
-          "latencyMs": 708.0244579999708,
-          "requestId": "req_97067b096b674c4bad25c5adadb3bb16",
+          "latencyMs": 999.8745840000338,
+          "requestId": "req_d84db3c117b24561a6abef312130af80",
           "stopReason": "stop"
         },
         "qcv": {
@@ -10088,8 +10089,8 @@
             "output": 3
           },
           "costUSD": 0.00011640000000000001,
-          "latencyMs": 746.1774590000277,
-          "requestId": "req_e644f00136e8429b90201a8ac4b4eba4",
+          "latencyMs": 583.0400839999784,
+          "requestId": "req_943b0e0d0ba54165ba8745d10b995715",
           "stopReason": "stop"
         },
         "raw": {
@@ -10101,8 +10102,8 @@
             "output": 3
           },
           "costUSD": 0.0006612,
-          "latencyMs": 678.8196659999667,
-          "requestId": "req_85dc7601925f47869233dd3ab8c54735",
+          "latencyMs": 766.9522920000018,
+          "requestId": "req_a08b127a00bd49079bd63db0bb0bd4c7",
           "stopReason": "stop"
         }
       }
@@ -10128,8 +10129,8 @@
             "output": 7
           },
           "costUSD": 0.0024855999999999997,
-          "latencyMs": 1527.717416999978,
-          "requestId": "req_ee927c4a9fa441bd8aff43379c32acaa",
+          "latencyMs": 1023.874375000014,
+          "requestId": "req_f0fe24e716bb4dad95202a77ee510ef5",
           "stopReason": "completed"
         },
         "raw": {
@@ -10141,8 +10142,8 @@
             "output": 7
           },
           "costUSD": 0.0024855999999999997,
-          "latencyMs": 1019.1114999999991,
-          "requestId": "req_21004629523c45a7b5394b9f2ea3574a",
+          "latencyMs": 1550.765417000046,
+          "requestId": "req_3d0a787ce85f4b10aaf878413bb43a3f",
           "stopReason": "completed"
         },
         "qcv": {
@@ -10154,8 +10155,8 @@
             "output": 7
           },
           "costUSD": 0.0001224,
-          "latencyMs": 907.9048329999205,
-          "requestId": "req_1f62b872d331452abf3883b9179a0568",
+          "latencyMs": 1011.7594169999938,
+          "requestId": "req_c6a2b9ad1b4a4acb9c7ebf3bd691eb29",
           "stopReason": "completed"
         }
       }
@@ -10181,8 +10182,8 @@
             "output": 2
           },
           "costUSD": 0.0047112,
-          "latencyMs": 1577.7772079999559,
-          "requestId": "req_87043dbd5b304d6fbc31767db8ec1ddf",
+          "latencyMs": 1797.8404999999912,
+          "requestId": "req_6a3f59ff0e4c4f95873d34f487ac2ec2",
           "stopReason": "completed"
         },
         "qcv": {
@@ -10194,8 +10195,8 @@
             "output": 2
           },
           "costUSD": 0.0000932,
-          "latencyMs": 1024.3651250000112,
-          "requestId": "req_0907c152273d4eb197adfdf90de7c420",
+          "latencyMs": 3095.369665999955,
+          "requestId": "req_451d99d18bb842ee9c03bd0c1ac94428",
           "stopReason": "completed"
         },
         "headroom": {
@@ -10207,8 +10208,8 @@
             "output": 2
           },
           "costUSD": 0.0047112,
-          "latencyMs": 1151.8826669999398,
-          "requestId": "req_9553727f00284722874baf58680b42ea",
+          "latencyMs": 2678.7573750000447,
+          "requestId": "req_423ffe9f0dd84ce7853085f5ad26724e",
           "stopReason": "completed"
         }
       }
@@ -10234,8 +10235,8 @@
             "output": 2
           },
           "costUSD": 0.0026724,
-          "latencyMs": 1077.7307080000173,
-          "requestId": "req_bcefb3e2e6ab42479fe4d4caeb77c543",
+          "latencyMs": 1001.3105000000214,
+          "requestId": "req_9de253a9ea564ae487825f8e80e6247b",
           "stopReason": "completed"
         },
         "qcv": {
@@ -10247,21 +10248,21 @@
             "output": 2
           },
           "costUSD": 0.00010360000000000001,
-          "latencyMs": 1045.2219170000171,
-          "requestId": "req_a8523bab55b041558967e27b6f05f8f3",
+          "latencyMs": 791.041125000047,
+          "requestId": "req_880ababdbf6e48b989d921449242b540",
           "stopReason": "completed"
         },
         "raw": {
           "correct": false,
-          "text": "36",
+          "text": "38",
           "usage": {
             "input": 6673,
             "cachedInput": 0,
             "output": 2
           },
           "costUSD": 0.0026724,
-          "latencyMs": 1141.7749590000603,
-          "requestId": "req_14d5a2407df94b71b4c3286d77f8bc9a",
+          "latencyMs": 900.3308749999851,
+          "requestId": "req_2a540d8741734dc29058ef4330dd3c57",
           "stopReason": "completed"
         }
       }
@@ -10287,8 +10288,8 @@
             "output": 7
           },
           "costUSD": 0.0024855999999999997,
-          "latencyMs": 1356.4156250000233,
-          "requestId": "req_b5f9135f7f5647fcb55c7df8bc88c0e6",
+          "latencyMs": 1062.2742500000168,
+          "requestId": "req_678d05e6183b4d5b841990e874f7a27e",
           "stopReason": "completed"
         },
         "raw": {
@@ -10300,8 +10301,8 @@
             "output": 7
           },
           "costUSD": 0.0024855999999999997,
-          "latencyMs": 1259.7803330000024,
-          "requestId": "req_4225b9d8c6304726837b79934d3925e0",
+          "latencyMs": 2637.6686250000494,
+          "requestId": "req_7fd93aa52d8f43d9bcc4044e03d89b9c",
           "stopReason": "completed"
         },
         "qcv": {
@@ -10313,8 +10314,8 @@
             "output": 7
           },
           "costUSD": 0.00012480000000000002,
-          "latencyMs": 1587.2920000000158,
-          "requestId": "req_3f5ae70788ec4e3dbc5d1835a6a6ed38",
+          "latencyMs": 908.7938330000034,
+          "requestId": "req_46974593d8a4464998312684ac0746b3",
           "stopReason": "completed"
         }
       }
@@ -10340,8 +10341,8 @@
             "output": 7
           },
           "costUSD": 0.0048864,
-          "latencyMs": 1421.9740829999791,
-          "requestId": "req_b6b1622a847b433097f0ffebfc81349c",
+          "latencyMs": 1240.0426250000019,
+          "requestId": "req_9523ef274777466c88494ffccc481982",
           "stopReason": "completed"
         },
         "headroom": {
@@ -10349,12 +10350,12 @@
           "text": "joined4-87@example.com",
           "usage": {
             "input": 12188,
-            "cachedInput": 12032,
+            "cachedInput": 0,
             "output": 7
           },
-          "costUSD": 0.0012768000000000002,
-          "latencyMs": 1135.0912910000188,
-          "requestId": "req_c2e8a929ab884b918f4990572324bf9b",
+          "costUSD": 0.0048864,
+          "latencyMs": 1160.4556660000235,
+          "requestId": "req_b85a033ea43d48538a69fa58c34406f9",
           "stopReason": "completed"
         },
         "qcv": {
@@ -10366,8 +10367,8 @@
             "output": 7
           },
           "costUSD": 0.0001692,
-          "latencyMs": 913.4133339999244,
-          "requestId": "req_f53a71110c9942f38286c69d98c0108f",
+          "latencyMs": 1201.9395839999197,
+          "requestId": "req_5bb1dbe49571416dbc32d008329240f5",
           "stopReason": "completed"
         }
       }
@@ -10393,8 +10394,8 @@
             "output": 5
           },
           "costUSD": 0.000334,
-          "latencyMs": 982.4630410000682,
-          "requestId": "req_011Cd3Qj4fJeLiEZevSE3y4Q",
+          "latencyMs": 3794.8841249999823,
+          "requestId": "req_011Cd3VgCtezFRrNYFip1mD3",
           "stopReason": "end_turn"
         },
         "raw": {
@@ -10406,8 +10407,8 @@
             "output": 5
           },
           "costUSD": 0.015023,
-          "latencyMs": 1013.126082999981,
-          "requestId": "req_011Cd3Qj8ks5DCv5MYZtJ3vp",
+          "latencyMs": 1073.878625000012,
+          "requestId": "req_011Cd3VgVBvzXcSZ2u1uScNz",
           "stopReason": "end_turn"
         },
         "headroom": {
@@ -10419,8 +10420,8 @@
             "output": 5
           },
           "costUSD": 0.01104,
-          "latencyMs": 1248.587208999903,
-          "requestId": "req_011Cd3QjDhGzAc24Q7pVSF4w",
+          "latencyMs": 1059.705665999907,
+          "requestId": "req_011Cd3VgZrE4rdHJQfqniBLc",
           "stopReason": "end_turn"
         }
       }
@@ -10446,8 +10447,8 @@
             "output": 5
           },
           "costUSD": 0.007238,
-          "latencyMs": 1301.8507500000997,
-          "requestId": "req_011Cd3QjKjQxxu2XmcUPRped",
+          "latencyMs": 2304.7413749999832,
+          "requestId": "req_011Cd3VgeJNAxPqqADMpCd7r",
           "stopReason": "end_turn"
         },
         "raw": {
@@ -10459,8 +10460,8 @@
             "output": 5
           },
           "costUSD": 0.008254,
-          "latencyMs": 1066.6856670000125,
-          "requestId": "req_011Cd3QjQ2sf91oABCaZNZbK",
+          "latencyMs": 1530.7966250000754,
+          "requestId": "req_011Cd3Vgp4VmLfC2LjeHvsJs",
           "stopReason": "end_turn"
         },
         "qcv": {
@@ -10472,8 +10473,8 @@
             "output": 5
           },
           "costUSD": 0.000349,
-          "latencyMs": 1109.1682919999585,
-          "requestId": "req_011Cd3QjWDChv6v42iqUbAAH",
+          "latencyMs": 1363.5532919999678,
+          "requestId": "req_011Cd3Vgvcti7w9hvC52s225",
           "stopReason": "end_turn"
         }
       }

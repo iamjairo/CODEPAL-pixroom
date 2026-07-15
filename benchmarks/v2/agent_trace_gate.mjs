@@ -6,6 +6,7 @@ import {
   mkdtempSync,
   mkdirSync,
   readFileSync,
+  readdirSync,
   rmSync,
   statSync,
   writeFileSync,
@@ -25,6 +26,7 @@ import { VirtualContextStore } from '../../dist/virtual-context/store.js';
 import { EVIDENCE } from '../evidence.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
+const repoRoot = join(here, '..', '..');
 const resultsDir = join(here, '..', 'results');
 const tracesDir = join(here, '..', 'traces', 'agent-gate');
 const PHASE = readOption('--phase') ?? process.env.BENCH_PHASE ?? 'canary';
@@ -37,8 +39,8 @@ const MAX_REQUESTS_PER_SESSION = readInteger('BENCH_MAX_REQUESTS_PER_SESSION', 8
 const TIMEOUT_MS = readInteger('BENCH_TIMEOUT_MS', 180_000);
 const MIN_CHARS = 6_000;
 const PRICING = {
-  anthropic: { input: 1, output: 5 },
-  openai: { input: 0.4, output: 1.6 },
+  anthropic: { input: 1, cacheWrite: 1.25, cachedInput: 0.1, output: 5 },
+  openai: { input: 0.4, cachedInput: 0.1, output: 1.6 },
 };
 
 function readOption(name) {
@@ -99,6 +101,11 @@ class ExposureBudget {
     this.maxRequests = maxRequests;
     this.providerRequests = 0;
     this.conservativeExposureUSD = 0;
+    this.observedUSD = 0;
+  }
+
+  observe(costUSD) {
+    this.observedUSD += costUSD;
   }
 
   reserve(provider, bodyBytes) {
@@ -123,8 +130,89 @@ class ExposureBudget {
       maxRequests: this.maxRequests,
       providerRequests: this.providerRequests,
       conservativeExposureUSD: this.conservativeExposureUSD,
+      observedUSD: this.observedUSD,
     };
   }
+}
+
+function implementationFingerprint() {
+  const files = [];
+  const collect = (path) => {
+    if (statSync(path).isDirectory()) {
+      for (const name of readdirSync(path)) collect(join(path, name));
+    } else {
+      files.push(path);
+    }
+  };
+  collect(join(repoRoot, 'src'));
+  files.push(fileURLToPath(import.meta.url), join(repoRoot, 'package.json'));
+  const hash = createHash('sha256');
+  for (const path of files.sort()) {
+    hash.update(path.slice(repoRoot.length));
+    hash.update('\0');
+    hash.update(readFileSync(path));
+    hash.update('\0');
+  }
+  return hash.digest('hex');
+}
+
+function responseObjects(payload) {
+  const text = payload.toString();
+  const values = [];
+  try {
+    values.push(JSON.parse(text));
+  } catch {
+    for (const line of text.split(/\r?\n/)) {
+      if (!line.startsWith('data:')) continue;
+      const data = line.slice('data:'.length).trim();
+      if (!data || data === '[DONE]') continue;
+      try {
+        values.push(JSON.parse(data));
+      } catch {
+        // Ignore non-JSON SSE data lines.
+      }
+    }
+  }
+  return values;
+}
+
+function observedCost(provider, payload) {
+  const values = responseObjects(payload);
+  if (provider === 'anthropic') {
+    let input = 0;
+    let cacheWrite = 0;
+    let cacheRead = 0;
+    let output = 0;
+    for (const value of values) {
+      const usage = value?.message?.usage ?? value?.usage;
+      if (!usage) continue;
+      input = Math.max(input, Number(usage.input_tokens ?? 0));
+      cacheWrite = Math.max(cacheWrite, Number(usage.cache_creation_input_tokens ?? 0));
+      cacheRead = Math.max(cacheRead, Number(usage.cache_read_input_tokens ?? 0));
+      output = Math.max(output, Number(usage.output_tokens ?? 0));
+    }
+    return (
+      input * PRICING.anthropic.input +
+      cacheWrite * PRICING.anthropic.cacheWrite +
+      cacheRead * PRICING.anthropic.cachedInput +
+      output * PRICING.anthropic.output
+    ) / 1_000_000;
+  }
+  let usage;
+  for (const value of values) {
+    usage = value?.response?.usage ?? value?.usage ?? usage;
+  }
+  if (!usage) return 0;
+  const input = Number(usage.input_tokens ?? usage.prompt_tokens ?? 0);
+  const cached = Number(
+    usage.input_tokens_details?.cached_tokens ?? usage.prompt_tokens_details?.cached_tokens ?? 0,
+  );
+  const output = Number(usage.output_tokens ?? usage.completion_tokens ?? 0);
+  return (
+    Math.max(0, input - cached) * PRICING.openai.input +
+    cached * PRICING.openai.cachedInput +
+    output * PRICING.openai.output
+  ) / 1_000_000;
 }
 
 function taskDefinitions() {
@@ -214,14 +302,17 @@ function promptFor(task, workspace) {
   }
   if (task.join) {
     return (
-      'You must use your file-reading or shell tools before answering. Read these files in full: ' +
-      `${join(workspace, 'orders.json')} and ${join(workspace, 'customers.json')}. ` +
+      'Use Read sequentially, never in parallel. First read this file in full: ' +
+      `${join(workspace, 'orders.json')}. After that result, read this file in full: ` +
+      `${join(workspace, 'customers.json')}. After that result, read ` +
+      `${join(workspace, 'README.md')}. Only then answer. ` +
       `What is the email for order_id ${task.target}? Return only the email address.`
     );
   }
   return (
-    'You must use your file-reading or shell tools before answering. Read this file in full: ' +
-    `${join(workspace, 'dataset.json')}. ` +
+    'Use Read sequentially, never in parallel. First read this file in full: ' +
+    `${join(workspace, 'dataset.json')}. After that result, read ` +
+    `${join(workspace, 'README.md')}. Only then answer. ` +
     `What is the email for id ${task.target}? Return only the email address.`
   );
 }
@@ -323,15 +414,26 @@ async function startForwarder(provider, injectRetry, budget) {
   let injectedFailures = 0;
   const errors = [];
   const requestHashes = new Set();
+  const manifestIds = new Set();
   let duplicateRequestObserved = false;
   let stablePrefixObserved = false;
+  let repeatedManifestObserved = false;
+  let injectedPostFailed = false;
+  let retryAfterInjectedFailureObserved = false;
   let previousHistory;
   const server = http.createServer((request, response) => {
     void readRequest(request).then(async (body) => {
       requests += 1;
+      if (request.method === 'POST' && injectedPostFailed) {
+        retryAfterInjectedFailureObserved = true;
+      }
       const bodyHash = sha256(body);
       if (requestHashes.has(bodyHash)) duplicateRequestObserved = true;
       requestHashes.add(bodyHash);
+      for (const match of body.toString().matchAll(/vctx_[a-f0-9]{32,64}/g)) {
+        if (manifestIds.has(match[0])) repeatedManifestObserved = true;
+        manifestIds.add(match[0]);
+      }
       try {
         const parsed = JSON.parse(body.toString());
         const history = Array.isArray(parsed.messages)
@@ -355,8 +457,9 @@ async function startForwarder(provider, injectRetry, budget) {
         response.end(JSON.stringify({ error: { message: 'trace request cap reached' } }));
         return;
       }
-      if (failurePending) {
+      if (failurePending && request.method === 'POST') {
         failurePending = false;
+        injectedPostFailed = true;
         injectedFailures += 1;
         response.writeHead(provider === 'anthropic' ? 529 : 429, {
           'content-type': 'application/json',
@@ -390,9 +493,10 @@ async function startForwarder(provider, injectRetry, budget) {
       const upstream = await fetch(`${root}${request.url}`, {
         method: request.method,
         headers,
-        body,
+        body: request.method === 'GET' || request.method === 'HEAD' ? undefined : body,
       });
       const payload = Buffer.from(await upstream.arrayBuffer());
+      budget.observe(observedCost(provider, payload));
       const responseHeaders = {};
       for (const [name, value] of upstream.headers) {
         if (!['content-encoding', 'content-length', 'transfer-encoding'].includes(name)) {
@@ -417,6 +521,8 @@ async function startForwarder(provider, injectRetry, budget) {
       errors,
       duplicateRequestObserved,
       stablePrefixObserved,
+      repeatedManifestObserved,
+      retryAfterInjectedFailureObserved,
     }),
     close: () => new Promise((resolve, reject) =>
       server.close((error) => (error ? reject(error) : resolve())),
@@ -432,11 +538,21 @@ function structuralDiagnostics(records) {
   const rows = records.map((record) => {
     const body = record.originalBody ?? {};
     const conversation = Array.isArray(body.messages) ? body.messages : Array.isArray(body.input) ? body.input : [];
-    const question = [...conversation]
+    const questions = [...conversation]
       .reverse()
       .filter((item) => item?.role === 'user')
-      .map((item) => textContent(item?.content))
-      .find((text) => text.trim()) ?? '';
+      .map((item) => {
+        if (!Array.isArray(item?.content)) return textContent(item?.content);
+        return item.content
+          .filter((block) => ['text', 'input_text'].includes(block?.type) && typeof block.text === 'string')
+          .filter((block) => {
+            const text = block.text.trim();
+            return !(text.startsWith('<system-reminder>') && text.endsWith('</system-reminder>'));
+          })
+          .map((block) => block.text)
+          .join('\n');
+      });
+    const question = questions.find((text) => text.trim()) ?? '';
     const strings = [];
     const pending = [body];
     while (pending.length > 0) {
@@ -467,11 +583,21 @@ function structuralDiagnostics(records) {
           op: inspection.prefetch?.query.op ?? null,
         };
       });
+    const rawQuestion = [...conversation]
+      .reverse()
+      .filter((item) => item?.role === 'user')
+      .map((item) => textContent(item?.content))
+      .find((text) => text.trim()) ?? '';
+    const rawPlanner = toolPayloads
+      .filter((payload) => payload.length >= MIN_CHARS)
+      .map((payload) => new VirtualContextStore().inspect(payload, rawQuestion).prefetch != null);
     return {
       provider: record.provider,
       maxStringChars: Math.max(0, ...strings),
       questionChars: question.length,
       planner,
+      rawQuestionChars: rawQuestion.length,
+      rawPlanner,
       conversation: conversation.map((item) => ({
           role: item?.role ?? null,
           type: item?.type ?? null,
@@ -692,6 +818,12 @@ async function runSession(task, keys, secrets, budget) {
     }
     const records = readCaptureFile(sourceCapture);
     const applied = records.filter(hasAppliedQcv);
+    if (task.agent === 'claude' && applied.length === 0) {
+      throw new Error(
+        `${task.id}: Claude trace did not virtualize: ` +
+          JSON.stringify(structuralDiagnostics(records)),
+      );
+    }
     const sourceRecord = applied.at(-1) ?? records.at(-1);
     if (!sourceRecord) {
       throw new Error(
@@ -719,7 +851,8 @@ async function runSession(task, keys, secrets, budget) {
       sourceRecords: records.length,
       qcvAppliedRecords: applied.length,
       stablePrefixObserved: forwarderStats.stablePrefixObserved,
-      retryObserved: forwarderStats.duplicateRequestObserved,
+      repeatedManifestObserved: forwarderStats.repeatedManifestObserved,
+      retryObserved: forwarderStats.retryAfterInjectedFailureObserved,
       forwarder: forwarderStats,
       sanitizedTrace: {
         file: `benchmarks/traces/agent-gate/${task.id}.jsonl`,
@@ -766,15 +899,23 @@ function outcome(tasks, sessions, budget) {
     longSessionsObserved: PHASE === 'benchmark'
       ? joins.length >= 4 && joins.every((session) => session.forwarder.requests >= 3)
       : true,
-    stablePrefixObserved: sessions.every((session) => session.stablePrefixObserved),
+    cacheShapeObserved: sessions.every((session) =>
+      session.agent === 'claude'
+        ? session.repeatedManifestObserved
+        : session.stablePrefixObserved,
+    ),
     injectedRetriesObserved: PHASE === 'benchmark'
       ? injected.length >= 2 && injected.every(
-          (session) => session.forwarder.injectedFailures === 1 && session.retryObserved,
+          (session) =>
+            session.forwarder.injectedFailures === 1 &&
+            session.forwarder.retryAfterInjectedFailureObserved &&
+            session.retryObserved,
         )
       : true,
     sourceBodiesNotPersisted: sessions.every((session) => !session.sourceBodiesPersisted),
     withinExposureCap:
       budget.conservativeExposureUSD <= budget.maxUSD &&
+      budget.observedUSD <= budget.maxUSD &&
       budget.providerRequests <= budget.maxRequests,
   };
   return { gates, verdict: Object.values(gates).every(Boolean) };
@@ -845,6 +986,7 @@ async function main() {
         'These are first-party controlled agent sessions over synthetic data, not customer production traces. Claude Code exercises QCV; Codex locally queries sub-6k chunks and therefore exercises safe pass-through. Copilot subscription traffic delegates to Headroom and is outside QCV scope.',
     },
     models: { claude: ANTHROPIC_MODEL, codex: OPENAI_MODEL },
+    implementationSha256: implementationFingerprint(),
     budget: budget.snapshot(),
     ...result,
     sessions,

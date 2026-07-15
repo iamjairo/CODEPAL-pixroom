@@ -6,16 +6,18 @@ _Evidence snapshot: 2026-07-15._
 
 Pinpoint now has a credible owned optimizer: **Query-Backed Context Virtualization (QCV)**. Instead of lossy-compressing an entire old JSON/log/code result, QCV keeps exact bytes locally, sends a deterministic typed manifest, and computes the narrow answer required by the current question. The manifest is stable across exact selectors; ambiguous turns intentionally fall back to the original. The deterministic exact subset is enabled by default; the bounded model-query fallback is separately opt-in.
 
-The repaired paid pilot reduced provider input 97.4% and modeled cost 97.1% on two structured-context tasks while improving exact score from 1/2 to 2/2. On the same fixture definitions, the earlier Headroom semantic arm used 13,183 input tokens; QCV used 594, about 95.5% fewer. This is pinpoint-owned value rather than inherited optimizer value.
+The repeated paid gate now covers 30 structured tasks, five repetitions, two live models, and three protocols. Across 150 randomized paired observations per arm, QCV scored 150/150 versus raw 117/150 and Headroom 120/150. It used 96.0% fewer provider input tokens and 94.7% lower modeled provider cost than Headroom; the paired-bootstrap 95% cost-reduction interval was 94.3%-95.0%. Zero paired harms put the exact one-sided 95% harm bound at 1.977%, below the predeclared two-point non-inferiority margin. This is Pinpoint-owned value rather than inherited optimizer value.
 
-This is a **breakthrough candidate**, not yet a general breakthrough or proof of globally novel components: N=2, one model, one repetition, synthetic fixtures, first-party Anthropic PAYG non-streaming only. LeanCTX has adjacent content-addressed expansion and query-conditioned context methods. QCV's distinction is the drop-in intercepted-tool-result pipeline, deterministic exact current-question prefetch, conditional tool exposure, transparent continuation, and transactional composition. The first manifest-only design also failed quality (2/3 -> 1/3) before deterministic exact prefetch repaired it.
+This is now a **validated breakthrough candidate for eligible structured context**, not a universal LLM-optimization breakthrough or proof of globally novel components. The repeated tasks are synthetic and first-party; organic eligible share, customer workloads, more model families, and independent replication remain unknown. LeanCTX has adjacent content-addressed expansion and query-conditioned context methods. QCV's distinction is the drop-in intercepted-tool-result pipeline, deterministic exact current-question prefetch, conditional tool exposure, transparent continuation, unique-key joins, and transactional composition. The first manifest-only design also failed quality (2/3 -> 1/3) before deterministic exact prefetch repaired it.
 
-Recommendation: center the next validation cycle on QCV and the neutral optimizer runtime. Stop generic gateway expansion. Broaden task/model/protocol evidence before making a headline claim.
+Recommendation: keep QCV as the product center and stop generic gateway expansion. The next cycle is external replication and organic-traffic eligibility measurement, not more synthetic feature breadth.
 
 ## What the evidence says
 
 | Evidence | Result | Attribution | What it supports |
 | --- | --- | --- | --- |
+| Repeated paid QCV gate, 30 tasks x 5 repetitions, Haiku 4.5 + GPT-4.1 mini, 3 protocols | QCV 150/150; raw 117/150; Headroom 120/150; zero paired harms; 94.7% lower modeled cost than Headroom (95% CI 94.3%-95.0%); spend $1.348252 | Pinpoint QCV | Efficacy and two-point quality non-inferiority gate passed on the committed synthetic structured-task family |
+| Real-agent trace gate, 5 Claude Code + 5 Codex sessions | 10/10 exact; 10/10 sanitized hash-matched replays; cache shape, long sessions, tool continuation, and two injected retries passed; observed spend $0.103216 | Pinpoint runtime/QCV | First-party agent conformance: Claude QCV plus Codex safe sub-threshold pass-through; not customer production evidence |
 | Repaired paid QCV pilot, Haiku 4.5, 2 paired tasks | 22,614 -> 594 provider input tokens; 97.1% modeled cost reduction; 1/2 -> 2/2 score | Pinpoint QCV | Original optimizer can beat raw context and improve an exact aggregation answer |
 | Rejected naive QCV pilot | 79.1% input reduction; quality 2/3 -> 1/3 | Pinpoint QCV v0 | Model-planned retrieval under a tiny output cap is not safe; design correctly rejected |
 | Conservative offline QCV, 3 fixtures | 63.7-67.7% fewer tokens than current full stack, counting one complete uncached fallback continuation | Pinpoint QCV | QCV remains smaller even when query-round cost is pessimistically included |
@@ -26,7 +28,7 @@ Recommendation: center the next validation cycle on QCV and the neutral optimize
 | Isolated no-op proxy profile, OpenAI + Anthropic | Added p95 0.21-1.53 ms at concurrency 1; 1.22-3.02 ms at concurrency 10; 14.65-28.43 ms at concurrency 100 | Pinpoint transport | Fine for local interactive use; the saturated two-hop path remains above the sub-5 ms target and varies materially by run |
 | Adaptive benchmark | Learns a hand-authored oracle | Simulation only | Plumbing works; no market or quality claim |
 
-The repaired QCV pilot cost $0.023348 for four calls. Raw Haiku returned `5` on the seven-error fixture; QCV deterministically counted the exact local lines and returned `7`. The prior semantic pilot cost $0.038967 plus a $0.000059 canary. All live results remain directional because each task ran once.
+The repeated controlled gate cost $1.348252 across 450 completion calls and used no harness retries. The real-agent gate observed $0.103216 across 46 successful provider requests; source captures were deleted after minimized derivatives were generated. Raw/Headroom failures were confined to filtered and log counts; QCV had no failures in any category. These results support the committed task family, not universal traffic.
 
 ## Value attribution
 
@@ -79,7 +81,7 @@ Avoid these positions:
 - "universal LLM gateway" - LiteLLM and Portkey are substantially ahead;
 - "best context compressor" - Headroom, pxpipe, and LLMLingua own the algorithms;
 - "observability platform" - Langfuse and Helicone own that workflow;
-- "97% cheaper on every agent task" - current QCV live evidence is only two structured fixtures.
+- "95% cheaper on every agent task" - the repeated result applies only to large exact structured contexts that match a deterministic rule.
 - "breakthrough adaptive AI" - the controller evidence is still circular simulation and unrelated to QCV.
 
 ## Initial customer
@@ -125,12 +127,12 @@ This is still close to Headroom's team offering. A partnership or upstream contr
 
 ## Validation plan and kill criteria
 
-Do not add more generic gateway features before these gates pass:
+Do not add more generic gateway features. Current gate status:
 
-1. **QCV efficacy:** on at least 30 representative structured tasks with repeated randomized pairs, QCV beats Headroom-only by at least 25% of total billed cost while the quality non-inferiority bound stays within 2 percentage points.
-2. **Real traffic:** replay at least 10 sanitized Claude Code/Codex/Copilot traces, including caching, retrievals, retries, tool continuation, and long sessions.
+1. **QCV efficacy - passed first-party:** 30 tasks x 5 repetitions, two models, three protocols; 94.7% lower modeled cost than Headroom and 1.977% one-sided harm bound.
+2. **Real-agent conformance - passed first-party, external traffic open:** 10 disposable-repository Claude Code/Codex sessions covered cache shape, retries, tool continuation, long sessions, QCV, safe pass-through, and hash replay. These are controlled synthetic traces, not customer production traces. Copilot remains delegated to Headroom and outside QCV scope.
 3. **External extensibility:** two examples now run outside core through public exports, including non-compression redaction; the gate remains open until independent authors ship and operate integrations.
-4. **Operational path:** OpenAI Responses/Chat QCV, streaming exact prefetch, cross-provider CCR continuation, durable capture/replay, and OTLP export are implemented. Remaining work is provider-conformance soak testing on real traces.
+4. **Operational path - implementation complete, soak open:** OpenAI Responses/Chat QCV, streaming exact prefetch, cross-provider CCR continuation, durable capture/replay, and OTLP export are implemented. Three live protocol cells and real Claude/Codex sessions passed; multi-hour provider-conformance soak remains open.
 5. **Performance:** the isolated three-process benchmark is implemented and zero-error, but still misses the sub-5 ms concurrency-100 target. The extra local HTTP hop remains a measured architectural cost rather than a solved gate.
 6. **Demand:** three external teams run shadow mode on real traffic; at least one asks to deploy it rather than merely starring the repository.
 
@@ -138,6 +140,6 @@ Time-box this to six weeks. If gates 1, 3, and 6 do not show traction, stop trea
 
 ## Bottom line
 
-Pinpoint now has something potentially valuable beyond integration glue: QCV produced an order-of-magnitude token reduction and corrected an exact aggregation failure in a paid controlled pilot. It is the first result that can plausibly support an independent product.
+Pinpoint now has evidence beyond integration glue: QCV passed a repeated multi-provider non-inferiority and cost gate, then survived real Claude Code and Codex workflows with cache shape, retries, long sessions, and offline replay. For eligible structured contexts, the result is both large and statistically bounded.
 
-The rational next move is external replication, not more local feature breadth: run repeated live-model tasks, replay sanitized production traces, validate synthesized streaming behavior against real SDKs, and recruit independent integration authors. If those replications hold, pinpoint has a distinct product. If they do not, retain QCV as a specialized plugin and keep the runtime/upstreaming fallback.
+The rational next move is external replication and demand validation, not more local feature breadth: recruit independent operators, measure eligible share on organic traces, run multi-hour protocol soak, and obtain at least one requested deployment. If those hold, Pinpoint has a distinct product. If they do not, retain QCV as a specialized plugin and keep the runtime/upstreaming fallback.

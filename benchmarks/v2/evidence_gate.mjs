@@ -1,6 +1,14 @@
 import { execFileSync, spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { accessSync, constants, mkdirSync, writeFileSync } from 'node:fs';
+import {
+  accessSync,
+  constants,
+  mkdirSync,
+  readFileSync,
+  readdirSync,
+  statSync,
+  writeFileSync,
+} from 'node:fs';
 import net from 'node:net';
 import { arch, homedir, platform, release } from 'node:os';
 import { dirname, join } from 'node:path';
@@ -902,6 +910,27 @@ function gitMetadata() {
   }
 }
 
+function implementationFingerprint() {
+  const files = [];
+  const collect = (path) => {
+    if (statSync(path).isDirectory()) {
+      for (const name of readdirSync(path)) collect(join(path, name));
+    } else {
+      files.push(path);
+    }
+  };
+  collect(join(repoRoot, 'src'));
+  files.push(fileURLToPath(import.meta.url), join(repoRoot, 'package.json'));
+  const hash = createHash('sha256');
+  for (const path of files.sort()) {
+    hash.update(path.slice(repoRoot.length));
+    hash.update('\0');
+    hash.update(readFileSync(path));
+    hash.update('\0');
+  }
+  return hash.digest('hex');
+}
+
 function environmentMetadata() {
   return {
     node: process.version,
@@ -909,6 +938,7 @@ function environmentMetadata() {
     release: release(),
     arch: arch(),
     git: gitMetadata(),
+    implementationSha256: implementationFingerprint(),
   };
 }
 

@@ -61,6 +61,12 @@ A separate 42-task deterministic suite spans JSON lookup, filtered counts, logs,
 
 These are small synthetic pilots, not universal quality evidence.
 
+### Repeated and agent evidence
+
+A subsequent paid gate ran 30 unique synthetic structured tasks five times each, with randomized `raw`, `headroom`, and `qcv` arm order. Claude Haiku 4.5 used Anthropic Messages; GPT-4.1 mini used OpenAI Chat Completions and Responses. QCV scored 150/150, raw 117/150, and Headroom 120/150. Against Headroom, QCV used 96.0% fewer input tokens and 94.7% lower modeled provider cost; the paired-bootstrap 95% cost-reduction interval was 94.3%-95.0%. There were zero paired harms, yielding an exact one-sided 95% harm upper bound of 1.977%. This passes the predeclared two-point non-inferiority and 25% cost gates for the committed task family.
+
+A separate real-agent gate ran five Claude Code and five Codex CLI sessions in disposable synthetic repositories. All answered exactly, all minimized sanitized derivatives replayed hash-identically, stable cache shape and four long/join sessions were observed, and one injected provider POST failure per agent was retried successfully. Claude Code exercised QCV over sequential line-numbered `Read` output. Codex queried sub-threshold chunks locally and correctly remained pass-through. These are first-party controlled agent sessions, not customer production traces.
+
 ## Related work
 
 - **Headroom CCR** and **pxpipe recoverable images** retain whole originals for retrieval. QCV adds bounded data operations and question-conditioned exact prefetch.

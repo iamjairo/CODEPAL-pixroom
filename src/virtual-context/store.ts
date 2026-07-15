@@ -139,7 +139,7 @@ function planningQuestion(question: string, fields: readonly string[]): string {
   const operationCue = /\b(?:how many|count|number of|ERROR|WARN|WARNING|INFO|FATAL|DEBUG|TRACE|exported?|classes?)\b/i;
   const relevant = clauses.filter(
     (clause) =>
-      operationCue.test(clause) ||
+      (fields.length === 0 && operationCue.test(clause)) ||
       fields.some((field) => new RegExp(`\\b${escapeRegExp(field)}\\b`, 'i').test(clause)),
   );
   return relevant.length > 0 ? relevant.join(' ') : question;

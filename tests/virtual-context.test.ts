@@ -277,7 +277,9 @@ describe('virtual-context runtime integration', () => {
             {
               type: 'text',
               text:
-                'Use file-reading or shell tools before answering. Read dataset.json in full. ' +
+                'Use file-reading or shell tools before answering. ' +
+                'Read /tmp/pinpoint-agent-trace/dataset.json in full. ' +
+                'After that result, read /tmp/pinpoint-agent-trace/README.md. ' +
                 'What is the email for id 47? Return only the email address.',
             },
           ],

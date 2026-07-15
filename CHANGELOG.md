@@ -10,6 +10,8 @@ All notable changes are documented here. This project follows semantic versionin
 
 - Deterministic one-hop unique-key QCV joins across two JSON tool results, with exact local projection and no model-planned retrieval.
 - Expanded exact-QCV breadth evidence: 42/42 positive tasks across seven categories and 20/20 adversarial controls refused.
+- A repeated paid evidence gate covering 30 tasks, five repetitions, two models, and Anthropic Messages plus OpenAI Chat/Responses, with exact confidence bounds and hard spend/request caps.
+- A ten-session real Claude Code/Codex capture, sanitization, retry, cache-shape, and hash-replay gate.
 - Automated packed-consumer smoke coverage for all public exports, declarations, CLI help/version, and the offline demo.
 - A project Code of Conduct, five scoped starter issues, and npm/GitHub Actions dependency automation.
 
@@ -21,6 +23,13 @@ All notable changes are documented here. This project follows semantic versionin
 ### Safety
 
 - Exact joins fall through on duplicate selector rows, duplicate destination keys, competing datasets, multiple valid join paths, missing rows, oversized projections, or insufficient atomic store capacity. Unsafe JSON integers fall through instead of being rounded.
+- Evidence receipts and minimized synthetic traces reject credential patterns, omit source captures and agent output, use mode `0600`, and carry exact implementation SHA-256 fingerprints.
+
+### Fixed
+
+- Explicit API-key Claude Code and Codex traffic is classified as PAYG while OAuth/JWT traffic remains stealth.
+- QCV recovers the latest real question across tool-only user turns, ignores standalone Claude Code system reminders, and scopes planning away from unrelated agent instructions and file paths.
+- Sequential line-numbered Claude Code `Read` output is recognized as structured content without changing the stored source bytes.
 - Sidecar deadlines now cover response-body parsing, and closing during proxy startup cannot leave a listening server behind.
 - Third-party proposals validate nested stage and reversible-handle shapes and cannot mutate host-owned state without claiming its region.
 - CCR limits retain finite minimum caps, use safe defaults for non-finite values, and roll back transforms whose reversible batch cannot fit.
