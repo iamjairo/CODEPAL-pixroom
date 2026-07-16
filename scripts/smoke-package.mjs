@@ -8,6 +8,9 @@ const root = join(fileURLToPath(new URL('.', import.meta.url)), '..');
 const temporary = mkdtempSync(join(tmpdir(), 'pinpoint-package-smoke-'));
 const run = (command, args, cwd = temporary) =>
   execFileSync(command, args, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+const npmCli = process.env.npm_execpath;
+if (!npmCli) throw new Error('package smoke must run through npm so npm_execpath is available');
+const runNpm = (args, cwd = temporary) => run(process.execPath, [npmCli, ...args], cwd);
 
 const publicEntries = [
   '@codepal/pinpoint',
@@ -28,7 +31,7 @@ const publicEntries = [
 
 try {
   const packed = JSON.parse(
-    run('npm', ['pack', '--ignore-scripts', '--json', '--pack-destination', temporary], root),
+    runNpm(['pack', '--ignore-scripts', '--json', '--pack-destination', temporary], root),
   );
   const artifact = packed[0];
   if (!artifact || artifact.name !== '@codepal/pinpoint') {
@@ -66,7 +69,7 @@ try {
     join(temporary, 'package.json'),
     JSON.stringify({ private: true, type: 'module' }, null, 2),
   );
-  run('npm', [
+  runNpm([
     'install',
     '--ignore-scripts',
     '--no-audit',

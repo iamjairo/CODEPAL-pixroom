@@ -1,6 +1,6 @@
 {
   "name": "@codepal/pinpoint",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Policy-controlled MCP dataflow for AI agents, with exact local projections and signed receipts.",
   "type": "module",
   "license": "Apache-2.0",
@@ -120,6 +120,7 @@
   "scripts": {
     "assets:readme": "node scripts/render-readme-assets.mjs",
     "docs:check": "node scripts/check-readme.mjs",
+    "package:manifest-check": "node scripts/check-package-manifest.mjs",
     "formal:opaque-flow": "node scripts/check-opaque-flow-model.mjs",
     "formal:opaque-flow:mutation": "node scripts/check-opaque-flow-model-mutation.mjs",
     "package:smoke": "node scripts/smoke-package.mjs",
@@ -153,7 +154,7 @@
     "bench:mcp-oss-filesystem": "npm run build && node benchmarks/v2/mcp_oss_filesystem_gate.mjs",
     "bench:mcp-oss-cross-server": "npm run build && node benchmarks/v2/mcp_oss_cross_server_gate.mjs",
     "bench:compare-hcp": "npm run build && node benchmarks/v2/hcp_comparison_gate.mjs",
-    "prepublishOnly": "npm run assets:readme && npm run docs:check && npm run typecheck && npm test && npm run build && npm run package:smoke"
+    "prepublishOnly": "npm run assets:readme && npm run docs:check && npm run package:manifest-check && npm run typecheck && npm test && npm run build && npm run package:smoke"
   },
   "publishConfig": {
     "access": "public",
