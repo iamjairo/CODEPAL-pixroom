@@ -117,10 +117,18 @@ pinpoint --version
 
 ### Fastest working demo
 
-Run the real two-server demo. It does not call a model or require an API key:
+From the source checkout above, run the real two-server demo. It does not call a
+model or require an API key:
 
 ```bash
 npm run bench:mcp-oss-cross-server
+```
+
+This benchmark requires the source checkout and is not shipped as an executable npm
+command. After the npm release, the installed runtime smoke is:
+
+```bash
+pinpoint demo
 ```
 
 It reads 200 synthetic records through the official filesystem MCP server, moves the exact 40-row approved projection into the official memory MCP server, denies four bypass attempts, and verifies that 0/600 private fixture values entered the client transcript.

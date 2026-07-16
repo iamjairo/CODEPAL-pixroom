@@ -41,6 +41,7 @@ try {
   for (const required of [
     'README.md',
     'CODE_OF_CONDUCT.md',
+    'MAINTAINERS.md',
     'LICENSE',
     'NOTICE',
     'bin/cli.js',
@@ -137,6 +138,24 @@ try {
   const demo = run(process.execPath, [cli, 'demo']);
   for (const expected of ['exact answer materialized: user733@example.com', 'network requests: 0']) {
     if (!demo.includes(expected)) throw new Error(`installed demo is missing: ${expected}`);
+  }
+  const installedReadme = join(
+    temporary,
+    'node_modules',
+    '@codepal',
+    'pinpoint',
+    'README.md',
+  );
+  const installedReadmeText = await import('node:fs').then(({ readFileSync }) =>
+    readFileSync(installedReadme, 'utf8')
+  );
+  for (const expected of [
+    'This benchmark requires the source checkout',
+    'pinpoint demo',
+  ]) {
+    if (!installedReadmeText.includes(expected)) {
+      throw new Error(`installed README is missing package-scope guidance: ${expected}`);
+    }
   }
   const installedReceipt = join(
     temporary,

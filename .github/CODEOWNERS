@@ -1,0 +1,16 @@
+# Default project ownership
+* @CodePalAI
+
+# Security-sensitive MCP and receipt surfaces
+/src/mcp/ @CodePalAI
+/bin/verify-receipt.js @CodePalAI
+/formal/ @CodePalAI
+/scripts/check-opaque-flow-model*.mjs @CodePalAI
+
+# Release and evidence integrity
+/.github/workflows/ @CodePalAI
+/package.json @CodePalAI
+/package-lock.json @CodePalAI
+/scripts/check-package-manifest.mjs @CodePalAI
+/scripts/smoke-package.mjs @CodePalAI
+/benchmarks/results/ @CodePalAI
