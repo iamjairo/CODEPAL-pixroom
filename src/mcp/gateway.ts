@@ -17,6 +17,10 @@ import {
   type McpOpaqueFlowPolicy,
   type PreparedMcpOpaqueFlow,
 } from './flow.js';
+import {
+  McpDestinationPeer,
+  type McpDestinationStdioConfig,
+} from './destination.js';
 
 export const MCP_QUERY_TOOL_NAME = VIRTUAL_QUERY_TOOL_NAME;
 export const MCP_ARTIFACT_URI_PREFIX = 'pinpoint://artifact/';
@@ -67,6 +71,7 @@ export interface McpGatewayOptions extends McpResultFirewallOptions {
   readonly flows?: readonly McpOpaqueFlowPolicy[];
   readonly flowAuthoritySigningKey?: KeyObject;
   readonly onFlowAuthorityReady?: (record: McpOpaqueFlowAuthorityRecord) => void;
+  readonly destination?: McpDestinationStdioConfig;
 }
 
 export interface McpResultTransformation {
@@ -729,6 +734,7 @@ export async function runMcpGateway(
     protectedSourceTools: flows.map(({ sourceTool }) => sourceTool),
   });
   const flowEngine = flows.length > 0 ? new McpOpaqueFlowEngine(firewall, flows, {
+    ...(options.destination ? { destinationServerId: options.destination.id } : {}),
     ...(options.flowAuthoritySigningKey ? {
       authoritySigningKey: options.flowAuthoritySigningKey,
       authorityPolicy: {
@@ -737,6 +743,15 @@ export async function runMcpGateway(
         exposeArtifactResources,
         opaqueArtifactIds,
         flows,
+        ...(options.destination ? {
+          destination: {
+            id: options.destination.id,
+            command: options.destination.command,
+            args: [...(options.destination.args ?? [])],
+            cwd: options.destination.cwd ?? null,
+            envNames: Object.keys(options.destination.env ?? {}).sort(),
+          },
+        } : {}),
       },
     } : {}),
   }) : undefined;
@@ -754,16 +769,21 @@ export async function runMcpGateway(
     stdio: ['pipe', 'pipe', 'pipe'],
     shell: false,
   });
+  const destinationPeer = options.destination
+    ? new McpDestinationPeer(options.destination, (message) => error.write(message))
+    : undefined;
   const pending = new Map<string, PendingRequest>();
   const shutdownGraceMs = Math.max(0, Math.trunc(options.shutdownGraceMs ?? 2_000));
   let upstreamHasResources = false;
   let clientQueue = Promise.resolve();
   let upstreamQueue = Promise.resolve();
+  let destinationQueue = Promise.resolve();
   let forceKillTimer: NodeJS.Timeout | undefined;
   let activeOpaqueFlows = 0;
   let activeProtectedSources = 0;
   let protectedDataHandled = false;
   let flowPoliciesValidated = flowEngine == null;
+  let destinationCatalogValidated = destinationPeer == null;
   let suppressedSensitiveStderr = false;
   const sensitiveOperationActive = (): boolean => activeOpaqueFlows + activeProtectedSources > 0;
   const resetSensitiveStderr = (): void => {
@@ -818,24 +838,54 @@ export async function runMcpGateway(
       if (call?.name === MCP_FLOW_TOOL_NAME && flowEngine) {
         try {
           const plan = flowEngine.prepare(call.arguments);
-          const internalId = `pinpoint-flow:${randomUUID()}`;
-          pending.set(rpcKey(internalId), {
-            method: 'tools/call',
-            toolName: plan.policy.destinationTool,
-            opaqueFlow: { clientId: message.id, plan },
-          });
           protectedDataHandled = true;
           activeOpaqueFlows += 1;
-          child.stdin.write(`${JSON.stringify({
-            jsonrpc: '2.0',
-            id: internalId,
-            method: 'tools/call',
-            params: {
-              name: plan.policy.destinationTool,
-              arguments: plan.destinationArguments,
-            },
-          })}\n`);
+          if (destinationPeer) {
+            const destinationCall = destinationPeer.callTool(
+              plan.policy.destinationTool,
+              plan.destinationArguments,
+            );
+            void destinationCall.then(
+              (destinationResult) => {
+                destinationQueue = queueLine(destinationQueue, () => {
+                  activeOpaqueFlows = Math.max(0, activeOpaqueFlows - 1);
+                  resetSensitiveStderr();
+                  writeRpc(output, rpcResult(message.id, flowEngine.complete(plan, destinationResult)));
+                }, (cause) => failGateway(message.id, cause));
+              },
+              () => {
+                destinationCatalogValidated = false;
+                flowPoliciesValidated = false;
+                destinationQueue = queueLine(destinationQueue, () => {
+                  activeOpaqueFlows = Math.max(0, activeOpaqueFlows - 1);
+                  resetSensitiveStderr();
+                  writeRpc(output, rpcResult(
+                    message.id,
+                    flowEngine.complete(plan, errorResult('destination execution status unavailable')),
+                  ));
+                }, (cause) => failGateway(message.id, cause));
+              },
+            );
+          } else {
+            const internalId = `pinpoint-flow:${randomUUID()}`;
+            pending.set(rpcKey(internalId), {
+              method: 'tools/call',
+              toolName: plan.policy.destinationTool,
+              opaqueFlow: { clientId: message.id, plan },
+            });
+            child.stdin.write(`${JSON.stringify({
+              jsonrpc: '2.0',
+              id: internalId,
+              method: 'tools/call',
+              params: {
+                name: plan.policy.destinationTool,
+                arguments: plan.destinationArguments,
+              },
+            })}\n`);
+          }
         } catch (cause) {
+          activeOpaqueFlows = Math.max(0, activeOpaqueFlows - 1);
+          resetSensitiveStderr();
           writeRpc(output, rpcResult(message.id, flowEngine.error(cause)));
         }
         return;
@@ -962,19 +1012,34 @@ export async function runMcpGateway(
         if (isRecord(result) && isRecord(result.capabilities)) {
           upstreamHasResources = isRecord(result.capabilities.resources);
         }
+        if (destinationPeer) {
+          const protocolVersion = isRecord(result) && typeof result.protocolVersion === 'string'
+            ? result.protocolVersion
+            : '';
+          try {
+            const destinationTools = await destinationPeer.initialize(protocolVersion);
+            flowEngine?.validateDestinationToolCatalog(destinationTools);
+            destinationCatalogValidated = true;
+          } catch {
+            destinationCatalogValidated = false;
+            throw new Error('opaque destination initialization failed');
+          }
+        }
         result = mergeInitialize(result, firewall.exposeArtifactResources, flowEngine);
       } else if (request.method === 'tools/list') {
         if (flowEngine && request.firstPage === true) {
           if (!isRecord(result) || !Array.isArray(result.tools)) {
             throw new TypeError('opaque flow policy validation requires a complete first tools/list page');
           }
-          flowEngine.validateToolCatalog(new Set(
+          const sourceTools = new Set(
             result.tools
               .filter(isRecord)
               .map(({ name }) => name)
               .filter((name): name is string => typeof name === 'string'),
-          ));
-          flowPoliciesValidated = true;
+          );
+          if (destinationPeer) flowEngine.validateSourceToolCatalog(sourceTools);
+          else flowEngine.validateToolCatalog(sourceTools);
+          flowPoliciesValidated = destinationCatalogValidated;
         }
         result = mergeTools(result, firewall, flowEngine, request.firstPage === true);
       } else if (request.method === 'resources/list') {
@@ -1011,11 +1076,15 @@ export async function runMcpGateway(
       ),
     );
   });
-  clientLines.once('close', () => child.stdin.end());
+  clientLines.once('close', () => {
+    child.stdin.end();
+    void destinationPeer?.close();
+  });
 
   const abort = (): void => {
     if (child.exitCode !== null || child.signalCode !== null) return;
     child.kill('SIGTERM');
+    void destinationPeer?.close();
     forceKillTimer = setTimeout(() => {
       if (child.exitCode === null && child.signalCode === null) child.kill('SIGKILL');
     }, shutdownGraceMs);
@@ -1028,8 +1097,9 @@ export async function runMcpGateway(
   });
   options.signal?.removeEventListener('abort', abort);
   if (forceKillTimer) clearTimeout(forceKillTimer);
+  await destinationPeer?.close();
   clientLines.close();
   upstreamLines.close();
-  await Promise.all([clientQueue, upstreamQueue]);
-  return exitCode;
+  await Promise.all([clientQueue, upstreamQueue, destinationQueue]);
+  return exitCode === 0 && destinationPeer?.state === 'failed' ? 1 : exitCode;
 }

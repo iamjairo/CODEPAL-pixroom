@@ -1,4 +1,10 @@
 export { runMcpServer } from './server.js';
+export { McpDestinationPeer, parseMcpOpaqueFlowDestinationConfig } from './destination.js';
+export type {
+  McpDestinationState,
+  McpDestinationStdioConfig,
+  McpOpaqueFlowDestinationConfig,
+} from './destination.js';
 export {
   DEFAULT_MCP_VIRTUALIZE_CHARS,
   MCP_ARTIFACT_URI_PREFIX,

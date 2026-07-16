@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { parseMcpArgs, parseProxyArgs, runQcvDemo } from '../src/cli/main.js';
 import { parseMcpOpaqueFlowConfig } from '../src/mcp/flow.js';
+import { parseMcpOpaqueFlowDestinationConfig } from '../src/mcp/destination.js';
 
 describe('parseProxyArgs', () => {
   it('parses mode, host, and port', () => {
@@ -54,6 +55,8 @@ describe('parseMcpArgs', () => {
         '12000',
         '--flow-config',
         'flows.json',
+        '--destination-config',
+        'destination.json',
         '--flow-authority-key',
         'operator.pem',
         '--flow-authority-opening',
@@ -70,6 +73,7 @@ describe('parseMcpArgs', () => {
       args: ['-y', '@example/mcp'],
       minChars: 12000,
       flowConfigPath: 'flows.json',
+      destinationConfigPath: 'destination.json',
       flowAuthorityKeyPath: 'operator.pem',
       flowAuthorityOpeningPath: 'opening.json',
     });
@@ -120,6 +124,38 @@ describe('parseMcpArgs', () => {
         maxBytes: 65_536,
       }],
     });
+  });
+
+  it('parses a private destination with a deny-by-default environment', () => {
+    const destination = parseMcpOpaqueFlowDestinationConfig({
+      version: 1,
+      id: 'crm-domain',
+      command: '/usr/local/bin/crm-mcp',
+      args: ['--stdio'],
+      envAllowlist: ['PATH', 'CRM_TOKEN'],
+    }, {
+      PATH: '/usr/bin:/bin',
+      CRM_TOKEN: 'destination-secret',
+      SOURCE_TOKEN: 'must-not-cross',
+    });
+
+    expect(destination).toMatchObject({
+      id: 'crm-domain',
+      command: '/usr/local/bin/crm-mcp',
+      args: ['--stdio'],
+      envAllowlist: ['PATH', 'CRM_TOKEN'],
+      env: { PATH: '/usr/bin:/bin', CRM_TOKEN: 'destination-secret' },
+      initializeTimeoutMs: 10_000,
+      requestTimeoutMs: 30_000,
+      shutdownGraceMs: 2_000,
+    });
+    expect(destination.env).not.toHaveProperty('SOURCE_TOKEN');
+    expect(() => parseMcpOpaqueFlowDestinationConfig({
+      version: 1,
+      id: 'crm-domain',
+      command: '/usr/local/bin/crm-mcp',
+      env: { CRM_TOKEN: 'plaintext-not-allowed' },
+    })).toThrow('unknown opaque-flow destination config field: env');
   });
 
   it('rejects config typos and destination-policy overlap', () => {

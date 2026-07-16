@@ -72,6 +72,7 @@ export interface McpOpaqueFlowReceipt {
   readonly artifactId: string;
   readonly sourceTool: string;
   readonly destinationTool: string;
+  readonly destinationServer?: string;
   readonly destinationArgument: string;
   readonly op: McpOpaqueFlowOperation;
   readonly whereFields: readonly string[];
@@ -143,6 +144,7 @@ export interface McpOpaqueFlowAuthorityRecord {
 export interface McpOpaqueFlowEngineOptions {
   readonly authoritySigningKey?: KeyObject;
   readonly authorityPolicy?: unknown;
+  readonly destinationServerId?: string;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -603,6 +605,7 @@ export class McpOpaqueFlowEngine {
   private readonly signingKeyId: string;
   private readonly authorityBinding?: McpOpaqueFlowAuthorityBinding;
   private readonly policyOpening?: McpOpaqueFlowPolicyOpening;
+  private readonly destinationServerId?: string;
   private sequence = 0;
   private previousReceiptHash = '0'.repeat(64);
 
@@ -611,6 +614,13 @@ export class McpOpaqueFlowEngine {
     policies: readonly McpOpaqueFlowPolicy[],
     options: McpOpaqueFlowEngineOptions = {},
   ) {
+    if (
+      options.destinationServerId != null &&
+      !/^[a-z][a-z0-9_-]{0,63}$/.test(options.destinationServerId)
+    ) {
+      throw new TypeError(`invalid opaque-flow destination server id: ${options.destinationServerId}`);
+    }
+    this.destinationServerId = options.destinationServerId;
     const pair = generateKeyPairSync('ed25519');
     this.signingKey = pair.privateKey;
     const publicKeyBytes = pair.publicKey.export({ type: 'spki', format: 'der' });
@@ -709,13 +719,27 @@ export class McpOpaqueFlowEngine {
     );
   }
 
-  validateToolCatalog(toolNames: ReadonlySet<string>): void {
+  validateSourceToolCatalog(toolNames: ReadonlySet<string>): void {
     const missing = [...this.policies.values()]
-      .flatMap(({ sourceTool, destinationTool }) => [sourceTool, destinationTool])
+      .map(({ sourceTool }) => sourceTool)
       .filter((name, index, names) => !toolNames.has(name) && names.indexOf(name) === index);
     if (missing.length > 0) {
-      throw new TypeError(`opaque flow policy references missing upstream tools: ${missing.join(', ')}`);
+      throw new TypeError(`opaque flow policy references missing source tools: ${missing.join(', ')}`);
     }
+  }
+
+  validateDestinationToolCatalog(toolNames: ReadonlySet<string>): void {
+    const missing = [...this.policies.values()]
+      .map(({ destinationTool }) => destinationTool)
+      .filter((name, index, names) => !toolNames.has(name) && names.indexOf(name) === index);
+    if (missing.length > 0) {
+      throw new TypeError(`opaque flow policy references missing destination tools: ${missing.join(', ')}`);
+    }
+  }
+
+  validateToolCatalog(toolNames: ReadonlySet<string>): void {
+    this.validateSourceToolCatalog(toolNames);
+    this.validateDestinationToolCatalog(toolNames);
   }
 
   get tool(): Record<string, unknown> {
@@ -919,6 +943,7 @@ export class McpOpaqueFlowEngine {
       artifactId: plan.artifactId,
       sourceTool: plan.policy.sourceTool,
       destinationTool: plan.policy.destinationTool,
+      ...(this.destinationServerId ? { destinationServer: this.destinationServerId } : {}),
       destinationArgument: plan.policy.destinationArgument,
       op: plan.query.op as McpOpaqueFlowOperation,
       whereFields: Object.keys(plan.query.where ?? {}).sort(),

@@ -180,6 +180,22 @@ describe('opaque-flow safety properties', () => {
     expect(() => prepare(engine, descriptor.id)).toThrow(/flow payload has \d+ bytes; limit is 16/);
   });
 
+  it('validates source and destination catalogs independently without weakening the legacy contract', () => {
+    const { engine } = harness();
+    const sourceOnly = new Set(['accounts_list']);
+    const destinationOnly = new Set(['campaign_deliver']);
+
+    expect(() => engine.validateSourceToolCatalog(sourceOnly)).not.toThrow();
+    expect(() => engine.validateDestinationToolCatalog(destinationOnly)).not.toThrow();
+    expect(() => engine.validateToolCatalog(sourceOnly)).toThrow(
+      'opaque flow policy references missing destination tools: campaign_deliver',
+    );
+    expect(() => engine.validateToolCatalog(destinationOnly)).toThrow(
+      'opaque flow policy references missing source tools: accounts_list',
+    );
+    expect(() => engine.validateToolCatalog(new Set([...sourceOnly, ...destinationOnly]))).not.toThrow();
+  });
+
   it('generates unique random public capabilities for repeated identical protected content', () => {
     const firewall = new McpResultFirewall({
       minChars: 1,

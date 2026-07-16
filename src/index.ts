@@ -36,6 +36,8 @@ export {
   MCP_FLOW_TOOL_NAME,
   MCP_QUERY_TOOL,
   MCP_QUERY_TOOL_NAME,
+  McpDestinationPeer,
+  parseMcpOpaqueFlowDestinationConfig,
   McpResultFirewall,
   runMcpGateway,
   runMcpServer,
@@ -46,6 +48,9 @@ export {
 } from './mcp/index.js';
 export type {
   McpCallToolResult,
+  McpDestinationState,
+  McpDestinationStdioConfig,
+  McpOpaqueFlowDestinationConfig,
   McpContentBlock,
   McpGatewayOptions,
   McpResultFirewallOptions,
