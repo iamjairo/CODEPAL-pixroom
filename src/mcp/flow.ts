@@ -96,6 +96,7 @@ export interface McpOpaqueFlowReceipt {
   readonly verifier: {
     readonly algorithm: 'Ed25519';
     readonly publicKey: string;
+    readonly authority?: McpOpaqueFlowAuthorityBinding;
   };
   readonly signature: string;
   readonly disclosure: 'receipt';
@@ -105,6 +106,43 @@ export interface McpOpaqueFlowReceiptVerifier {
   readonly algorithm: 'Ed25519';
   readonly publicKey: string;
   readonly signingKeyId: string;
+  readonly authority?: McpOpaqueFlowAuthorityBinding;
+}
+
+export interface McpOpaqueFlowAuthorityVerifier {
+  readonly algorithm: 'Ed25519';
+  readonly publicKey: string;
+  readonly operatorKeyId: string;
+}
+
+export interface McpOpaqueFlowAuthorityBinding {
+  readonly authorityVersion: 1;
+  readonly domain: 'pinpoint.mcp.opaque-flow.session';
+  readonly operatorKeyId: string;
+  readonly sessionSigningKeyId: string;
+  readonly sessionPublicKey: string;
+  readonly policyNonce: string;
+  readonly policyCommitmentAlgorithm: 'Ed25519-SHA256';
+  readonly policyCommitment: string;
+  readonly verifier: {
+    readonly algorithm: 'Ed25519';
+    readonly publicKey: string;
+  };
+  readonly signature: string;
+}
+
+export interface McpOpaqueFlowPolicyOpening {
+  readonly policyAuthorizationSignature: string;
+}
+
+export interface McpOpaqueFlowAuthorityRecord {
+  readonly authority: McpOpaqueFlowAuthorityBinding;
+  readonly opening: McpOpaqueFlowPolicyOpening;
+}
+
+export interface McpOpaqueFlowEngineOptions {
+  readonly authoritySigningKey?: KeyObject;
+  readonly authorityPolicy?: unknown;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -164,9 +202,107 @@ function receiptAttestation(receipt: McpOpaqueFlowReceipt): Omit<
   return attestation;
 }
 
+function authorityAttestation(binding: McpOpaqueFlowAuthorityBinding): Omit<
+  McpOpaqueFlowAuthorityBinding,
+  'verifier' | 'signature'
+> {
+  const { verifier: _verifier, signature: _signature, ...attestation } = binding;
+  return attestation;
+}
+
+function policyAuthorizationText(policy: unknown, policyNonce: string): string {
+  return canonicalJson({ domain: 'pinpoint.mcp.opaque-flow.policy', policyNonce, policy });
+}
+
+export function verifyMcpOpaqueFlowAuthorityBinding(
+  value: unknown,
+  expectedAuthority?: McpOpaqueFlowAuthorityVerifier,
+  expectedSession?: Pick<McpOpaqueFlowReceiptVerifier, 'publicKey' | 'signingKeyId'>,
+): value is McpOpaqueFlowAuthorityBinding {
+  if (!isRecord(value) || !isRecord(value.verifier)) return false;
+  try {
+    const binding = value as unknown as McpOpaqueFlowAuthorityBinding;
+    if (
+      binding.authorityVersion !== 1 ||
+      binding.domain !== 'pinpoint.mcp.opaque-flow.session' ||
+      binding.policyCommitmentAlgorithm !== 'Ed25519-SHA256' ||
+      !/^sha256:[a-f0-9]{64}$/.test(binding.policyCommitment) ||
+      binding.verifier.algorithm !== 'Ed25519' ||
+      typeof binding.verifier.publicKey !== 'string' ||
+      typeof binding.operatorKeyId !== 'string' ||
+      typeof binding.sessionSigningKeyId !== 'string' ||
+      typeof binding.sessionPublicKey !== 'string' ||
+      !/^[A-Za-z0-9_-]{43}$/.test(binding.policyNonce) ||
+      typeof binding.signature !== 'string'
+    ) {
+      return false;
+    }
+    const operatorPublicKeyBytes = Buffer.from(binding.verifier.publicKey, 'base64url');
+    const operatorKeyId = createHash('sha256').update(operatorPublicKeyBytes).digest('hex');
+    const sessionPublicKeyBytes = Buffer.from(binding.sessionPublicKey, 'base64url');
+    const sessionKeyId = createHash('sha256').update(sessionPublicKeyBytes).digest('hex');
+    if (operatorKeyId !== binding.operatorKeyId || sessionKeyId !== binding.sessionSigningKeyId) return false;
+    if (
+      expectedAuthority != null &&
+      (
+        expectedAuthority.algorithm !== 'Ed25519' ||
+        expectedAuthority.publicKey !== binding.verifier.publicKey ||
+        expectedAuthority.operatorKeyId !== binding.operatorKeyId
+      )
+    ) {
+      return false;
+    }
+    if (
+      expectedSession != null &&
+      (
+        expectedSession.publicKey !== binding.sessionPublicKey ||
+        expectedSession.signingKeyId !== binding.sessionSigningKeyId
+      )
+    ) {
+      return false;
+    }
+    const operatorPublicKey = createPublicKey({ key: operatorPublicKeyBytes, format: 'der', type: 'spki' });
+    return verifyValue(
+      null,
+      Buffer.from(canonicalJson(authorityAttestation(binding))),
+      operatorPublicKey,
+      Buffer.from(binding.signature, 'base64url'),
+    );
+  } catch {
+    return false;
+  }
+}
+
+export function verifyMcpOpaqueFlowPolicyOpening(
+  binding: unknown,
+  policy: unknown,
+  opening: unknown,
+): opening is McpOpaqueFlowPolicyOpening {
+  if (!verifyMcpOpaqueFlowAuthorityBinding(binding) || !isRecord(opening)) return false;
+  try {
+    const signature = opening.policyAuthorizationSignature;
+    if (typeof signature !== 'string') return false;
+    const signatureBytes = Buffer.from(signature, 'base64url');
+    if (`sha256:${createHash('sha256').update(signatureBytes).digest('hex')}` !== binding.policyCommitment) {
+      return false;
+    }
+    const publicKeyBytes = Buffer.from(binding.verifier.publicKey, 'base64url');
+    const publicKey = createPublicKey({ key: publicKeyBytes, format: 'der', type: 'spki' });
+    return verifyValue(
+      null,
+      Buffer.from(policyAuthorizationText(policy, binding.policyNonce)),
+      publicKey,
+      signatureBytes,
+    );
+  } catch {
+    return false;
+  }
+}
+
 export function verifyMcpOpaqueFlowReceipt(
   value: unknown,
   expectedVerifier?: McpOpaqueFlowReceiptVerifier,
+  expectedAuthority?: McpOpaqueFlowAuthorityVerifier,
 ): value is McpOpaqueFlowReceipt {
   if (!isRecord(value) || !isRecord(value.verifier)) return false;
   try {
@@ -185,11 +321,26 @@ export function verifyMcpOpaqueFlowReceipt(
     const keyId = createHash('sha256').update(publicKeyBytes).digest('hex');
     if (keyId !== receipt.signingKeyId) return false;
     if (
+      receipt.verifier.authority != null &&
+      !verifyMcpOpaqueFlowAuthorityBinding(
+        receipt.verifier.authority,
+        expectedAuthority,
+        { publicKey: receipt.verifier.publicKey, signingKeyId: receipt.signingKeyId },
+      )
+    ) {
+      return false;
+    }
+    if (expectedAuthority != null && receipt.verifier.authority == null) return false;
+    if (
       expectedVerifier != null &&
       (
         expectedVerifier.algorithm !== 'Ed25519' ||
         expectedVerifier.publicKey !== receipt.verifier.publicKey ||
-        expectedVerifier.signingKeyId !== receipt.signingKeyId
+        expectedVerifier.signingKeyId !== receipt.signingKeyId ||
+        (
+          expectedVerifier.authority != null &&
+          canonicalJson(expectedVerifier.authority) !== canonicalJson(receipt.verifier.authority)
+        )
       )
     ) {
       return false;
@@ -450,12 +601,15 @@ export class McpOpaqueFlowEngine {
   private readonly signingKey: KeyObject;
   private readonly publicKey: string;
   private readonly signingKeyId: string;
+  private readonly authorityBinding?: McpOpaqueFlowAuthorityBinding;
+  private readonly policyOpening?: McpOpaqueFlowPolicyOpening;
   private sequence = 0;
   private previousReceiptHash = '0'.repeat(64);
 
   constructor(
     private readonly artifacts: McpFlowArtifactAccess,
     policies: readonly McpOpaqueFlowPolicy[],
+    options: McpOpaqueFlowEngineOptions = {},
   ) {
     const pair = generateKeyPairSync('ed25519');
     this.signingKey = pair.privateKey;
@@ -468,6 +622,44 @@ export class McpOpaqueFlowEngine {
       this.policies.set(policy.name, policy);
     }
     if (this.policies.size === 0) throw new TypeError('at least one opaque flow policy is required');
+    if (options.authoritySigningKey != null) {
+      if (options.authoritySigningKey.type !== 'private' || options.authoritySigningKey.asymmetricKeyType !== 'ed25519') {
+        throw new TypeError('opaque-flow authority key must be an Ed25519 private key');
+      }
+      const authorityPublicKey = createPublicKey(options.authoritySigningKey);
+      const authorityPublicKeyBytes = authorityPublicKey.export({ type: 'spki', format: 'der' });
+      const operatorPublicKey = authorityPublicKeyBytes.toString('base64url');
+      const operatorKeyId = createHash('sha256').update(authorityPublicKeyBytes).digest('hex');
+      const authorityPolicy = options.authorityPolicy ?? { flows: [...this.policies.values()] };
+      const policyNonce = randomBytes(32).toString('base64url');
+      const policyAuthorizationSignature = signValue(
+        null,
+        Buffer.from(policyAuthorizationText(authorityPolicy, policyNonce)),
+        options.authoritySigningKey,
+      ).toString('base64url');
+      const bindingAttestation: Omit<McpOpaqueFlowAuthorityBinding, 'verifier' | 'signature'> = {
+        authorityVersion: 1,
+        domain: 'pinpoint.mcp.opaque-flow.session',
+        operatorKeyId,
+        sessionSigningKeyId: this.signingKeyId,
+        sessionPublicKey: this.publicKey,
+        policyNonce,
+        policyCommitmentAlgorithm: 'Ed25519-SHA256',
+        policyCommitment: `sha256:${createHash('sha256')
+          .update(Buffer.from(policyAuthorizationSignature, 'base64url'))
+          .digest('hex')}`,
+      };
+      this.authorityBinding = {
+        ...bindingAttestation,
+        verifier: { algorithm: 'Ed25519', publicKey: operatorPublicKey },
+        signature: signValue(
+          null,
+          Buffer.from(canonicalJson(bindingAttestation)),
+          options.authoritySigningKey,
+        ).toString('base64url'),
+      };
+      this.policyOpening = { policyAuthorizationSignature };
+    }
   }
 
   private commitment(domain: string, sequence: number, value: string): string {
@@ -486,7 +678,27 @@ export class McpOpaqueFlowEngine {
       algorithm: 'Ed25519',
       publicKey: this.publicKey,
       signingKeyId: this.signingKeyId,
+      ...(this.authorityBinding ? { authority: this.authorityBinding } : {}),
     };
+  }
+
+  get authorityVerifier(): McpOpaqueFlowAuthorityVerifier | undefined {
+    const binding = this.authorityBinding;
+    return binding == null ? undefined : {
+      algorithm: 'Ed25519',
+      publicKey: binding.verifier.publicKey,
+      operatorKeyId: binding.operatorKeyId,
+    };
+  }
+
+  get authorityPolicyOpening(): McpOpaqueFlowPolicyOpening | undefined {
+    return this.policyOpening;
+  }
+
+  get authorityRecord(): McpOpaqueFlowAuthorityRecord | undefined {
+    return this.authorityBinding && this.policyOpening
+      ? { authority: this.authorityBinding, opening: this.policyOpening }
+      : undefined;
   }
 
   get hiddenDestinationTools(): ReadonlySet<string> {
@@ -736,7 +948,11 @@ export class McpOpaqueFlowEngine {
     const receipt: McpOpaqueFlowReceipt = {
       ...attestation,
       receiptHash,
-      verifier: { algorithm: 'Ed25519', publicKey: this.publicKey },
+      verifier: {
+        algorithm: 'Ed25519',
+        publicKey: this.publicKey,
+        ...(this.authorityBinding ? { authority: this.authorityBinding } : {}),
+      },
       signature: signValue(null, Buffer.from(attestationText), this.signingKey).toString('base64url'),
     };
     this.previousReceiptHash = receiptHash;

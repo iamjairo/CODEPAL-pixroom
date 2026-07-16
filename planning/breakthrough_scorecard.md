@@ -26,6 +26,7 @@ gate.
 | L3 | Bounded safety model | Every reachable state under the declared bound satisfies value isolation, dispatch confinement, receipt completeness, and sequence linkage | **PASS** | [Spin receipt](../benchmarks/results/opaque-flow-model-check.first-party-macos-arm64-20260715.json), [property map](./opaque_flow_formal_properties.md) |
 | L4 | Model non-vacuity | Deliberate modeled disclosure bug produces an assertion violation | **PASS** | `npm run formal:opaque-flow:mutation` |
 | L5 | Receipt verification | Runtime and standalone verifier accept valid receipt and reject tampered/wrong-session receipt | **PASS** | `verifyMcpOpaqueFlowReceipt`, `pinpoint-verify-receipt`, verifier tests |
+| L5a | Operator-rooted policy authorization | Stable operator root delegates a fresh session key to an unlinkable complete-policy commitment; wrong root, key swap, changed fixed policy, and tampering fail | **PASS locally** | authority property suite, production protocol gate, standalone verifier |
 | L6 | Real host behavior | At least two installed host/model families execute source + flow, never call hidden destination/query, and expose zero fixture canaries | **PASS (2 executed)** | [cross-host receipt](../benchmarks/results/mcp-opaque-flow-cross-host.first-party-macos-arm64-20260715.json); Codex auth-blocked and uncounted |
 | L7 | Published OSS compatibility | Production gateway wraps at least one pinned unmodified external MCP server and recovers an exact bounded result | **PASS (1 server)** | [filesystem receipt](../benchmarks/results/mcp-oss-filesystem.first-party-macos-arm64-20260715.json) |
 | L8 | Full regression and packaging | Full tests, docs/fingerprints, package smoke, audit, and CI formal gate pass | **PASS locally** | release validation commands; CI runs Spin on Node 24 |
@@ -34,7 +35,7 @@ gate.
 | E3 | Real workflow demand | At least three external teams evaluate real bounded workflows and one requests continued deployment | **OPEN / BLOCKING** | [Issue #17](https://github.com/CodePalAI/pinpoint/issues/17) |
 | E4 | Comparative evaluation | Same workflow compared honestly with at least one code-mode/tokenization/IFC alternative on guarantees, policy expressiveness, TCB, latency, and task success | **OPEN / BLOCKING** | [Issue #16](https://github.com/CodePalAI/pinpoint/issues/16) |
 | E5 | Broader interoperability | At least three independent host/server combinations, including two published external MCP servers, pass reviewed gates | **OPEN / BLOCKING** | [Issue #18](https://github.com/CodePalAI/pinpoint/issues/18) |
-| E6 | Durable authority | Operator identity or transparency-log anchoring provides verifiable continuity beyond an ephemeral gateway session | **OPEN / BLOCKING** | Session keys only |
+| E6 | Externally durable authority | A reviewed organizational trust root is pinned outside the gateway and sessions are retained/witnessed or transparency-anchored so omission and equivocation can be detected | **OPEN / BLOCKING** | Software operator-root mechanism exists; external identity, HSM/witness, and transparency evidence do not |
 
 ## Current verdict
 
@@ -46,7 +47,7 @@ mutation sensitivity, implementation properties, real protocol processes, two li
 hosts, a standalone verifier, and one pinned external server.
 
 The remaining blockers require unaffiliated people, externally sourced workflows, or
-new authority infrastructure. Calling the result "proven" before those gates close
+external identity/witness infrastructure. Calling the result "proven" before those gates close
 would be circular.
 
 ## Re-evaluation procedure

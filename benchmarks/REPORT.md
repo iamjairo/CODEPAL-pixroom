@@ -26,16 +26,17 @@ Evidence: `protocol-integration`. Production stdio gateway plus an unmodified de
 | Policy/resource/query/capability bypasses denied | 8/8 |
 | Private canaries absent from client transcript | 400/400 |
 | Signed receipts and receipt chain valid | 30/30 |
-| Modified receipt rejected | Yes |
+| Modified receipt / authority / wrong root rejected | Yes / Yes / Yes |
+| Operator delegation and exact policy opening | Valid / Valid |
 | Identical payload commitments publicly unlinkable | 30/30 distinct |
 | Constructed direct transcript | 31,013 bytes |
-| Opaque source + flow transcript | 2,628 bytes |
-| Visible-byte reduction | 91.5% |
-| Internal flow latency p50 / p95 / p99 | 0.24 / 0.49 / 1.01 ms |
+| Opaque source + authority-rooted flow transcript | 3,414 bytes |
+| Visible-byte reduction | 89.0% |
+| Internal flow latency p50 / p95 / p99 | 0.23 / 0.86 / 1.34 ms |
 
 The protected source was 26,231 bytes while the ordinary virtualization threshold was deliberately set to 100,000,000 characters. Capture therefore occurred because of policy, not optimization eligibility. The destination accepted the exact 40-record projection. Public content hashes, source values, destination arguments, and destination result values were absent from the client transcript.
 
-This is an exact synthetic trace check, not semantic noninterference, a provider token measurement, a production-demand estimate, or a benchmark against IFC/code-execution systems. Counts, sizes, field names, timing, and success status remain visible. See `results/mcp-opaque-flow.first-party-macos-arm64-20260715.json`.
+The operator key delegates the fresh session key to a hidden, independently opened commitment of the complete normalized policy. The benchmark key is generated locally for this run, so this proves the mechanism rather than an externally attested organizational identity. This is an exact synthetic trace check, not semantic noninterference, a provider token measurement, a production-demand estimate, or a benchmark against IFC/code-execution systems. Counts, sizes, field names, timing, and success status remain visible. See `results/mcp-opaque-flow.first-party-macos-arm64-20260715.json`.
 
 ### Bounded reference-model gate
 
@@ -44,15 +45,15 @@ Promela reference monitor for ten-action traces.
 
 | Check | Result |
 |---|---:|
-| Stored states | 945,468 |
-| Matched states | 435,911 |
-| Transitions | 1,381,379 |
+| Stored states | 1,436,912 |
+| Matched states | 696,981 |
+| Transitions | 2,133,893 |
 | Unreached control states | 0 |
 | Assertion violations | 0 |
 | Deliberate late-output leak mutation | Detected (1 violation) |
 
 The model checks client-value isolation, dispatch confinement to every policy
-predicate including fixed predicates, one receipt per dispatch, and monotonic receipt
+predicate including fixed predicates and valid operator authority, one receipt per dispatch, and monotonic receipt
 sequence linkage. It abstracts TypeScript, Node.js, JSON parsing, cryptography, OS
 isolation, timing, cardinality, and upstream behavior. See
 `results/opaque-flow-model-check.first-party-macos-arm64-20260715.json` and
@@ -86,7 +87,7 @@ Evidence: `live-agentic`. One authorized synthetic flow attempted on three insta
 | GitHub Copilot CLI 1.0.71-3 / GPT-5.3 Codex | Yes | No | Valid | Accepted 40 | 0/400 canaries | `VALIDATED` |
 | OpenAI Codex CLI 0.45.0 | Not executed: provider 401 | N/A | N/A | N/A | N/A | N/A |
 
-Claude completed in ten turns with $0.046905 observed cost. Copilot reported zero premium requests and no file changes. Neither public source nor selected-payload hash appeared in either executed event stream. This proves two-host protocol usability for one first-party fixture, not organic prevalence or general model quality. See `results/mcp-opaque-flow-cross-host.first-party-macos-arm64-20260715.json`.
+Claude completed in four turns with $0.023775 observed cost. Copilot reported zero premium requests and no file changes. Both receipts validated under one shared operator root with distinct session keys and policy commitments. Neither public source nor selected-payload hash appeared in either executed event stream. This proves two-host protocol usability for one first-party fixture, not organic prevalence or general model quality. See `results/mcp-opaque-flow-cross-host.first-party-macos-arm64-20260715.json`.
 
 ## Benchmark v2 — no-op proxy profile
 

@@ -1,6 +1,6 @@
 # Opaque-flow formal properties
 
-_Status: bounded reference model checked with Spin 6.5.2 on 2026-07-15._
+_Status: bounded reference model checked with Spin 6.5.2 on 2026-07-16._
 
 ## What was checked
 
@@ -11,9 +11,9 @@ per trace.
 
 The committed run reached depth 222 and explored:
 
-- 945,468 stored states;
-- 435,911 matched states;
-- 1,381,379 transitions;
+- 1,436,912 stored states;
+- 696,981 matched states;
+- 2,133,893 transitions;
 - zero unreached control states;
 - zero assertion violations.
 
@@ -30,6 +30,7 @@ attempts cannot set the client-visible value state.
 A destination dispatch implies all modeled predicates held simultaneously:
 
 - the upstream catalog validated;
+- the operator authority binding is valid for the session key and exact policy commitment;
 - the capability is valid;
 - the operation is allowlisted;
 - filter fields are allowlisted;
@@ -53,7 +54,8 @@ attestation and chains the previous receipt hash.
 
 ## Hostile actions explored
 
-The state space includes invalid catalogs, direct hidden-destination calls, direct
+The state space includes invalid catalogs, missing or tampered authority, wrong roots,
+changed policy commitments, session-key swaps, direct hidden-destination calls, direct
 queries, resource reads, forged capabilities, malformed protected source responses,
 late upstream output, fixed-predicate override attempts, and every independent
 combination of the policy predicates.
@@ -77,7 +79,8 @@ separate specification. Implementation conformance is tested at adjacent boundar
 | Capability provenance and hidden destination | `src/mcp/gateway.ts`, `src/mcp/flow.ts` | forged-capability, direct-destination, and resource bypasses |
 | Item and byte confinement | `src/mcp/flow.ts` | protocol gate and query-store bounds |
 | Receipt signature and session pinning | `src/mcp/flow.ts` | valid, tampered, wrong-session, concurrent-chain tests |
-| Standalone receipt verification | `bin/verify-receipt.js` (no runtime imports) | committed receipt accepted; tampered and wrong-key receipts rejected |
+| Operator delegation and policy opening | `src/mcp/flow.ts` | stable-root/fresh-session, changed-fixed-policy, key-swap, wrong-root, and tamper properties |
+| Standalone receipt verification | `bin/verify-receipt.js` (no runtime imports) | committed receipt and exact policy opening accepted; tampered, wrong-session, wrong-root, and changed-policy inputs rejected |
 | Client event-stream absence | production gateway and host harnesses | 400 protocol canaries and 800 aggregate cross-host canary checks |
 
 ## Assumptions
@@ -93,7 +96,8 @@ separate specification. Implementation conformance is tested at adjacent boundar
 
 This gate does not prove the TypeScript implementation correct, semantic
 noninterference, timing or cardinality secrecy, cryptographic security, absence of
-Node/runtime defects, upstream honesty, operator identity, or regulatory compliance.
+Node/runtime defects, upstream honesty, whether the operator key belongs to a claimed
+organization, key protection, omission/equivocation across sessions, or regulatory compliance.
 It raises the evidence from testing alone to a checked abstract safety model whose
 implementation mapping remains subject to independent review.
 

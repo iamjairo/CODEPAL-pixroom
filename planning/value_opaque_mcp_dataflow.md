@@ -1,7 +1,7 @@
 # Value-opaque MCP dataflow
 
-_Status: implemented experimental path with protocol, bounded-model, published-OSS,
-and two-executed-host evidence, 2026-07-15._
+_Status: implemented experimental path with operator-rooted protocol,
+bounded-model, published-OSS, and two-executed-host evidence, 2026-07-16._
 
 ## Contribution statement
 
@@ -28,7 +28,10 @@ The narrow contribution is the integrated protocol mechanism:
 6. the source values, internal destination arguments, and destination result values
    do not cross the client-facing JSON-RPC boundary;
 7. the client receives a value-free, HMAC-committed, Ed25519-signed, hash-chained
-   execution receipt.
+  execution receipt;
+8. optional authority mode uses a stable operator key to delegate the fresh receipt
+  key to an unlinkable commitment of the complete normalized policy, including
+  fixed values, without publishing those values.
 
 No ingredient above is new by itself. The research claim is the interoperability
 combination and its measured disclosure boundary, not invention of capabilities,
@@ -41,6 +44,22 @@ pinpoint mcp gateway \
   --flow-config ./flow-policy.json \
   -- <upstream-command> [args...]
 ```
+
+Optional operator-rooted mode:
+
+```bash
+pinpoint mcp authority init --out ./operator.pem
+pinpoint mcp gateway \
+  --flow-config ./flow-policy.json \
+  --flow-authority-key ./operator.pem \
+  --flow-authority-opening ./authority-opening.json \
+  -- <upstream-command> [args...]
+```
+
+Private keys and opening records are created with mode `0600` and never overwrite
+existing files. The opening record carries a policy authorization signature, not
+plaintext values, but it enables testing candidate policies and is therefore
+sensitive.
 
 `PINPOINT_MCP_FLOW_CONFIG` can supply the same file path. The policy is loaded and
 validated before the upstream process starts. Unknown top-level fields, unsupported
@@ -143,6 +162,8 @@ It includes:
   result;
 - destination success status;
 - session signing-key id, Ed25519 public key, receipt hash, and signature.
+- in authority mode, the stable operator key id, fresh session-key delegation,
+  per-session policy nonce, hidden complete-policy commitment, and operator signature.
 
 The HMAC key never leaves the gateway. Including the sequence in each commitment
 prevents equal payloads from producing linkable public commitments. The Ed25519
@@ -153,8 +174,11 @@ checks only the receipt's self-contained signature. A receipt chain verifier mus
 additionally check monotonically
 increasing sequence numbers and each `previousReceiptHash`.
 
-These are session attestations, not operator identity certificates, remote
-attestation, or proof that the upstream tool is honest.
+Authority mode proves that the configured operator key authorized the fresh session
+key and exact hidden policy commitment. It does not prove who owns that key, that a
+human approved it, that the key is hardware protected, that every session was
+retained, or that the upstream tool is honest. External witnesses or a transparency
+service are needed to detect omission or equivocation across sessions.
 
 ## Threat model
 
@@ -218,11 +242,12 @@ The committed run records:
 - 400 exact private canaries scanned with zero client-transcript occurrences;
 - no public source or selected-payload hash occurrence;
 - 30/30 valid signatures and one valid receipt chain;
-- modified receipt rejected;
+- valid operator delegation and exact complete-policy opening;
+- modified receipt, modified authority, and wrong operator root rejected;
 - identical payloads producing 30 distinct public commitments;
-- 31,013 constructed direct-transcript bytes versus 2,628 opaque-flow bytes, 91.5%
+- 31,013 constructed direct-transcript bytes versus 3,414 opaque-flow bytes, 89.0%
   lower for the same source and destination payload;
-- 0.49 ms p95 internal-flow latency over 30 local samples on the recorded machine.
+- 0.86 ms p95 internal-flow latency over 30 local samples on the recorded machine.
 
 This is protocol-integration evidence, not a provider token bill, model-quality test,
 production demand measurement, or formal noninterference proof.
@@ -235,8 +260,10 @@ called only the visible source and `pinpoint_flow`; neither model called the hid
 destination or `pinpoint_query`. Both signed receipts verified, both destinations
 accepted the exact 40-record projection, both clients returned exactly `VALIDATED`,
 and no fixture value or public value hash appeared in either retained event-stream
-grade. The aggregate scan covered 800 canaries. Claude observed $0.046905 in provider
-cost; Copilot reported zero premium requests and zero file changes.
+grade. Both receipts validated under one shared operator root with distinct fresh
+session keys and policy commitments. The aggregate scan covered 800 canaries. Claude
+observed $0.023775 in provider cost; Copilot reported zero premium requests and zero
+file changes.
 
 This proves the same contract is usable by two host/model families for one synthetic
 task. It does not estimate organic need, establish behavior on every MCP host, or
@@ -248,6 +275,8 @@ The closest verified work is substantial:
 
 | Work | Established capability | Difference from this implementation |
 |---|---|---|
+| [Handle-Capability Protocol](https://arxiv.org/abs/2606.29073) | Owned opaque handles, principals, grants, source/target data-pipe authorization, and deny-path audit | Closest mechanism found; no matching evidence for signed durable authority, real independent auth domains, arbitrary unmodified servers, or disclosure-bounded execution receipts |
+| [SCITT architecture (RFC 9943)](https://www.rfc-editor.org/rfc/rfc9943.html) and [COSE receipts (RFC 9942)](https://www.rfc-editor.org/rfc/rfc9942.html) | Issuer identity, transparent statement registration, trust anchors, and independently verifiable inclusion receipts | Already owns durable transparency architecture; it does not define MCP flow semantics or prove hidden tool execution |
 | [Anthropic, Code execution with MCP](https://www.anthropic.com/engineering/code-execution-with-mcp) | Generated code can pass Google Drive values to Salesforce without values entering model context; tokenization can detokenize values in a later tool call; deterministic flow rules are proposed | Requires model-generated code and a sandbox/client implementation; no declarative exact-query capability or signed flow receipt is described |
 | [Cloudflare Code Mode](https://blog.cloudflare.com/code-mode/) | MCP tools become TypeScript APIs in an isolated worker; intermediate values stay out of model context unless logged | Generated code and an execution sandbox remain in the trusted computing base |
 | [Fides](https://arxiv.org/abs/2505.23643) and [Fides Gateway](https://github.com/microsoft/fides-gateway) | Formal IFC model, dynamic labels, deterministic policy enforcement, selective hiding, Rego policies, and upstream policy calls | Planner/tool instrumentation or labeled raw values; no matching transparent artifact projection into a hidden unmodified MCP destination with signed receipts was found |
@@ -262,7 +291,7 @@ techniques.
 
 The defensible statement is therefore:
 
-> In the public systems and code searched as of 2026-07-15, we found no exact match
+> In the public systems and code searched as of 2026-07-16, we found no exact match
 > for declarative, policy-bound, value-opaque MCP composition between unmodified tools
 > through a transparent gateway, with fail-closed source capture and signed
 > commitment-only execution receipts, without generated code or a sandbox.
@@ -278,13 +307,14 @@ gates. Calling it a field-level breakthrough still requires independent work:
 1. external reproduction on at least three host/server combinations;
 2. adversarial review of policy parsing, protocol concurrency, capability lifetime,
    receipt verification, and side channels;
-3. a formal state-machine model proving policy confinement and transcript-value
-   non-occurrence under explicit assumptions;
+3. independent review of the checked state-machine model and its mapping to the
+  TypeScript implementation;
 4. comparison against generated-code/tokenization and IFC planners on task success,
    latency, policy expressiveness, and trusted-computing-base size;
 5. externally sourced MCP workflows showing a recurring need for values to move into
    another tool without model inspection;
-6. operator identity keys or external transparency-log anchoring for durable receipts;
+6. an externally pinned organizational trust root plus retained witnesses or
+  transparency-log anchoring that can expose omitted or equivocated sessions;
 7. multi-server composition with explicit authentication and authority boundaries.
 
 Public blocking gates:

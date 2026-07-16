@@ -98,11 +98,12 @@ The committed evidence uses deterministic synthetic fixtures and real installed 
 | Hidden destination control | **0 model destination calls** | The gateway invoked the destination in those two traces |
 | Protocol integration | **30 / 30 correct destination invocations** | One deterministic local stdio fixture and policy |
 | Adversarial protocol gate | **8 / 8 bypasses denied** | Direct query, resource read, destination call, forbidden field, operation switch, forged capability, fixed-argument override, fixed-predicate override |
-| Bounded reference model | **945,468 states / 1,381,379 transitions / 0 violations** | Spin 6.5.2; ten actions per trace; abstract model, not a proof over TypeScript |
+| Operator-rooted policy authorization | **Exact opening valid; wrong root and tampered authority rejected** | Fresh session key delegated by a stable Ed25519 operator key; first-party software-key evidence |
+| Bounded reference model | **1,436,912 states / 2,133,893 transitions / 0 violations** | Spin 6.5.2; ten actions per trace; abstract model, not a proof over TypeScript |
 | Mutation sensitivity | **Deliberate late-output leak detected** | Spin found the expected assertion violation |
 | Published OSS server | **1/1 pinned server passed** | Unmodified `@modelcontextprotocol/server-filesystem@2026.7.10`; one synthetic 1,000-row read/query flow |
-| Constructed visible traffic | **31,013 -> 2,628 bytes** | Same synthetic source and destination payload; character bytes, not provider tokens or bill |
-| Local flow latency | **0.49 ms p95** | 30 local protocol samples on the recorded machine; not a production load test |
+| Constructed visible traffic | **31,013 -> 3,414 bytes** | Same synthetic source and destination payload with operator authority; character bytes, not provider tokens or bill |
+| Local flow latency | **0.86 ms p95** | 30 local protocol samples on the recorded machine; not a production load test |
 
 Read the [cross-host receipt](./benchmarks/results/mcp-opaque-flow-cross-host.first-party-macos-arm64-20260715.json), [protocol receipt](./benchmarks/results/mcp-opaque-flow.first-party-macos-arm64-20260715.json), [model-check receipt](./benchmarks/results/opaque-flow-model-check.first-party-macos-arm64-20260715.json), [OSS filesystem receipt](./benchmarks/results/mcp-oss-filesystem.first-party-macos-arm64-20260715.json), [formal property map](./planning/opaque_flow_formal_properties.md), or [full evidence methodology](./benchmarks/REPORT.md).
 
@@ -150,6 +151,26 @@ pinpoint mcp gateway \
   --flow-config ./examples/mcp-opaque-flow.json \
   -- npx -y <your-mcp-server-package>
 ```
+
+For a stable operator identity, generate a protected Ed25519 key once and use it
+to delegate each fresh receipt session. The optional opening record lets an
+authorized auditor prove which complete policy, including fixed values, was
+committed without publishing those values in MCP output:
+
+```bash
+pinpoint mcp authority init --out ./pinpoint-operator.pem
+
+pinpoint mcp gateway \
+  --flow-config ./examples/mcp-opaque-flow.json \
+  --flow-authority-key ./pinpoint-operator.pem \
+  --flow-authority-opening ./pinpoint-authority-opening.json \
+  -- npx -y <your-mcp-server-package>
+```
+
+Both generated files are created with mode `0600` and existing files are never
+overwritten. Retain the operator key in your normal secret-management boundary.
+Treat the opening record as sensitive because it enables an auditor to test
+candidate policy values.
 
 <!-- LAUNCH(npm): Replace the checkout flow above with verified npm commands only after the registry confirms the package. -->
 
@@ -216,12 +237,18 @@ The client receives a receipt shaped like this:
   "items": 42,
   "destinationSucceeded": true,
   "policyShapeSha256": "...",
+  "verifier": {
+    "authority": {
+      "operatorKeyId": "...",
+      "policyCommitment": "sha256:..."
+    }
+  },
   "receiptHash": "...",
   "signature": "..."
 }
 ```
 
-The session verification key is pinned in the MCP `initialize` response. SDK users should call `verifyMcpOpaqueFlowReceipt(receipt, initializedVerifier)` so a valid receipt from another session is rejected.
+The session verification key is pinned in the MCP `initialize` response. SDK users should call `verifyMcpOpaqueFlowReceipt(receipt, initializedVerifier)`. In authority mode, pass the separately pinned operator verifier as the third argument so both the session and durable operator root are required.
 
 External reviewers can verify a retained content-free receipt without importing the
 Pinpoint runtime:
@@ -229,7 +256,14 @@ Pinpoint runtime:
 ```bash
 pinpoint-verify-receipt receipt.json \
   --path firstReceipt \
-  --signing-key-id <id-pinned-during-initialize>
+  --signing-key-id <id-pinned-during-initialize> \
+  --operator-key-id <operator-id-pinned-out-of-band>
+
+pinpoint-verify-receipt receipt.json \
+  --path firstReceipt \
+  --operator-key-id <operator-id-pinned-out-of-band> \
+  --policy ./flow-policy.json \
+  --authority-opening ./pinpoint-authority-opening.json
 ```
 
 Pinpoint returns the receipt through MCP but does not persist it. If your audit policy requires durable retention, the host or an existing collector must store the value-free receipt. Do not enable body capture merely to retain receipts; body capture can persist sensitive prompts and tool values.
@@ -254,7 +288,7 @@ Suggested acceptance criteria for a first evaluation:
 - the destination receives the exact approved projection;
 - prohibited fields never appear in the client event stream;
 - direct destination and alternate artifact access are denied;
-- every completed flow has a receipt bound to the initialized session key;
+- every completed flow has a receipt bound to the initialized session key and, when enabled, the pinned operator root and exact policy commitment;
 - gateway failure behavior matches the application's availability and confidentiality requirements;
 - the team accepts every residual metadata and upstream-process trust boundary documented below.
 
@@ -271,7 +305,7 @@ Use [GitHub Discussions](https://github.com/CodePalAI/pinpoint/discussions) for 
 | **Policy owner** | Your operator, platform, or security team; never the model |
 | **Runtime storage** | Bounded process memory; artifacts disappear at shutdown |
 | **Validated hosts** | Claude Code and GitHub Copilot CLI on committed synthetic gates |
-| **Not yet supported** | Cross-server flows with separate auth domains, durable operator identity keys, remote attestation, or formal compliance claims |
+| **Not yet supported** | Cross-server flows with separate auth domains, externally witnessed organizational identity, HSM/remote attestation, omission-proof transparency, or formal compliance claims |
 | **Maturity** | Experimental; suitable for controlled evaluation and contribution, not an automatic enterprise approval |
 
 ## Security boundary
@@ -281,7 +315,7 @@ Use [GitHub Discussions](https://github.com/CodePalAI/pinpoint/discussions) for 
 | Selected source and destination values on the client-facing MCP path | Isolation from a malicious or compromised wrapped MCP process |
 | Operator-declared source, destination, operation, fields, arguments, and limits | Protection from the upstream process's own network, files, subprocesses, or timing channels |
 | Direct query, resource, hidden-destination, capability, and argument bypasses covered by the committed protocol gate | Secrecy for tool names, field names, operation, counts, sizes, limits, timing, or success status |
-| Receipt integrity under the session key pinned during MCP initialization | Durable operator identity, approval provenance, remote attestation, or cross-restart receipt continuity |
+| Optional operator-signed delegation of each session key to a hidden exact-policy commitment | Proof that a key belongs to a claimed organization, human approval, HSM/remote attestation, transparency-log inclusion, or omission detection |
 | Bounded process-local artifact retention | A DLP suite, identity provider, zero-retention guarantee, or compliance certification |
 
 The trusted computing base includes Pinpoint, the reviewed flow policy, the wrapped MCP process, and the operating-system boundary. Read [SECURITY.md](./SECURITY.md) and the [full threat model](./planning/value_opaque_mcp_dataflow.md#threat-model) before a controlled deployment.
@@ -610,11 +644,11 @@ Claude Code 2.1.197 with Claude Haiku 4.5 and GitHub Copilot CLI 1.0.71-3 with G
 | Claude Code | Yes | Yes | No | Valid | 40 records | `VALIDATED` |
 | GitHub Copilot CLI | Yes | Yes | No | Valid | 40 records | `VALIDATED` |
 
-The grader scanned 400 synthetic private canaries per executed host, 800 total, and found zero occurrences in either client event stream. It also found neither public source nor selected-payload hashes. Claude completed in ten turns for $0.046905 observed provider cost. Copilot reported zero premium requests and zero file changes. Inspect the [content-free cross-host receipt](./benchmarks/results/mcp-opaque-flow-cross-host.first-party-macos-arm64-20260715.json) or rerun `npm run bench:mcp-opaque-flow:cross-host` with authenticated clients.
+The grader scanned 400 synthetic private canaries per executed host, 800 total, and found zero occurrences in either client event stream. It also found neither public source nor selected-payload hashes. Both receipts validated under one shared operator root while using distinct session keys and policy commitments. Claude completed in four turns for $0.023775 observed provider cost. Copilot reported zero premium requests and zero file changes. Inspect the [content-free cross-host receipt](./benchmarks/results/mcp-opaque-flow-cross-host.first-party-macos-arm64-20260715.json) or rerun `npm run bench:mcp-opaque-flow:cross-host` with authenticated clients.
 
-The no-model protocol gate exercised the same production gateway 30 times and recorded 30/30 exact destination acceptances, 8/8 denied bypasses, 400/400 absent canaries, valid signatures and receipt chain, rejection of a modified receipt, and distinct commitments for 30 identical payloads. The protected 26,231-byte source was captured even with the ordinary threshold set to 100,000,000 characters. A constructed direct transcript was 31,013 bytes; the source plus signed opaque-flow result was 2,628 bytes, 91.5% lower. Local p95 flow latency was 0.49 ms over 30 samples on the recorded machine. Inspect the [protocol receipt](./benchmarks/results/mcp-opaque-flow.first-party-macos-arm64-20260715.json) or run `npm run bench:mcp-opaque-flow` without a provider call.
+The no-model protocol gate exercised the same production gateway 30 times and recorded 30/30 exact destination acceptances, 8/8 denied bypasses, 400/400 absent canaries, valid signatures and receipt chain, rejection of modified receipt and authority data, wrong-operator rejection, exact policy opening, and distinct commitments for 30 identical payloads. The protected 26,231-byte source was captured even with the ordinary threshold set to 100,000,000 characters. A constructed direct transcript was 31,013 bytes; the source plus authority-rooted opaque-flow result was 3,414 bytes, 89.0% lower. Local p95 flow latency was 0.86 ms over 30 samples on the recorded machine. Inspect the [protocol receipt](./benchmarks/results/mcp-opaque-flow.first-party-macos-arm64-20260715.json) or run `npm run bench:mcp-opaque-flow` without a provider call.
 
-These tests prove exact behavior for committed synthetic traces, not semantic noninterference, production demand, or a universal security guarantee. Counts, sizes, field names, timing, and success remain visible. The wrapped process is trusted with values, and receipt keys are ephemeral session keys rather than operator identity certificates. The [value-opaque design note](./planning/value_opaque_mcp_dataflow.md) compares verified prior art and lists the remaining breakthrough gates.
+These tests prove exact behavior for committed synthetic traces, not semantic noninterference, production demand, or a universal security guarantee. Counts, sizes, field names, timing, and success remain visible. The wrapped process is trusted with values. The benchmark operator key is first-party and locally generated: it proves the authority mechanism, not CodePal's externally attested identity or omission-proof publication. The [value-opaque design note](./planning/value_opaque_mcp_dataflow.md) compares verified prior art and lists the remaining breakthrough gates.
 
 ### Cross-host MCP gateway gate
 
@@ -632,7 +666,7 @@ Claude autonomously performed this sequence:
 3. called `mcp__accounts__pinpoint_query` with `accountId: 733` and `fields: ["email"]`;
 4. returned exactly `user733@example.com`.
 
-The final artifact-asserting gate completed in four agent turns for $0.020764 observed provider cost. Filesystem, shell, subagent, and editing tools were denied, and the run failed unless both MCP calls occurred, exactly one expected artifact id appeared, every visible tool result stayed below 5,000 characters, and the final answer matched exactly. Inspect the [content-free receipt](./benchmarks/results/mcp-gateway-agent.first-party-macos-arm64-20260715.json) or rerun `npm run bench:mcp-gateway:agent` with Claude Code authenticated.
+The final artifact-asserting gate completed in four agent turns for $0.019719 observed provider cost. Filesystem, shell, subagent, and editing tools were denied, and the run failed unless both MCP calls occurred, exactly one expected artifact id appeared, every visible tool result stayed below 5,000 characters, and the final answer matched exactly. Inspect the [content-free receipt](./benchmarks/results/mcp-gateway-agent.first-party-macos-arm64-20260715.json) or rerun `npm run bench:mcp-gateway:agent` with Claude Code authenticated.
 
 Copilot auto-routed to `gpt-5.3-codex`, exposed only the synthetic `accounts` MCP server, called both tools, changed no files, and used zero premium requests. Rerun with `npm run bench:mcp-gateway:copilot`.
 
@@ -712,7 +746,8 @@ The full [benchmark report](./benchmarks/REPORT.md) keeps live, offline, agentic
 - Configured source tools are fail-closed at every result size. Protected content, metadata, extension fields, JSON-RPC errors, stderr, and unsolicited server messages are not forwarded as alternate value paths.
 - Strict flow mode uses random 128-bit process-local capabilities. Public content hashes, artifact resources, previews, `pinpoint_query`, and direct hidden-destination calls are disabled by default.
 - Flow receipts expose field names, counts, sizes, limits, and success status. Values are represented by per-sequence HMAC-SHA256 commitments; equal values do not produce equal public commitments.
-- Receipts are Ed25519-signed and hash-chained. The session verification key is pinned at MCP initialization. This detects receipt modification but is not operator identity, hardware attestation, or proof that the upstream process is honest.
+- Receipts are Ed25519-signed and hash-chained. The session verification key is pinned at MCP initialization. Optional authority mode uses a stable operator key to sign an unlinkable delegation of the fresh session key and a commitment to the complete normalized policy. This authenticates the configured key, not the organization behind it, human approval, hardware state, transparency inclusion, or upstream honesty.
+- Operator private keys and policy-opening records must remain mode `0600`. The opening record contains no policy values, but it enables verification of guessed values against the commitment and is therefore sensitive.
 - The wrapped upstream process is trusted with source and destination values. Pinpoint does not stop that process from using its own network, filesystem, subprocess, timing, or other operating-system channels.
 - The MCP gateway spawns the configured upstream command directly with `shell: false`. Upstream arguments are never interpolated into a shell command.
 - Gateway artifacts stay in bounded process memory and disappear at shutdown. Text blocks retain their exact text. Structured content is retained as canonical JSON after MCP parsing.
@@ -755,6 +790,8 @@ The defaults are designed for local use. These are the controls most people need
 | `PINPOINT_HOST` / `PINPOINT_PORT` | listen interface / port | `127.0.0.1` / `8788` |
 | `PINPOINT_MCP_MIN_CHARS` | ordinary MCP result-firewall threshold | `16000` |
 | `PINPOINT_MCP_FLOW_CONFIG` | versioned value-opaque flow policy file | unset |
+| `PINPOINT_MCP_FLOW_AUTHORITY_KEY` | mode-0600 Ed25519 operator private-key file | unset |
+| `PINPOINT_MCP_FLOW_AUTHORITY_OPENING` | new mode-0600 exact-policy opening record | unset |
 | `PINPOINT_MAX_INSPECTION_BYTES` | maximum request bytes buffered for optimization; larger requests stream unchanged | `33554432` |
 | `PINPOINT_MODE` | `audit` (no processors), `shadow` (propose only), `optimize` (commit), `enforce` (reserved output policy) | `optimize` |
 | `PINPOINT_VIRTUAL_CONTEXT` | exact-data path; set `0` to turn it off | `on` |
@@ -813,7 +850,7 @@ Start with [`CONTRIBUTING.md`](./CONTRIBUTING.md). The main local checks are:
 ```bash
 npm run typecheck
 npm test                        # offline test suite
-npm run bench:mcp-opaque-flow   # 30 flows + 7 bypasses, no provider call
+npm run bench:mcp-opaque-flow   # 30 flows + 8 bypasses, no provider call
 npm run bench:mcp-opaque-flow:cross-host # Claude Code + Copilot live gate
 node benchmarks/proof.mjs       # constructed additivity check
 node benchmarks/rd_frontier.mjs # simulated RD surface
@@ -833,7 +870,7 @@ Pinpoint is experimental and available today for controlled local or VPC-side ev
 Pinpoint is developed and maintained by [CodePal](https://codepal.ai) with contributions from the open-source community.
 
 - **Validated first-party:** the value-opaque flow passed on Claude Code and GitHub Copilot CLI; the protocol gate completed 30/30 exact destinations, denied 8/8 bypasses, and found zero of 400 canaries in its client transcript.
-- **Still being proved:** independent security review, broader host replication, externally sourced workflows, multi-server authority boundaries, operator identity keys, formal confinement analysis, and customer demand.
+- **Still being proved:** independent security review, broader host replication, externally sourced workflows, multi-server authority boundaries, externally attested/witnessed operator identity, and customer demand.
 
 The [product assessment](./planning/product_assessment.md) explains the evidence and current limits without marketing shortcuts.
 

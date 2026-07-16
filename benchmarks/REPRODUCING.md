@@ -21,11 +21,24 @@ What they establish:
 | `npm run demo:qcv` | Offline real transform | The shipped exact path can answer one supported lookup and replace its dataset region |
 | `npm run bench:qcv-quality` | Offline real transform | Exact-operation and refusal coverage over the committed synthetic fixtures |
 | `npm run bench:virtual` | Offline real transform | Token accounting for QCV against the committed comparison fixtures |
-| `npm run bench:mcp-opaque-flow` | Protocol integration | Fail-closed source capture, hidden exact destination calls, bypass denial, transcript canary absence, signed receipt verification/chaining, and local latency |
+| `npm run bench:mcp-opaque-flow` | Protocol integration | Fail-closed source capture, hidden exact destination calls, bypass denial, transcript canary absence, operator/session/policy authorization, signed receipt verification/chaining, and local latency |
 
 They do not establish live model quality, provider-reported usage, real-agent savings, or production latency.
 
-The opaque-flow protocol gate starts the committed unmodified stdio fixture, runs 30 exact flows and eight adversarial calls, scans 400 generated canaries, verifies every receipt and chain link, mutates one receipt to prove rejection, and compares client-visible bytes with a constructed direct-MCP transcript. It makes no provider request. The committed receipt is `results/mcp-opaque-flow.first-party-macos-arm64-20260715.json`.
+The opaque-flow protocol gate starts the committed unmodified stdio fixture, runs 30 exact flows and eight adversarial calls, scans 400 generated canaries, verifies every receipt and chain link, validates an operator delegation and exact policy opening, rejects receipt/authority tampering and a wrong operator root, and compares client-visible bytes with a constructed direct-MCP transcript. It makes no provider request. The committed receipt is `results/mcp-opaque-flow.first-party-macos-arm64-20260715.json`.
+
+Repeat the retained synthetic policy opening independently:
+
+```bash
+pinpoint-verify-receipt \
+	benchmarks/results/mcp-opaque-flow.first-party-macos-arm64-20260715.json \
+	--path firstReceipt \
+	--operator-key-id <security.operatorKeyId-from-the-receipt> \
+	--policy benchmarks/fixtures/opaque_flow_config.json \
+	--authority-opening benchmarks/results/mcp-opaque-flow.first-party-macos-arm64-20260715.json
+```
+
+The benchmark retains an opening because its policy is public and synthetic. Do not publish a production opening record; it enables testing candidate fixed values.
 
 ## Live cross-host opaque-flow gate
 

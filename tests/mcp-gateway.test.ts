@@ -1,5 +1,5 @@
 import { PassThrough } from 'node:stream';
-import { createHash } from 'node:crypto';
+import { createHash, generateKeyPairSync } from 'node:crypto';
 
 import { describe, expect, it } from 'vitest';
 
@@ -610,12 +610,16 @@ describe('McpResultFirewall', () => {
     const output = new PassThrough();
     const next = responses(output);
     const visible: string[] = [];
+    const operator = generateKeyPairSync('ed25519');
+    let authorityRecord: Record<string, unknown> | undefined;
     output.on('data', (chunk) => visible.push(String(chunk)));
     const running = runMcpGateway(process.execPath, ['--input-type=module', '--eval', upstream], {
       input,
       output,
       error: new PassThrough(),
       minChars: 500,
+      flowAuthoritySigningKey: operator.privateKey,
+      onFlowAuthorityReady: (record) => { authorityRecord = record as unknown as Record<string, unknown>; },
       flows: [{
         name: 'deliver_active_accounts',
         description: 'Send active account emails to the campaign delivery tool.',
@@ -641,6 +645,7 @@ describe('McpResultFirewall', () => {
     const initializedVerifier = (initialized.result as {
       _meta: { pinpoint: { opaqueFlow: { receiptVerifier: Record<string, unknown> } } };
     })._meta.pinpoint.opaqueFlow.receiptVerifier;
+    expect(initializedVerifier.authority).toEqual(authorityRecord?.authority);
     send(input, { jsonrpc: '2.0', id: 2, method: 'tools/list', params: {} });
     const listed = await next();
     expect((listed.result as { tools: Array<{ name: string }> }).tools.map(({ name }) => name)).toEqual([
@@ -760,12 +765,14 @@ describe('McpResultFirewall', () => {
     expect(receipt.verifier).toEqual({
       algorithm: initializedVerifier.algorithm,
       publicKey: initializedVerifier.publicKey,
+      authority: initializedVerifier.authority,
     });
     expect(receipt.signingKeyId).toBe(initializedVerifier.signingKeyId);
     expect(verifyMcpOpaqueFlowReceipt(receipt, initializedVerifier as {
       algorithm: 'Ed25519';
       publicKey: string;
       signingKeyId: string;
+      authority: NonNullable<ReturnType<typeof JSON.parse>>;
     })).toBe(true);
     expect(verifyMcpOpaqueFlowReceipt(receipt, {
       algorithm: 'Ed25519',

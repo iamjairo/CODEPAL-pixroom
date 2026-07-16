@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -108,6 +108,21 @@ try {
     throw new Error('installed CLI version does not match the packed version');
   }
   run(process.execPath, [cli, '--help']);
+  const authorityKey = join(temporary, 'operator-authority.pem');
+  const authority = JSON.parse(run(process.execPath, [
+    cli,
+    'mcp',
+    'authority',
+    'init',
+    '--out',
+    authorityKey,
+  ]));
+  if (!/^[a-f0-9]{64}$/.test(authority.operatorKeyId)) {
+    throw new Error('installed authority initializer returned an invalid operator key id');
+  }
+  if (process.platform !== 'win32' && (statSync(authorityKey).mode & 0o777) !== 0o600) {
+    throw new Error('installed authority initializer did not create a mode-0600 key');
+  }
   const demo = run(process.execPath, [cli, 'demo']);
   for (const expected of ['exact answer materialized: user733@example.com', 'network requests: 0']) {
     if (!demo.includes(expected)) throw new Error(`installed demo is missing: ${expected}`);

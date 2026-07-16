@@ -54,6 +54,10 @@ describe('parseMcpArgs', () => {
         '12000',
         '--flow-config',
         'flows.json',
+        '--flow-authority-key',
+        'operator.pem',
+        '--flow-authority-opening',
+        'opening.json',
         '--',
         'npx',
         '-y',
@@ -66,6 +70,13 @@ describe('parseMcpArgs', () => {
       args: ['-y', '@example/mcp'],
       minChars: 12000,
       flowConfigPath: 'flows.json',
+      flowAuthorityKeyPath: 'operator.pem',
+      flowAuthorityOpeningPath: 'opening.json',
+    });
+    expect(parseMcpArgs(['authority', 'init', '--out', 'operator.pem'])).toEqual({
+      ok: true,
+      mode: 'authority-init',
+      outputPath: 'operator.pem',
     });
   });
 

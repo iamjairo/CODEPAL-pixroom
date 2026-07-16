@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "evidenceLevel": "protocol-integration",
   "kind": "mcp-value-opaque-flow-gate",
-  "date": "2026-07-15",
+  "date": "2026-07-16",
   "passed": true,
   "environment": {
     "platform": "darwin",
@@ -12,13 +12,13 @@
   },
   "source": {
     "description": "Production gateway and an unmodified deterministic stdio MCP fixture; no model or provider call.",
-    "persistedData": "Synthetic values are not persisted in this receipt. Only counts, byte sizes, source fingerprints, and commitment receipts are retained.",
+    "persistedData": "Synthetic source and destination values are not persisted. Counts, byte sizes, fingerprints, receipts, and the opening signature for the already-public synthetic policy are retained.",
     "fingerprints": {
-      "src/mcp/flow.ts": "cb5c40376f4bd9ad2f70dae5fa56f8506e6628b2c54739643c43612395f51e05",
-      "src/mcp/gateway.ts": "b3ea3566a2024f540e2cae6902580ba16dc525baf435c8bd8eaf81b687a7e6b6",
+      "src/mcp/flow.ts": "e7f42d05ae53cc79ea843854b321d098a2987bd7597e723b1c5e066361c6f65b",
+      "src/mcp/gateway.ts": "d242fc2056d12d936ac0af09dc717b944fd2a9148026c5f889c7e5bfaf30a790",
       "src/virtual-context/store.ts": "7b0bbc2de4e400b7cb85a23d926bf5ec2c898c7242df57b220026bf3cbc36783",
-      "src/cli/main.ts": "c9d2677e188b197be550448073e8e02a49db04dd7642203d27372c198ba1f22b",
-      "benchmarks/v2/mcp_opaque_flow_gate.mjs": "9ef3aba7828999e73895741701877151e3968154992e135a1953930f2533f01c",
+      "src/cli/main.ts": "ba7e9f96e426098887f4ca5bc2550ad310445a5782551cc9bf140913bf49cc15",
+      "benchmarks/v2/mcp_opaque_flow_gate.mjs": "a032b7b5009374b1aad8139287f4b99d738bb2660628e940ceaf7e7d023f61db",
       "benchmarks/fixtures/opaque_flow_data.mjs": "af3b9cdde4f9a025acc1d8dade13dec080025072edd2d3483dbde7226d11b263",
       "benchmarks/fixtures/opaque_flow_server.mjs": "1a70a6162a7b30ae71f72616d611b7e3e0081806ee666ef64db1dc9bd006d603",
       "benchmarks/fixtures/opaque_flow_config.json": "4fa07b38e09d0a70acdb9ca0c554850ac1d5f9dec2e41405e121604ee0aaee53"
@@ -41,8 +41,8 @@
     "privateCanariesLeaked": 0,
     "publicValueHashesLeaked": false,
     "baselineVisibleBytes": 31013,
-    "opaqueVisibleBytes": 2628,
-    "visibleByteReductionPercent": 91.52613420178635
+    "opaqueVisibleBytes": 3414,
+    "visibleByteReductionPercent": 88.99171315254894
   },
   "security": {
     "randomCapability": true,
@@ -52,28 +52,52 @@
     "receiptsValid": true,
     "receiptChainValid": true,
     "verifierPinnedAtInitialize": true,
+    "operatorAuthorityBindingValid": true,
+    "exactPolicyOpeningValid": true,
+    "operatorKeyId": "83c9c816a6e876242aa00fd8f4f1e2ab05dc6af8b49eb9bffe25be79c7ebe086",
+    "policyCommitment": "sha256:ab2c157b5b2a777d5c8619709572c5316426f710202adbdfd24468c030bfd27b",
     "commitmentsUnlinkableAcrossIdenticalPayloads": true,
     "tamperedReceiptRejected": true,
+    "tamperedAuthorityRejected": true,
+    "wrongOperatorRejected": true,
     "destinationAcceptedExactProjection": true,
     "receiptChain": {
       "count": 30,
-      "signingKeyId": "eb51f280b9cf0eacdd579d0d5c50a1359478d55dc338ccc1617f996556ff097d",
-      "firstReceiptHash": "10b884866d0e9ae2c7d09422becfa857c658acf792fa111e3c717aa8c54127e2",
-      "lastReceiptHash": "e3c479776425ccf7b67d566bac21716d8e3eb6f29f14252f55c5e43418c6378e"
+      "signingKeyId": "c8444497d15afe494a6bd73ef35bec9407842f34da5a31d7d1b5fd3a328004d9",
+      "firstReceiptHash": "c8c676c640fb86ffbff59961e7eef89d9e526c377ad38c544c503d72806df4a8",
+      "lastReceiptHash": "229c417923d8be65bd2ba64f613657c2d363a5d7f09e8f04507a3d03e758fd48"
     }
   },
   "latencyMs": {
     "samples": 30,
-    "p50": 0.24237499999998136,
-    "p95": 0.4947080000000028,
-    "p99": 1.0112499999999898,
-    "max": 1.0112499999999898
+    "p50": 0.2290410000000236,
+    "p95": 0.8645420000000001,
+    "p99": 1.3435420000000136,
+    "max": 1.3435420000000136
+  },
+  "authority": {
+    "authorityVersion": 1,
+    "domain": "pinpoint.mcp.opaque-flow.session",
+    "operatorKeyId": "83c9c816a6e876242aa00fd8f4f1e2ab05dc6af8b49eb9bffe25be79c7ebe086",
+    "sessionSigningKeyId": "c8444497d15afe494a6bd73ef35bec9407842f34da5a31d7d1b5fd3a328004d9",
+    "sessionPublicKey": "MCowBQYDK2VwAyEAc68O_hPq8KYx49CAgUHLzcGrt-6wsnjOQI7bFLEq2GA",
+    "policyNonce": "4heBTMhO1-pGGf-By0CUohEm4iI2pycs0uF0f3EWzTU",
+    "policyCommitmentAlgorithm": "Ed25519-SHA256",
+    "policyCommitment": "sha256:ab2c157b5b2a777d5c8619709572c5316426f710202adbdfd24468c030bfd27b",
+    "verifier": {
+      "algorithm": "Ed25519",
+      "publicKey": "MCowBQYDK2VwAyEAKxo5JUJdOZB5Bs0mOWOouzi_9YXMtYQ-oE8Z7wTocRY"
+    },
+    "signature": "thVzNAs4i2Pk-9pHM26JdyUaSMQWj6A8ETS_HgNSZA_NRV3djyrxFXxwnbaT-cNAGziYZDKIHULQxAsTu6UHAw"
+  },
+  "opening": {
+    "policyAuthorizationSignature": "Yc25lPvh-CkjJW37bk2VOuc_HFbV52vfIZcgsvKiHM0W0M57N9ow4UuAq1xwYOL2r3Uo3_kgqCqiUG378QxABA"
   },
   "firstReceipt": {
     "receiptVersion": 1,
     "sequence": 1,
     "flow": "validate_renewal_projection",
-    "artifactId": "vctx_4ccdb8dce1b008be3ec139baeda40240",
+    "artifactId": "vctx_d694465b9deaab32ce6ce6fe4c327d72",
     "sourceTool": "synthetic_accounts_list",
     "destinationTool": "synthetic_projection_validate",
     "destinationArgument": "projectedRecords",
@@ -95,26 +119,43 @@
     "items": 40,
     "payloadBytes": 1739,
     "commitmentAlgorithm": "HMAC-SHA256",
-    "payloadCommitment": "hmac-sha256:403dcc5056bf1b73d2fb3aa3acbcda8f71e033f71ebce021205cb062ff9c07db",
-    "queryCommitment": "hmac-sha256:18a3ec0b9763b3f582e5f3ed2afc08ce533ff4363d5f456b2748951d2f628f33",
+    "payloadCommitment": "hmac-sha256:0aa98713e5e8bbceac248a79bab62a6aa6724d4044ffebc2f7599654ad73c912",
+    "queryCommitment": "hmac-sha256:f6df8c2d46a11b5013832194a3ca1f1cc91a9d668e1312f161c74add11479678",
     "destinationSucceeded": true,
     "destinationResultBytes": 120,
-    "destinationResultCommitment": "hmac-sha256:149900602a1a81ffef693aef8cd7511b4ab8165db87e7cf6ae85d79ecfd1a3ae",
+    "destinationResultCommitment": "hmac-sha256:95ac0a54076942e9dad5f5d1b56e881d82b4a5a119443f78c027c3495c4d41b1",
     "previousReceiptHash": "0000000000000000000000000000000000000000000000000000000000000000",
-    "signingKeyId": "eb51f280b9cf0eacdd579d0d5c50a1359478d55dc338ccc1617f996556ff097d",
+    "signingKeyId": "c8444497d15afe494a6bd73ef35bec9407842f34da5a31d7d1b5fd3a328004d9",
     "disclosure": "receipt",
-    "receiptHash": "10b884866d0e9ae2c7d09422becfa857c658acf792fa111e3c717aa8c54127e2",
+    "receiptHash": "c8c676c640fb86ffbff59961e7eef89d9e526c377ad38c544c503d72806df4a8",
     "verifier": {
       "algorithm": "Ed25519",
-      "publicKey": "MCowBQYDK2VwAyEA2XrVe4dhYlhDTELORom692-jHJFcrSRlm6ivfvwiy1I"
+      "publicKey": "MCowBQYDK2VwAyEAc68O_hPq8KYx49CAgUHLzcGrt-6wsnjOQI7bFLEq2GA",
+      "authority": {
+        "authorityVersion": 1,
+        "domain": "pinpoint.mcp.opaque-flow.session",
+        "operatorKeyId": "83c9c816a6e876242aa00fd8f4f1e2ab05dc6af8b49eb9bffe25be79c7ebe086",
+        "sessionSigningKeyId": "c8444497d15afe494a6bd73ef35bec9407842f34da5a31d7d1b5fd3a328004d9",
+        "sessionPublicKey": "MCowBQYDK2VwAyEAc68O_hPq8KYx49CAgUHLzcGrt-6wsnjOQI7bFLEq2GA",
+        "policyNonce": "4heBTMhO1-pGGf-By0CUohEm4iI2pycs0uF0f3EWzTU",
+        "policyCommitmentAlgorithm": "Ed25519-SHA256",
+        "policyCommitment": "sha256:ab2c157b5b2a777d5c8619709572c5316426f710202adbdfd24468c030bfd27b",
+        "verifier": {
+          "algorithm": "Ed25519",
+          "publicKey": "MCowBQYDK2VwAyEAKxo5JUJdOZB5Bs0mOWOouzi_9YXMtYQ-oE8Z7wTocRY"
+        },
+        "signature": "thVzNAs4i2Pk-9pHM26JdyUaSMQWj6A8ETS_HgNSZA_NRV3djyrxFXxwnbaT-cNAGziYZDKIHULQxAsTu6UHAw"
+      }
     },
-    "signature": "gUaFfQAh7gmlUxHKgEf8zocBj1M_VVDr210GMD_QsdGcrAglAfdf525iV_peyicetA0SKgpy3QNobGVKCVXzDw"
+    "signature": "qL_PvmKc4sFu9_wKc2fQu1ho2DouL8j-4z-PFEonGTsrpE-sW9k4abmpMBIjt7TsTxQSWUP57utjq0riBLcsAQ"
   },
   "limitations": [
     "This is a deterministic first-party protocol integration, not a model-quality or production-demand measurement.",
     "The upstream MCP process is trusted with source and destination values; the confidentiality boundary is the client/model-visible MCP transcript.",
     "Counts, byte sizes, field names, tool names, timing, and success status remain observable metadata.",
-    "The receipt key is ephemeral and pinned in the initialize transcript; it is not an operator identity certificate or hardware attestation.",
+    "The session receipt key is delegated by an Ed25519 operator key and bound to a hidden exact-policy commitment.",
+    "The benchmark creates its operator key locally for this first-party run; this proves the mechanism, not an independently attested organizational identity.",
+    "The software operator key is online during gateway startup and is not an HSM, remote attestation, transparency-log, or omission-proof guarantee.",
     "The baseline byte count is a constructed direct-MCP transcript for the identical source and destination payload, not a provider token bill."
   ]
 }

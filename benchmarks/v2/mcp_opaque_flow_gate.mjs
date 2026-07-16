@@ -1,4 +1,4 @@
-import { createHash } from 'node:crypto';
+import { createHash, generateKeyPairSync } from 'node:crypto';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { arch, platform, release } from 'node:os';
 import { dirname, join, relative } from 'node:path';
@@ -10,6 +10,8 @@ import {
   MCP_QUERY_TOOL_NAME,
   parseMcpOpaqueFlowConfig,
   runMcpGateway,
+  verifyMcpOpaqueFlowAuthorityBinding,
+  verifyMcpOpaqueFlowPolicyOpening,
   verifyMcpOpaqueFlowReceipt,
 } from '../../dist/mcp/index.js';
 import {
@@ -74,6 +76,8 @@ const output = new PassThrough();
 const error = new PassThrough();
 const visible = [];
 const next = createResponses(output, visible);
+const operator = generateKeyPairSync('ed25519');
+let authorityRecord;
 const running = runMcpGateway(process.execPath, [server], {
   input,
   output,
@@ -83,6 +87,8 @@ const running = runMcpGateway(process.execPath, [server], {
   exposeQueryTool: flowConfig.exposeQueryTool,
   exposeArtifactResources: flowConfig.exposeArtifactResources,
   opaqueArtifactIds: flowConfig.opaqueArtifactIds,
+  flowAuthoritySigningKey: operator.privateKey,
+  onFlowAuthorityReady: (record) => { authorityRecord = record; },
 });
 let requestId = 0;
 async function request(method, params = {}) {
@@ -185,7 +191,25 @@ input.end();
 const gatewayExitCode = await running;
 const clientTranscript = visible.join('');
 const leakedCanaries = privateCanaries.filter((canary) => clientTranscript.includes(canary));
-const receiptsValid = receipts.every((receipt) => verifyMcpOpaqueFlowReceipt(receipt));
+const authority = verifier?.authority;
+const operatorVerifier = authority == null ? undefined : {
+  algorithm: 'Ed25519',
+  publicKey: authority.verifier.publicKey,
+  operatorKeyId: authority.operatorKeyId,
+};
+const authorityBindingValid = verifyMcpOpaqueFlowAuthorityBinding(
+  authority,
+  operatorVerifier,
+  verifier,
+);
+const policyOpeningValid = verifyMcpOpaqueFlowPolicyOpening(
+  authority,
+  flowConfig,
+  authorityRecord?.opening,
+);
+const receiptsValid = receipts.every((receipt) =>
+  verifyMcpOpaqueFlowReceipt(receipt, verifier, operatorVerifier),
+);
 const chainValid = receipts.every((receipt, index) =>
   receipt.sequence === index + 1 &&
   receipt.previousReceiptHash === (index === 0 ? '0'.repeat(64) : receipts[index - 1].receiptHash),
@@ -199,6 +223,21 @@ const tamperedReceiptRejected = !verifyMcpOpaqueFlowReceipt({
   ...receipts[0],
   payloadBytes: receipts[0].payloadBytes + 1,
 });
+const tamperedAuthorityRejected = !verifyMcpOpaqueFlowReceipt({
+  ...receipts[0],
+  verifier: {
+    ...receipts[0].verifier,
+    authority: {
+      ...receipts[0].verifier.authority,
+      policyCommitment: `sha256:${'0'.repeat(64)}`,
+    },
+  },
+});
+const wrongOperatorRejected = !verifyMcpOpaqueFlowReceipt(
+  receipts[0],
+  verifier,
+  { ...operatorVerifier, operatorKeyId: '0'.repeat(64) },
+);
 const destinationAccepted = receipts.every(({ destinationSucceeded, items }) =>
   destinationSucceeded === true && items === selected.length,
 );
@@ -246,11 +285,15 @@ const passed =
   denials.every(Boolean) &&
   leakedCanaries.length === 0 &&
   noPublicValueHashes &&
+  authorityBindingValid &&
+  policyOpeningValid &&
   receiptsValid &&
   chainValid &&
   pinnedVerifier &&
   commitmentsUnlinkable &&
   tamperedReceiptRejected &&
+  tamperedAuthorityRejected &&
+  wrongOperatorRejected &&
   destinationAccepted;
 
 const result = {
@@ -267,7 +310,7 @@ const result = {
   },
   source: {
     description: 'Production gateway and an unmodified deterministic stdio MCP fixture; no model or provider call.',
-    persistedData: 'Synthetic values are not persisted in this receipt. Only counts, byte sizes, source fingerprints, and commitment receipts are retained.',
+    persistedData: 'Synthetic source and destination values are not persisted. Counts, byte sizes, fingerprints, receipts, and the opening signature for the already-public synthetic policy are retained.',
     fingerprints: Object.fromEntries([
       'src/mcp/flow.ts',
       'src/mcp/gateway.ts',
@@ -307,8 +350,14 @@ const result = {
     receiptsValid,
     receiptChainValid: chainValid,
     verifierPinnedAtInitialize: pinnedVerifier,
+    operatorAuthorityBindingValid: authorityBindingValid,
+    exactPolicyOpeningValid: policyOpeningValid,
+    operatorKeyId: operatorVerifier?.operatorKeyId ?? null,
+    policyCommitment: authority?.policyCommitment ?? null,
     commitmentsUnlinkableAcrossIdenticalPayloads: commitmentsUnlinkable,
     tamperedReceiptRejected,
+    tamperedAuthorityRejected,
+    wrongOperatorRejected,
     destinationAcceptedExactProjection: destinationAccepted,
     receiptChain: {
       count: receipts.length,
@@ -324,12 +373,16 @@ const result = {
     p99: percentile(latenciesMs, 0.99),
     max: Math.max(...latenciesMs),
   },
+  authority: authorityRecord?.authority,
+  opening: authorityRecord?.opening,
   firstReceipt: receipts[0],
   limitations: [
     'This is a deterministic first-party protocol integration, not a model-quality or production-demand measurement.',
     'The upstream MCP process is trusted with source and destination values; the confidentiality boundary is the client/model-visible MCP transcript.',
     'Counts, byte sizes, field names, tool names, timing, and success status remain observable metadata.',
-    'The receipt key is ephemeral and pinned in the initialize transcript; it is not an operator identity certificate or hardware attestation.',
+    'The session receipt key is delegated by an Ed25519 operator key and bound to a hidden exact-policy commitment.',
+    'The benchmark creates its operator key locally for this first-party run; this proves the mechanism, not an independently attested organizational identity.',
+    'The software operator key is online during gateway startup and is not an HSM, remote attestation, transparency-log, or omission-proof guarantee.',
     'The baseline byte count is a constructed direct-MCP transcript for the identical source and destination payload, not a provider token bill.',
   ],
 };

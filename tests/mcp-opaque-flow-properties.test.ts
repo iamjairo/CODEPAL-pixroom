@@ -1,8 +1,12 @@
+import { generateKeyPairSync } from 'node:crypto';
+
 import { describe, expect, it } from 'vitest';
 
 import {
   McpOpaqueFlowEngine,
   parseMcpOpaqueFlowConfig,
+  verifyMcpOpaqueFlowAuthorityBinding,
+  verifyMcpOpaqueFlowPolicyOpening,
   verifyMcpOpaqueFlowReceipt,
   type McpOpaqueFlowPolicy,
 } from '../src/mcp/flow.js';
@@ -32,7 +36,11 @@ const basePolicy: McpOpaqueFlowPolicy = {
   maxBytes: 4096,
 };
 
-function harness(policy: McpOpaqueFlowPolicy = basePolicy) {
+function harness(
+  policy: McpOpaqueFlowPolicy = basePolicy,
+  authoritySigningKey?: ReturnType<typeof generateKeyPairSync>['privateKey'],
+) {
+  const config = parseMcpOpaqueFlowConfig({ version: 1, flows: [policy] });
   const store = new VirtualContextStore(32_000, 32, 1024 * 1024);
   const descriptor = store.put(JSON.stringify(rows));
   const queries: VirtualContextQuery[] = [];
@@ -47,7 +55,10 @@ function harness(policy: McpOpaqueFlowPolicy = basePolicy) {
   };
   return {
     descriptor,
-    engine: new McpOpaqueFlowEngine(artifacts, [policy]),
+    engine: new McpOpaqueFlowEngine(artifacts, config.flows, {
+      ...(authoritySigningKey ? { authoritySigningKey, authorityPolicy: config } : {}),
+    }),
+    config,
     queries,
   };
 }
@@ -104,6 +115,64 @@ describe('opaque-flow safety properties', () => {
     expect(firstReceipt.policyShapeSha256).toBe(secondReceipt.policyShapeSha256);
     expect(JSON.stringify(firstReceipt)).not.toContain('renewal');
     expect(JSON.stringify(firstReceipt)).not.toContain('"active":true');
+  });
+
+  it('binds fresh session keys and complete hidden policies to one stable operator authority', () => {
+    const operator = generateKeyPairSync('ed25519');
+    const otherOperator = generateKeyPairSync('ed25519');
+    const first = harness(basePolicy, operator.privateKey);
+    const second = harness(basePolicy, operator.privateKey);
+    const changed = harness({ ...basePolicy, fixedWhere: { active: false } }, operator.privateKey);
+    const other = harness(basePolicy, otherOperator.privateKey);
+    const firstVerifier = first.engine.receiptVerifier;
+    const firstBinding = firstVerifier.authority!;
+    const firstOpening = first.engine.authorityPolicyOpening!;
+    const firstReceipt = receipt(first.engine.complete(
+      prepare(first.engine, first.descriptor.id),
+      { content: [{ type: 'text', text: 'accepted' }] },
+    ));
+
+    expect(first.engine.authorityVerifier?.operatorKeyId).toBe(second.engine.authorityVerifier?.operatorKeyId);
+    expect(firstVerifier.signingKeyId).not.toBe(second.engine.receiptVerifier.signingKeyId);
+    expect(firstBinding.policyCommitment).not.toBe(second.engine.receiptVerifier.authority?.policyCommitment);
+    expect(firstBinding.policyNonce).not.toBe(second.engine.receiptVerifier.authority?.policyNonce);
+    expect(firstBinding.policyCommitment).not.toBe(changed.engine.receiptVerifier.authority?.policyCommitment);
+    expect(verifyMcpOpaqueFlowAuthorityBinding(
+      firstBinding,
+      first.engine.authorityVerifier,
+      firstVerifier,
+    )).toBe(true);
+    expect(verifyMcpOpaqueFlowPolicyOpening(firstBinding, first.config, firstOpening)).toBe(true);
+    expect(verifyMcpOpaqueFlowPolicyOpening(firstBinding, changed.config, firstOpening)).toBe(false);
+    expect(verifyMcpOpaqueFlowReceipt(
+      firstReceipt,
+      firstVerifier,
+      first.engine.authorityVerifier,
+    )).toBe(true);
+    expect(verifyMcpOpaqueFlowReceipt(
+      firstReceipt,
+      firstVerifier,
+      other.engine.authorityVerifier,
+    )).toBe(false);
+
+    const swappedSession = {
+      ...firstReceipt,
+      verifier: {
+        ...firstReceipt.verifier,
+        authority: second.engine.receiptVerifier.authority,
+      },
+    };
+    const tamperedCommitment = {
+      ...firstReceipt,
+      verifier: {
+        ...firstReceipt.verifier,
+        authority: { ...firstBinding, policyCommitment: `sha256:${'0'.repeat(64)}` },
+      },
+    };
+    expect(verifyMcpOpaqueFlowReceipt(swappedSession)).toBe(false);
+    expect(verifyMcpOpaqueFlowReceipt(tamperedCommitment)).toBe(false);
+    expect(JSON.stringify(firstBinding)).not.toContain('renewal');
+    expect(JSON.stringify(firstBinding)).not.toContain('"active":true');
   });
 
   it('rejects selected payloads above the policy byte bound before completion', () => {

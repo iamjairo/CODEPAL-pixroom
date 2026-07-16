@@ -18,10 +18,16 @@ export type {
 } from './gateway.js';
 export {
   parseMcpOpaqueFlowConfig,
+  verifyMcpOpaqueFlowAuthorityBinding,
+  verifyMcpOpaqueFlowPolicyOpening,
   verifyMcpOpaqueFlowReceipt,
 } from './flow.js';
 export type {
+  McpOpaqueFlowAuthorityBinding,
+  McpOpaqueFlowAuthorityRecord,
+  McpOpaqueFlowAuthorityVerifier,
   McpOpaqueFlowConfig,
+  McpOpaqueFlowPolicyOpening,
   McpOpaqueFlowOperation,
   McpOpaqueFlowReceipt,
   McpOpaqueFlowReceiptVerifier,

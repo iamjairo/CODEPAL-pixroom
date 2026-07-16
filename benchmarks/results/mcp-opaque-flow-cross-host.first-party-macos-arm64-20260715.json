@@ -2,17 +2,17 @@
   "schemaVersion": 1,
   "evidenceLevel": "live-agentic",
   "kind": "mcp-value-opaque-flow-cross-host-gate",
-  "date": "2026-07-15",
+  "date": "2026-07-16",
   "passed": true,
   "source": {
     "description": "Three installed unmodified agent hosts independently executed the same synthetic value-opaque flow through the production CLI gateway.",
     "persistedData": "Only content-free grading summaries and receipt identifiers are retained. Event streams, debug logs, synthetic values, credentials, and personal paths are not persisted.",
     "fingerprints": {
-      "src/mcp/flow.ts": "cb5c40376f4bd9ad2f70dae5fa56f8506e6628b2c54739643c43612395f51e05",
-      "src/mcp/gateway.ts": "b3ea3566a2024f540e2cae6902580ba16dc525baf435c8bd8eaf81b687a7e6b6",
+      "src/mcp/flow.ts": "e7f42d05ae53cc79ea843854b321d098a2987bd7597e723b1c5e066361c6f65b",
+      "src/mcp/gateway.ts": "d242fc2056d12d936ac0af09dc717b944fd2a9148026c5f889c7e5bfaf30a790",
       "src/virtual-context/store.ts": "7b0bbc2de4e400b7cb85a23d926bf5ec2c898c7242df57b220026bf3cbc36783",
-      "src/cli/main.ts": "c9d2677e188b197be550448073e8e02a49db04dd7642203d27372c198ba1f22b",
-      "benchmarks/v2/mcp_opaque_flow_cross_host_gate.mjs": "2e311541cb7c7019b00ea718e5d99f83a12d8d45fb1dbe65fe04699e529dc608",
+      "src/cli/main.ts": "ba7e9f96e426098887f4ca5bc2550ad310445a5782551cc9bf140913bf49cc15",
+      "benchmarks/v2/mcp_opaque_flow_cross_host_gate.mjs": "fb4d91d1f02007ddf28ec28f47ea7a5742d09a0d988c0119b992c7597daecb5e",
       "benchmarks/fixtures/opaque_flow_data.mjs": "af3b9cdde4f9a025acc1d8dade13dec080025072edd2d3483dbde7226d11b263",
       "benchmarks/fixtures/opaque_flow_server.mjs": "1a70a6162a7b30ae71f72616d611b7e3e0081806ee666ef64db1dc9bd006d603",
       "benchmarks/fixtures/opaque_flow_config.json": "4fa07b38e09d0a70acdb9ca0c554850ac1d5f9dec2e41405e121604ee0aaee53"
@@ -35,6 +35,8 @@
     "flowCallsObserved": 2,
     "modelDestinationCallsObserved": 0,
     "exactDestinationAcceptances": 2,
+    "operatorRootedReceipts": 2,
+    "sharedOperatorKeyId": "ed0912f1ad7374e9df26e811a1b5c68a64778a13f31c46ca80de97b9bc102c48",
     "privateCanariesScannedPerHost": 400,
     "privateCanariesLeaked": 0,
     "publicValueHashesLeaked": false,
@@ -56,6 +58,8 @@
       "receipt": {
         "count": 1,
         "valid": true,
+        "operatorKeyId": "ed0912f1ad7374e9df26e811a1b5c68a64778a13f31c46ca80de97b9bc102c48",
+        "policyCommitment": "sha256:ad2894d0b1ca00950477f40e002704a5d24037448c3ee59a6a6f84bd24c9a581",
         "destinationSucceeded": true,
         "items": 40,
         "projectionFields": [
@@ -64,21 +68,21 @@
         "whereFields": [
           "segment"
         ],
-        "artifactId": "vctx_e60d02933e8316ce895576301d3a9d1e",
-        "receiptHash": "3404ec9378c039041389938892a525271e6ec3de13b62e28bfacf8823b7d20ee",
-        "signingKeyId": "54949b03a00f57cb541a5bef82599303981268b28c1f5c9c8b71a1230f68cf36"
+        "artifactId": "vctx_901d2b9242798d2bc0e7909f195b25ad",
+        "receiptHash": "95cd80cad844a92d0c10834b5708ba02d02d78b6ee9947d1d4b960c99f9c9aab",
+        "signingKeyId": "ef329ee49fbf322b12078617d03ee0939a814c1db52ee688bf87758492383b56"
       },
       "privateCanariesLeaked": 0,
       "publicValueHashesLeaked": false,
       "answer": "VALIDATED",
-      "turns": 10,
-      "observedCostUSD": 0.04690455,
+      "turns": 4,
+      "observedCostUSD": 0.023774700000000003,
       "exceededOutputCap": false,
       "diagnostic": null
     },
     {
       "host": "GitHub Copilot CLI",
-      "clientVersion": "GitHub Copilot CLI 1.0.71-3.",
+      "clientVersion": "GitHub Copilot CLI 1.0.71.",
       "model": "gpt-5.3-codex",
       "status": "passed",
       "exitCode": 0,
@@ -91,6 +95,8 @@
       "receipt": {
         "count": 1,
         "valid": true,
+        "operatorKeyId": "ed0912f1ad7374e9df26e811a1b5c68a64778a13f31c46ca80de97b9bc102c48",
+        "policyCommitment": "sha256:282badfcba5702f513e3a2db762ed8b0fcbe661446c667e69c73bd00b6837509",
         "destinationSucceeded": true,
         "items": 40,
         "projectionFields": [
@@ -99,17 +105,17 @@
         "whereFields": [
           "segment"
         ],
-        "artifactId": "vctx_903b4583fdfc4aa0e4b8eccfef179c0c",
-        "receiptHash": "a7514632e0e1b5ad6b6d4b0364b2dff16540c02e9c30a0d8b2a4871b01a97b1b",
-        "signingKeyId": "66add31f57a4b1bb4a66f2d287abe17c8435ed20b3a8350621c8a521ac9d2d1a"
+        "artifactId": "vctx_d49207d8bb4fc4075e3c775d15b55111",
+        "receiptHash": "6d436cec39d410bdc32729bb46a82fde073a5c89961761d633f8b471c4913349",
+        "signingKeyId": "82790897ff9cca947f4353efa72408833a5f66eb15b1330393643c6b9a4cf48e"
       },
       "privateCanariesLeaked": 0,
       "publicValueHashesLeaked": false,
       "answer": "VALIDATED",
       "usage": {
         "premiumRequests": 0,
-        "totalApiDurationMs": 7434,
-        "sessionDurationMs": 12710,
+        "totalApiDurationMs": 6691,
+        "sessionDurationMs": 10246,
         "codeChanges": {
           "linesAdded": 0,
           "linesRemoved": 0,
@@ -131,6 +137,8 @@
       "receipt": {
         "count": 0,
         "valid": false,
+        "operatorKeyId": null,
+        "policyCommitment": null,
         "destinationSucceeded": false,
         "items": null,
         "projectionFields": null,
@@ -150,7 +158,7 @@
         "turn.failed"
       ],
       "exceededOutputCap": false,
-      "diagnostic": "stream error: exceeded retry limit, last status: 401 Unauthorized, request id: a1ba14bcadee36f8-TLV; retrying 1/5 in 195ms…\nstream error: exceeded retry limit, last status: 401 Unauthorized, request id: a1ba14d67ffa36f8-TLV; retrying 2/5 in 381ms…\nstream error: exceeded retry limit, last status: 401 Unauthorized, request id: a1ba14f1fcd436f8-TLV; retrying 3/5 in 845ms…\nstream error: exceeded retry limit, last status: 401 Unauthorized, request id: a1ba15106afc36f8-TLV; retrying 4/5 in 1.489s…\nstream error: exceeded retry limit, last status: 401 Unauthorized, request id: a1ba15326f4036f8-TLV; retrying 5/5 in 3.155s…\nexceeded retry limit, last status: 401 Unauthorized, request id: a1ba155f5b8c36f8-TLV\nexceeded retry limit, last status: 401 Unauthorized, request id: a1ba155f5b8c36f8-TLV"
+      "diagnostic": "stream error: exceeded retry limit, last status: 401 Unauthorized, request id: a1bf5fa62edb5115-TLV; retrying 1/5 in 198ms…\nstream error: exceeded retry limit, last status: 401 Unauthorized, request id: a1bf5fbf3f9a5115-TLV; retrying 2/5 in 387ms…\nstream error: exceeded retry limit, last status: 401 Unauthorized, request id: a1bf5fdb3ae65115-TLV; retrying 3/5 in 777ms…\nstream error: exceeded retry limit, last status: 401 Unauthorized, request id: a1bf5ff82d275115-TLV; retrying 4/5 in 1.75s…\nstream error: exceeded retry limit, last status: 401 Unauthorized, request id: a1bf601b88465115-TLV; retrying 5/5 in 3.026s…\nexceeded retry limit, last status: 401 Unauthorized, request id: a1bf6049a9e85115-TLV\nexceeded retry limit, last status: 401 Unauthorized, request id: a1bf6049a9e85115-TLV"
     }
   ],
   "limitations": [
@@ -159,6 +167,6 @@
     "The prompt explicitly requests the opaque_conformance MCP server and flow sequence; it measures autonomous protocol use, not tool discovery among unrelated servers.",
     "The upstream synthetic process is trusted with source and destination values. The measured confidentiality boundary is each client event stream and model-visible MCP transcript.",
     "Exact canary absence proves non-occurrence for this fixture trace, not semantic noninterference against timing, cardinality, field-name, or success-status side channels.",
-    "Receipt keys are ephemeral session keys pinned in MCP initialize responses, not operator identity certificates or hardware attestations."
+    "Fresh receipt-session keys are delegated by one temporary first-party operator key shared across hosts. This proves mechanism interoperability, not externally attested organizational identity, hardware protection, or transparency inclusion."
   ]
 }

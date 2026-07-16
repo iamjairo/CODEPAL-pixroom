@@ -8,7 +8,8 @@
  *   pinpoint mcp | wrap         distribution front doors (roadmap)
  */
 
-import { readFileSync } from 'node:fs';
+import { createHash, createPrivateKey, createPublicKey, generateKeyPairSync, type KeyObject } from 'node:crypto';
+import { readFileSync, statSync, writeFileSync } from 'node:fs';
 import { basename } from 'node:path';
 
 import { createProxyServer } from '../proxy/server.js';
@@ -56,10 +57,14 @@ COMMANDS
   integration      List active optimizer integrations and their capabilities.
   agent             List agent adapters and their actual interception level.
   mcp              MCP server over stdio (tools: pinpoint_compress / _retrieve / _stats).
-  mcp gateway [--min-chars N] [--flow-config FILE] -- <command> [args...]
+  mcp gateway [--min-chars N] [--flow-config FILE]
+              [--flow-authority-key FILE] [--flow-authority-opening FILE]
+              -- <command> [args...]
                    Wrap any stdio MCP server. Oversized exact results stay local;
                    hosts receive a resource handle plus pinpoint_query. A flow
                    config enables policy-bound value-opaque tool composition.
+  mcp authority init --out FILE
+                   Create a mode-0600 Ed25519 operator authority key.
   wrap <agent>     Start pinpoint (or delegate) and launch <agent> pointed at it.
                    Agents: claude, codex, aider, goose, openhands, opencode, vibe,
                    copilot (uses your existing login, no API key); cursor/cline/
@@ -80,6 +85,8 @@ COMMON ENV
   PINPOINT_CCR_CONTINUATION             execute retrieve tools locally (default on)
   PINPOINT_MCP_MIN_CHARS                MCP gateway virtualization threshold (default 16000)
   PINPOINT_MCP_FLOW_CONFIG              Versioned opaque-flow policy JSON file
+  PINPOINT_MCP_FLOW_AUTHORITY_KEY        Ed25519 operator private-key file
+  PINPOINT_MCP_FLOW_AUTHORITY_OPENING    Protected policy-opening record path
   PINPOINT_HEADROOM_URL               headroom sidecar base URL (default http://127.0.0.1:8787)
   PINPOINT_HEADROOM_AUTOSPAWN         auto-start 'headroom proxy' if not reachable (default on)
   PINPOINT_OPTICAL_ON_SUBSCRIPTION    allow lossy optical on oauth/subscription (default off)
@@ -126,6 +133,7 @@ export function parseProxyArgs(args: readonly string[]): ProxyArgsResult {
 
 export type McpArgsResult =
   | { readonly ok: true; readonly mode: 'server' }
+  | { readonly ok: true; readonly mode: 'authority-init'; readonly outputPath: string }
   | {
       readonly ok: true;
       readonly mode: 'gateway';
@@ -133,6 +141,8 @@ export type McpArgsResult =
       readonly args: readonly string[];
       readonly minChars?: number;
       readonly flowConfigPath?: string;
+      readonly flowAuthorityKeyPath?: string;
+      readonly flowAuthorityOpeningPath?: string;
     }
   | { readonly ok: false; readonly error: string };
 
@@ -140,10 +150,27 @@ export function parseMcpArgs(args: readonly string[]): McpArgsResult {
   if (args.length === 0 || (args.length === 1 && args[0] === 'serve')) {
     return { ok: true, mode: 'server' };
   }
+  if (args[0] === 'authority') {
+    if (args[1] !== 'init') {
+      return { ok: false, error: 'usage: pinpoint mcp authority init --out FILE' };
+    }
+    let outputPath: string | undefined;
+    for (let index = 2; index < args.length; index += 1) {
+      const arg = args[index];
+      if (arg !== '--out') return { ok: false, error: `unknown mcp authority option: ${arg}` };
+      const value = args[++index];
+      if (!value) return { ok: false, error: '--out requires a file path' };
+      if (outputPath != null) return { ok: false, error: '--out may be specified only once' };
+      outputPath = value;
+    }
+    return outputPath
+      ? { ok: true, mode: 'authority-init', outputPath }
+      : { ok: false, error: '--out requires a file path' };
+  }
   if (args[0] !== 'gateway') {
     return {
       ok: false,
-      error: 'usage: pinpoint mcp gateway [--min-chars N] [--flow-config FILE] -- <command> [args...]',
+      error: 'usage: pinpoint mcp gateway [options] -- <command> [args...]',
     };
   }
 
@@ -153,6 +180,8 @@ export function parseMcpArgs(args: readonly string[]): McpArgsResult {
   }
   let minChars: number | undefined;
   let flowConfigPath: string | undefined;
+  let flowAuthorityKeyPath: string | undefined;
+  let flowAuthorityOpeningPath: string | undefined;
   for (let index = 1; index < separator; index += 1) {
     const arg = args[index];
     if (arg === '--flow-config') {
@@ -160,6 +189,22 @@ export function parseMcpArgs(args: readonly string[]): McpArgsResult {
       if (!value) return { ok: false, error: '--flow-config requires a file path' };
       if (flowConfigPath != null) return { ok: false, error: '--flow-config may be specified only once' };
       flowConfigPath = value;
+      continue;
+    }
+    if (arg === '--flow-authority-key' || arg === '--flow-authority-opening') {
+      const value = args[++index];
+      if (!value) return { ok: false, error: `${arg} requires a file path` };
+      if (arg === '--flow-authority-key') {
+        if (flowAuthorityKeyPath != null) {
+          return { ok: false, error: '--flow-authority-key may be specified only once' };
+        }
+        flowAuthorityKeyPath = value;
+      } else {
+        if (flowAuthorityOpeningPath != null) {
+          return { ok: false, error: '--flow-authority-opening may be specified only once' };
+        }
+        flowAuthorityOpeningPath = value;
+      }
       continue;
     }
     if (arg !== '--min-chars') {
@@ -180,7 +225,36 @@ export function parseMcpArgs(args: readonly string[]): McpArgsResult {
     args: args.slice(separator + 2),
     ...(minChars != null ? { minChars } : {}),
     ...(flowConfigPath != null ? { flowConfigPath } : {}),
+    ...(flowAuthorityKeyPath != null ? { flowAuthorityKeyPath } : {}),
+    ...(flowAuthorityOpeningPath != null ? { flowAuthorityOpeningPath } : {}),
   };
+}
+
+function authorityKeyId(key: KeyObject): string {
+  const publicDer = createPublicKey(key).export({ type: 'spki', format: 'der' });
+  return createHash('sha256').update(publicDer).digest('hex');
+}
+
+function initializeMcpAuthority(outputPath: string): void {
+  const pair = generateKeyPairSync('ed25519');
+  const privateKey = pair.privateKey.export({ type: 'pkcs8', format: 'pem' });
+  writeFileSync(outputPath, privateKey, { encoding: 'utf8', mode: 0o600, flag: 'wx' });
+  console.log(JSON.stringify({
+    algorithm: 'Ed25519',
+    operatorKeyId: authorityKeyId(pair.privateKey),
+    privateKeyPath: outputPath,
+  }, null, 2));
+}
+
+function loadMcpAuthorityKey(keyPath: string): KeyObject {
+  if (process.platform !== 'win32' && (statSync(keyPath).mode & 0o077) !== 0) {
+    throw new Error('authority private-key file must not be accessible by group or other users (chmod 600)');
+  }
+  const key = createPrivateKey(readFileSync(keyPath));
+  if (key.type !== 'private' || key.asymmetricKeyType !== 'ed25519') {
+    throw new Error('authority key must be an Ed25519 private key');
+  }
+  return key;
 }
 
 async function cmdProxy(args: readonly string[]): Promise<void> {
@@ -373,6 +447,15 @@ async function cmdMcp(args: readonly string[]): Promise<void> {
     await runMcpServer();
     return;
   }
+  if (parsed.mode === 'authority-init') {
+    try {
+      initializeMcpAuthority(parsed.outputPath);
+    } catch (cause) {
+      console.error(`could not create MCP opaque-flow authority: ${cause instanceof Error ? cause.message : String(cause)}`);
+      process.exitCode = 2;
+    }
+    return;
+  }
 
   const envThreshold = process.env.PINPOINT_MCP_MIN_CHARS;
   const configuredThreshold = envThreshold == null ? undefined : Number(envThreshold);
@@ -386,6 +469,9 @@ async function cmdMcp(args: readonly string[]): Promise<void> {
     return;
   }
   const flowConfigPath = parsed.flowConfigPath ?? process.env.PINPOINT_MCP_FLOW_CONFIG;
+  const flowAuthorityKeyPath = parsed.flowAuthorityKeyPath ?? process.env.PINPOINT_MCP_FLOW_AUTHORITY_KEY;
+  const flowAuthorityOpeningPath = parsed.flowAuthorityOpeningPath ??
+    process.env.PINPOINT_MCP_FLOW_AUTHORITY_OPENING;
   let flowConfig: McpOpaqueFlowConfig | undefined;
   if (flowConfigPath) {
     try {
@@ -393,6 +479,28 @@ async function cmdMcp(args: readonly string[]): Promise<void> {
     } catch (cause) {
       console.error(
         `invalid MCP opaque-flow config ${flowConfigPath}: ${cause instanceof Error ? cause.message : String(cause)}`,
+      );
+      process.exitCode = 2;
+      return;
+    }
+  }
+  if (flowAuthorityKeyPath && !flowConfig) {
+    console.error('an MCP opaque-flow authority key requires --flow-config or PINPOINT_MCP_FLOW_CONFIG');
+    process.exitCode = 2;
+    return;
+  }
+  if (flowAuthorityOpeningPath && !flowAuthorityKeyPath) {
+    console.error('an MCP authority opening path requires --flow-authority-key or PINPOINT_MCP_FLOW_AUTHORITY_KEY');
+    process.exitCode = 2;
+    return;
+  }
+  let flowAuthoritySigningKey: KeyObject | undefined;
+  if (flowAuthorityKeyPath) {
+    try {
+      flowAuthoritySigningKey = loadMcpAuthorityKey(flowAuthorityKeyPath);
+    } catch (cause) {
+      console.error(
+        `invalid MCP opaque-flow authority key ${flowAuthorityKeyPath}: ${cause instanceof Error ? cause.message : String(cause)}`,
       );
       process.exitCode = 2;
       return;
@@ -411,6 +519,16 @@ async function cmdMcp(args: readonly string[]): Promise<void> {
         exposeQueryTool: flowConfig.exposeQueryTool,
         exposeArtifactResources: flowConfig.exposeArtifactResources,
         opaqueArtifactIds: flowConfig.opaqueArtifactIds,
+      } : {}),
+      ...(flowAuthoritySigningKey ? {
+        flowAuthoritySigningKey,
+        ...(flowAuthorityOpeningPath ? {
+          onFlowAuthorityReady: (record) => writeFileSync(
+            flowAuthorityOpeningPath,
+            `${JSON.stringify(record, null, 2)}\n`,
+            { encoding: 'utf8', mode: 0o600, flag: 'wx' },
+          ),
+        } : {}),
       } : {}),
     });
     if (!controller.signal.aborted && code !== 0) process.exitCode = code ?? 1;

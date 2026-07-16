@@ -1,5 +1,5 @@
 import { spawn, spawnSync } from 'node:child_process';
-import { createHash } from 'node:crypto';
+import { createHash, createPublicKey, generateKeyPairSync } from 'node:crypto';
 import { chmodSync, copyFileSync, existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { homedir, tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
@@ -18,6 +18,22 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const cli = join(root, 'bin', 'cli.js');
 const server = join(root, 'benchmarks', 'fixtures', 'opaque_flow_server.mjs');
 const flowConfig = join(root, 'benchmarks', 'fixtures', 'opaque_flow_config.json');
+const authorityDirectory = mkdtempSync(join(tmpdir(), 'pinpoint-opaque-authority-'));
+const authorityKeyPath = join(authorityDirectory, 'operator.pem');
+const authorityKey = generateKeyPairSync('ed25519');
+writeFileSync(
+  authorityKeyPath,
+  authorityKey.privateKey.export({ type: 'pkcs8', format: 'pem' }),
+  { mode: 0o600 },
+);
+const authorityPublicKeyBytes = createPublicKey(authorityKey.privateKey).export({ type: 'spki', format: 'der' });
+const operatorVerifier = {
+  algorithm: 'Ed25519',
+  publicKey: authorityPublicKeyBytes.toString('base64url'),
+  operatorKeyId: createHash('sha256').update(authorityPublicKeyBytes).digest('hex'),
+};
+const cleanupAuthority = () => rmSync(authorityDirectory, { recursive: true, force: true });
+process.once('exit', cleanupAuthority);
 const resultPath = join(
   root,
   'benchmarks',
@@ -133,7 +149,9 @@ function receiptGrade(receipts) {
   const receipt = receipts[0];
   return {
     count: receipts.length,
-    valid: receipts.length === 1 && verifyMcpOpaqueFlowReceipt(receipt),
+    valid: receipts.length === 1 && verifyMcpOpaqueFlowReceipt(receipt, undefined, operatorVerifier),
+    operatorKeyId: receipt?.verifier?.authority?.operatorKeyId ?? null,
+    policyCommitment: receipt?.verifier?.authority?.policyCommitment ?? null,
     destinationSucceeded: receipt?.destinationSucceeded === true,
     items: receipt?.items ?? null,
     projectionFields: receipt?.projectionFields ?? null,
@@ -153,6 +171,8 @@ function gatewayArgs() {
     '100000000',
     '--flow-config',
     flowConfig,
+    '--flow-authority-key',
+    authorityKeyPath,
     '--',
     process.execPath,
     server,
@@ -474,6 +494,7 @@ const executedHosts = hosts.filter(({ status }) => status !== 'not_executed');
 const passed =
   executedHosts.length >= 2 &&
   executedHosts.every(({ status }) => status === 'passed') &&
+  executedHosts.every(({ receipt }) => receipt.operatorKeyId === operatorVerifier.operatorKeyId) &&
   beforeStatus === afterStatus;
 const result = {
   schemaVersion: 1,
@@ -512,6 +533,10 @@ const result = {
     flowCallsObserved: hosts.filter(({ calls }) => calls.some((name) => name.endsWith('pinpoint_flow'))).length,
     modelDestinationCallsObserved: hosts.filter(({ calls }) => calls.some((name) => name.endsWith('synthetic_projection_validate'))).length,
     exactDestinationAcceptances: hosts.filter(({ receipt }) => receipt.destinationSucceeded).length,
+    operatorRootedReceipts: executedHosts.filter(
+      ({ receipt }) => receipt.operatorKeyId === operatorVerifier.operatorKeyId,
+    ).length,
+    sharedOperatorKeyId: operatorVerifier.operatorKeyId,
     privateCanariesScannedPerHost: privateCanaries.length,
     privateCanariesLeaked: hosts.reduce((sum, host) => sum + host.privateCanariesLeaked, 0),
     publicValueHashesLeaked: hosts.some(({ publicValueHashesLeaked }) => publicValueHashesLeaked),
@@ -524,7 +549,7 @@ const result = {
     'The prompt explicitly requests the opaque_conformance MCP server and flow sequence; it measures autonomous protocol use, not tool discovery among unrelated servers.',
     'The upstream synthetic process is trusted with source and destination values. The measured confidentiality boundary is each client event stream and model-visible MCP transcript.',
     'Exact canary absence proves non-occurrence for this fixture trace, not semantic noninterference against timing, cardinality, field-name, or success-status side channels.',
-    'Receipt keys are ephemeral session keys pinned in MCP initialize responses, not operator identity certificates or hardware attestations.',
+    'Fresh receipt-session keys are delegated by one temporary first-party operator key shared across hosts. This proves mechanism interoperability, not externally attested organizational identity, hardware protection, or transparency inclusion.',
   ],
 };
 
@@ -535,4 +560,6 @@ for (const host of hosts) {
     console.error(host.diagnostic.replace(/(?:gh[opsu]_|sk-ant-|sk-)[A-Za-z0-9_-]+/g, '[REDACTED]'));
   }
 }
+process.off('exit', cleanupAuthority);
+cleanupAuthority();
 if (!passed) process.exitCode = 1;

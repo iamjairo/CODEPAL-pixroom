@@ -15,6 +15,8 @@
 mtype = {
     ListValid,
     ListInvalid,
+   AuthorityValid,
+   AuthorityTamper,
     SourceCall,
     FlowAttempt,
     DirectDestination,
@@ -27,6 +29,7 @@ mtype = {
 };
 
 bool catalog_valid = false;
+bool authority_valid = false;
 bool capability_valid = false;
 bool protected_data_handled = false;
 
@@ -73,6 +76,14 @@ active proctype ReferenceMonitor() {
            catalog_valid = false;
            capability_valid = false
 
+        :: action = AuthorityValid;
+           /* A trusted operator delegates the session key for the exact policy. */
+           authority_valid = true
+
+        :: action = AuthorityTamper;
+           /* Wrong roots, changed policy commitments, and key swaps invalidate authority. */
+           authority_valid = false
+
         :: action = SourceCall;
            if
            :: catalog_valid ->
@@ -97,6 +108,7 @@ active proctype ReferenceMonitor() {
 
            if
            :: catalog_valid &&
+              authority_valid &&
               capability_valid &&
               operation_allowed &&
               where_fields_allowed &&
@@ -152,6 +164,7 @@ active proctype ReferenceMonitor() {
         /* Safety 2: destination dispatch implies every policy predicate held. */
       assert(!destination_called ||
              (catalog_valid &&
+          authority_valid &&
          capability_valid &&
          operation_allowed &&
          where_fields_allowed &&

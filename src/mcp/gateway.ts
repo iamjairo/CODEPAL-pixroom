@@ -1,5 +1,5 @@
 import { spawn } from 'node:child_process';
-import { randomBytes, randomUUID } from 'node:crypto';
+import { randomBytes, randomUUID, type KeyObject } from 'node:crypto';
 import { createInterface } from 'node:readline';
 import type { Readable, Writable } from 'node:stream';
 
@@ -13,6 +13,7 @@ import {
 import {
   MCP_FLOW_TOOL_NAME,
   McpOpaqueFlowEngine,
+  type McpOpaqueFlowAuthorityRecord,
   type McpOpaqueFlowPolicy,
   type PreparedMcpOpaqueFlow,
 } from './flow.js';
@@ -64,6 +65,8 @@ export interface McpGatewayOptions extends McpResultFirewallOptions {
   readonly signal?: AbortSignal;
   readonly shutdownGraceMs?: number;
   readonly flows?: readonly McpOpaqueFlowPolicy[];
+  readonly flowAuthoritySigningKey?: KeyObject;
+  readonly onFlowAuthorityReady?: (record: McpOpaqueFlowAuthorityRecord) => void;
 }
 
 export interface McpResultTransformation {
@@ -725,7 +728,23 @@ export async function runMcpGateway(
     flowToolAvailable: flows.length > 0,
     protectedSourceTools: flows.map(({ sourceTool }) => sourceTool),
   });
-  const flowEngine = flows.length > 0 ? new McpOpaqueFlowEngine(firewall, flows) : undefined;
+  const flowEngine = flows.length > 0 ? new McpOpaqueFlowEngine(firewall, flows, {
+    ...(options.flowAuthoritySigningKey ? {
+      authoritySigningKey: options.flowAuthoritySigningKey,
+      authorityPolicy: {
+        version: 1,
+        exposeQueryTool,
+        exposeArtifactResources,
+        opaqueArtifactIds,
+        flows,
+      },
+    } : {}),
+  }) : undefined;
+  if (options.flowAuthoritySigningKey && !flowEngine) {
+    throw new TypeError('opaque-flow authority requires at least one flow policy');
+  }
+  const authorityRecord = flowEngine?.authorityRecord;
+  if (authorityRecord) options.onFlowAuthorityReady?.(authorityRecord);
   if (!firewall.exposeQueryTool && !flowEngine) {
     throw new TypeError('disabling pinpoint_query requires at least one opaque flow policy');
   }

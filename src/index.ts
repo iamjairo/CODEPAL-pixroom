@@ -40,6 +40,8 @@ export {
   runMcpGateway,
   runMcpServer,
   parseMcpOpaqueFlowConfig,
+  verifyMcpOpaqueFlowAuthorityBinding,
+  verifyMcpOpaqueFlowPolicyOpening,
   verifyMcpOpaqueFlowReceipt,
 } from './mcp/index.js';
 export type {
@@ -49,10 +51,14 @@ export type {
   McpResultFirewallOptions,
   McpResultTransformation,
   McpOpaqueFlowConfig,
+  McpOpaqueFlowAuthorityBinding,
+  McpOpaqueFlowAuthorityRecord,
+  McpOpaqueFlowAuthorityVerifier,
   McpOpaqueFlowOperation,
   McpOpaqueFlowPolicy,
   McpOpaqueFlowReceipt,
   McpOpaqueFlowReceiptVerifier,
+  McpOpaqueFlowPolicyOpening,
 } from './mcp/index.js';
 
 export {
