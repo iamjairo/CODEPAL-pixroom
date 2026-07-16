@@ -278,7 +278,7 @@ The committed run records:
 - identical payloads producing 30 distinct public commitments;
 - 31,013 constructed direct-transcript bytes versus 3,414 opaque-flow bytes, 89.0%
   lower for the same source and destination payload;
-- 0.86 ms p95 internal-flow latency over 30 local samples on the recorded machine.
+- 0.84 ms p95 internal-flow latency over 30 local samples on the recorded machine.
 
 This is protocol-integration evidence, not a provider token bill, model-quality test,
 production demand measurement, or formal noninterference proof.
@@ -293,7 +293,7 @@ accepted the exact 40-record projection, both clients returned exactly `VALIDATE
 and no fixture value or public value hash appeared in either retained event-stream
 grade. Both receipts validated under one shared operator root with distinct fresh
 session keys and policy commitments. The aggregate scan covered 800 canaries. Claude
-observed $0.023775 in provider cost; Copilot reported zero premium requests and zero
+observed $0.022547 in provider cost; Copilot reported zero premium requests and zero
 file changes.
 
 This proves the same contract is usable by two host/model families for one synthetic
@@ -306,7 +306,7 @@ replace an external security review.
 official packages in separate stdio processes. The filesystem server reads 200
 synthetic records; operator-fixed policy selects 40 entity projections; the memory
 server persists exactly those 40 into a disposable JSONL graph. The destination tool
-is hidden, direct access is denied, all 400 source canaries remain absent from the
+is hidden, four native bypasses are denied, all 600 source canaries remain absent from the
 client transcript, no destination-exclusive environment name remains in the source,
 and the receipt, operator delegation, policy opening, and destination-server binding
 verify.
@@ -314,6 +314,29 @@ verify.
 This is first-party compatibility evidence for two packages and one persistent side
 effect. It does not establish independent reproduction, executable identity, OS
 isolation, exactly-once semantics, or product demand.
+
+### Matched HCP mechanism comparison
+
+The comparison gate pins Handle-Capability Protocol runtime 0.3.0 at
+`e7eb50158f3d495f1dc99a2755abe08f0d0db716` and runs the byte-identical
+200-record, 40-entity, 600-canary workflow. Pinpoint completes the published
+filesystem-to-memory path with 4/4 native denials and 0/600 canaries. HCP completes
+30/30 fresh native-runtime repetitions with 4/4 different denials and 0/600
+canaries.
+
+The result does not choose a winner. HCP provides principal-bound handles, target
+grant/scope/canonical-resource/capability checks, approval, data-class policy, and
+richer deny-path audit. Pinpoint provides unmodified MCP interoperability,
+operator-fixed row/field policy and bounds, separate process/environment domains,
+and signed operator-rooted receipts. HCP's fixed predicate/projection lives in the
+comparison source provider because its runtime policy does not express row-level
+selection.
+
+HCP's pinned public repository suite reports 293/296 passing due to three propagated
+alpha-readiness failures over one README positioning mismatch; that failure is
+preserved. Its unchanged native data-pipe demo and matched mechanism arm pass.
+Microsoft Fides Gateway was inspected but excluded from scoring because its public
+gateway does not bind a policy result to hidden source-to-destination dispatch.
 
 ## Prior art and novelty boundary
 
@@ -355,8 +378,9 @@ gates. Calling it a field-level breakthrough still requires independent work:
    receipt verification, and side channels;
 3. independent review of the checked state-machine model and its mapping to the
   TypeScript implementation;
-4. comparison against generated-code/tokenization and IFC planners on task success,
-   latency, policy expressiveness, and trusted-computing-base size;
+4. independent reproduction of the completed HCP comparison and, where a faithful
+  runnable equivalent exists, generated-code/tokenization or IFC comparison on task
+  success, policy expressiveness, and trusted-computing-base boundaries;
 5. externally sourced MCP workflows showing a recurring need for values to move into
    another tool without model inspection;
 6. an externally pinned organizational trust root plus retained witnesses or

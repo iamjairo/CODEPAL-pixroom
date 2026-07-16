@@ -7,9 +7,9 @@
     "description": "Two real installed agent clients independently completed the same disposable synthetic stdio MCP task through the production Pinpoint CLI gateway.",
     "persistedData": "Only content-free receipts are retained. Client event streams, debug logs, provider credentials, personal paths, and temporary MCP state are deleted after grading.",
     "fingerprints": {
-      "src/mcp/gateway.ts": "d242fc2056d12d936ac0af09dc717b944fd2a9148026c5f889c7e5bfaf30a790",
+      "src/mcp/gateway.ts": "eed74b121fe36ea471399704147bd1656df65c12792a9d2258735ae57a8581ab",
       "src/virtual-context/store.ts": "7b0bbc2de4e400b7cb85a23d926bf5ec2c898c7242df57b220026bf3cbc36783",
-      "src/cli/main.ts": "ba7e9f96e426098887f4ca5bc2550ad310445a5782551cc9bf140913bf49cc15",
+      "src/cli/main.ts": "1ba0bca630eeef0d84c1b31e76298b5a6a7cddd73f7a12c8fd2fdac9f5ed50b8",
       "benchmarks/v2/mcp_gateway_agent_gate.mjs": "a018aee17817f4de3121bcfa3b1011c6afa6e6264dd8e842ba795e58a94a80d5",
       "benchmarks/v2/mcp_gateway_copilot_gate.mjs": "b7c7d41bf55ac7d0f845ee23f095d94e5d816d3ccdd65dfa4b393b94c1298a6b"
     }
@@ -43,8 +43,8 @@
       "queryCalled": true,
       "artifactId": "vctx_28a153ae144607feab1b3cf97a0d785e",
       "largestModelVisibleToolResultChars": 508,
-      "turns": 4,
-      "observedCostUSD": 0.01971895,
+      "turns": 7,
+      "observedCostUSD": 0.029404299999999994,
       "answer": "user733@example.com",
       "escapeHatchesDenied": ["Bash", "Read", "Grep", "Glob", "Agent", "Edit", "Write"]
     },

@@ -102,11 +102,12 @@ The committed evidence uses deterministic synthetic fixtures and real installed 
 | Bounded reference model | **2,270,040 states / 3,416,444 transitions / 0 violations** | Spin 6.5.2; ten actions per trace; abstract model, not a proof over TypeScript |
 | Mutation sensitivity | **Value-leak and credential-copy mutations detected** | Spin found one expected assertion violation for each |
 | Published OSS result firewall | **1/1 pinned server passed** | Unmodified `@modelcontextprotocol/server-filesystem@2026.7.10`; one synthetic 1,000-row read/query flow |
-| Published OSS cross-server flow | **40/40 entities persisted; 0/400 canaries visible** | Unmodified `@modelcontextprotocol/server-filesystem@2026.7.10` -> `@modelcontextprotocol/server-memory@2026.7.4` |
+| Published OSS cross-server flow | **40/40 entities persisted; 0/600 canaries visible** | Unmodified `@modelcontextprotocol/server-filesystem@2026.7.10` -> `@modelcontextprotocol/server-memory@2026.7.4` |
+| Closest runnable mechanism comparison | **Pinpoint exact; HCP 30/30 exact; both 4/4 native denials and 0/600 canaries** | Byte-identical fixture; different native authority semantics; no scalar winner |
 | Constructed visible traffic | **31,013 -> 3,414 bytes** | Same synthetic source and destination payload with operator authority; character bytes, not provider tokens or bill |
-| Local flow latency | **0.86 ms p95** | 30 local protocol samples on the recorded machine; not a production load test |
+| Local flow latency | **0.84 ms p95** | 30 local protocol samples on the recorded machine; not a production load test |
 
-Read the [cross-host receipt](./benchmarks/results/mcp-opaque-flow-cross-host.first-party-macos-arm64-20260715.json), [protocol receipt](./benchmarks/results/mcp-opaque-flow.first-party-macos-arm64-20260715.json), [model-check receipt](./benchmarks/results/opaque-flow-model-check.first-party-macos-arm64-20260715.json), [OSS filesystem receipt](./benchmarks/results/mcp-oss-filesystem.first-party-macos-arm64-20260715.json), [OSS cross-server receipt](./benchmarks/results/mcp-oss-cross-server.first-party-macos-arm64-20260716.json), [formal property map](./planning/opaque_flow_formal_properties.md), or [full evidence methodology](./benchmarks/REPORT.md).
+Read the [cross-host receipt](./benchmarks/results/mcp-opaque-flow-cross-host.first-party-macos-arm64-20260715.json), [protocol receipt](./benchmarks/results/mcp-opaque-flow.first-party-macos-arm64-20260715.json), [model-check receipt](./benchmarks/results/opaque-flow-model-check.first-party-macos-arm64-20260715.json), [OSS filesystem receipt](./benchmarks/results/mcp-oss-filesystem.first-party-macos-arm64-20260715.json), [OSS cross-server receipt](./benchmarks/results/mcp-oss-cross-server.first-party-macos-arm64-20260716.json), [HCP comparison receipt](./benchmarks/results/hcp-comparison.first-party-macos-arm64-20260716.json), [formal property map](./planning/opaque_flow_formal_properties.md), or [full evidence methodology](./benchmarks/REPORT.md).
 
 **Evidence boundary:** these are first-party synthetic tests, not customer production traces, a formal noninterference proof, a prevalence estimate, or a compliance certification. Tool names, field names, counts, byte sizes, timing, and success status remain observable. The wrapped MCP process is trusted with the values.
 
@@ -126,6 +127,35 @@ defines every blocking gate and the evidence required to change that verdict.
 | Agent information-flow control | Instrumented planner and labels | Planner policy | Pinpoint wraps unmodified stdio MCP tools and emits signed execution receipts |
 
 Anthropic, Cloudflare, Microsoft Fides, NetworkNT, LeanCTX, Proof-Carrying Agent Actions, and enclawed establish important parts of this problem. Pinpoint's narrower contribution is the integrated MCP mechanism: transparent wrapping, fail-closed source capture, exact policy-bound projection, hidden destination invocation, and signed commitment-only receipts. The [prior-art analysis](./planning/value_opaque_mcp_dataflow.md#prior-art-and-novelty-boundary) states the claim conservatively.
+
+### Matched comparison with HCP
+
+The closest runnable mechanism found was the Handle-Capability Protocol reference
+runtime at commit `e7eb50158f3d495f1dc99a2755abe08f0d0db716`. The comparison
+uses a byte-identical 200-record fixture, selects the same 40 entities, persists the
+same JSONL side effect, and scans the same 600 canaries.
+
+| Arm | Exact side effect | Native denials | Client-visible values | Native authority |
+|---|---:|---:|---:|---|
+| Pinpoint | 1/1 | 4/4 | 0/600 | Fixed row/field policy, provenance, bounds, hidden destination, process/env separation |
+| HCP 0.3.0 | 30/30 | 4/4 | 0/600 | Handle principal, target grant/scope/resource/capability, approval, data class |
+
+**No scalar winner.** HCP is stronger on principal/grant/resource/approval semantics
+and rich deny-path audit. Pinpoint is stronger on unmodified MCP interoperability,
+operator-fixed exact row/field policy, separate process/environment boundaries, and
+signed operator-rooted receipts. HCP's source comparison adapter owns the fixed
+predicate/projection because its runtime policy does not express row-level selection.
+
+The pinned HCP repository itself reports **293/296** tests passing; three alpha-readiness
+checks fail on one checked-in README positioning mismatch. That failure is retained.
+Its unchanged native data-pipe demo passes, and the matched mechanism arm passes.
+Microsoft Fides Gateway was inspected but not scored because its public gateway can
+evaluate and report policy decisions but does not bind one to hidden cross-upstream
+dispatch; adding that path would create a new system rather than evaluate Fides.
+
+The comparison is maintainer-authored and does not close the independent comparative
+gate. Timings are reported but not ranked because HCP runs in-process with setup
+excluded while Pinpoint launches two published stdio servers.
 
 ## Get started (60 seconds)
 
@@ -664,9 +694,9 @@ Claude Code 2.1.197 with Claude Haiku 4.5 and GitHub Copilot CLI 1.0.71-3 with G
 | Claude Code | Yes | Yes | No | Valid | 40 records | `VALIDATED` |
 | GitHub Copilot CLI | Yes | Yes | No | Valid | 40 records | `VALIDATED` |
 
-The grader scanned 400 synthetic private canaries per executed host, 800 total, and found zero occurrences in either client event stream. It also found neither public source nor selected-payload hashes. Both receipts validated under one shared operator root while using distinct session keys and policy commitments. Claude completed in four turns for $0.023775 observed provider cost. Copilot reported zero premium requests and zero file changes. Inspect the [content-free cross-host receipt](./benchmarks/results/mcp-opaque-flow-cross-host.first-party-macos-arm64-20260715.json) or rerun `npm run bench:mcp-opaque-flow:cross-host` with authenticated clients.
+The grader scanned 400 synthetic private canaries per executed host, 800 total, and found zero occurrences in either client event stream. It also found neither public source nor selected-payload hashes. Both receipts validated under one shared operator root while using distinct session keys and policy commitments. Claude completed in four turns for $0.022547 observed provider cost. Copilot reported zero premium requests and zero file changes. Inspect the [content-free cross-host receipt](./benchmarks/results/mcp-opaque-flow-cross-host.first-party-macos-arm64-20260715.json) or rerun `npm run bench:mcp-opaque-flow:cross-host` with authenticated clients.
 
-The no-model protocol gate exercised the same production gateway 30 times and recorded 30/30 exact destination acceptances, 8/8 denied bypasses, 400/400 absent canaries, valid signatures and receipt chain, rejection of modified receipt and authority data, wrong-operator rejection, exact policy opening, and distinct commitments for 30 identical payloads. The protected 26,231-byte source was captured even with the ordinary threshold set to 100,000,000 characters. A constructed direct transcript was 31,013 bytes; the source plus authority-rooted opaque-flow result was 3,414 bytes, 89.0% lower. Local p95 flow latency was 0.86 ms over 30 samples on the recorded machine. Inspect the [protocol receipt](./benchmarks/results/mcp-opaque-flow.first-party-macos-arm64-20260715.json) or run `npm run bench:mcp-opaque-flow` without a provider call.
+The no-model protocol gate exercised the same production gateway 30 times and recorded 30/30 exact destination acceptances, 8/8 denied bypasses, 400/400 absent canaries, valid signatures and receipt chain, rejection of modified receipt and authority data, wrong-operator rejection, exact policy opening, and distinct commitments for 30 identical payloads. The protected 26,231-byte source was captured even with the ordinary threshold set to 100,000,000 characters. A constructed direct transcript was 31,013 bytes; the source plus authority-rooted opaque-flow result was 3,414 bytes, 89.0% lower. Local p95 flow latency was 0.84 ms over 30 samples on the recorded machine. Inspect the [protocol receipt](./benchmarks/results/mcp-opaque-flow.first-party-macos-arm64-20260715.json) or run `npm run bench:mcp-opaque-flow` without a provider call.
 
 These tests prove exact behavior for committed synthetic traces, not semantic noninterference, production demand, or a universal security guarantee. Counts, sizes, field names, timing, and success remain visible. The wrapped process is trusted with values. The benchmark operator key is first-party and locally generated: it proves the authority mechanism, not CodePal's externally attested identity or omission-proof publication. The [value-opaque design note](./planning/value_opaque_mcp_dataflow.md) compares verified prior art and lists the remaining breakthrough gates.
 
@@ -686,7 +716,7 @@ Claude autonomously performed this sequence:
 3. called `mcp__accounts__pinpoint_query` with `accountId: 733` and `fields: ["email"]`;
 4. returned exactly `user733@example.com`.
 
-The final artifact-asserting gate completed in four agent turns for $0.019719 observed provider cost. Filesystem, shell, subagent, and editing tools were denied, and the run failed unless both MCP calls occurred, exactly one expected artifact id appeared, every visible tool result stayed below 5,000 characters, and the final answer matched exactly. Inspect the [content-free receipt](./benchmarks/results/mcp-gateway-agent.first-party-macos-arm64-20260715.json) or rerun `npm run bench:mcp-gateway:agent` with Claude Code authenticated.
+The final artifact-asserting gate completed in seven agent turns for $0.029404 observed provider cost. Filesystem, shell, subagent, and editing tools were denied, and the run failed unless both MCP calls occurred, exactly one expected artifact id appeared, every visible tool result stayed below 5,000 characters, and the final answer matched exactly. Inspect the [content-free receipt](./benchmarks/results/mcp-gateway-agent.first-party-macos-arm64-20260715.json) or rerun `npm run bench:mcp-gateway:agent` with Claude Code authenticated.
 
 Copilot auto-routed to `gpt-5.3-codex`, exposed only the synthetic `accounts` MCP server, called both tools, changed no files, and used zero premium requests. Rerun with `npm run bench:mcp-gateway:copilot`.
 
@@ -876,6 +906,7 @@ npm run typecheck
 npm test                        # offline test suite
 npm run bench:mcp-opaque-flow   # 30 flows + 8 bypasses, no provider call
 npm run bench:mcp-oss-cross-server # 2 unmodified OSS servers, exact side effect
+npm run bench:compare-hcp       # matched HCP mechanism comparison; preserves failures
 npm run bench:mcp-opaque-flow:cross-host # Claude Code + Copilot live gate
 node benchmarks/proof.mjs       # constructed additivity check
 node benchmarks/rd_frontier.mjs # simulated RD surface

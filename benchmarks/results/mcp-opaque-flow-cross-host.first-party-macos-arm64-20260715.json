@@ -8,10 +8,10 @@
     "description": "Three installed unmodified agent hosts independently executed the same synthetic value-opaque flow through the production CLI gateway.",
     "persistedData": "Only content-free grading summaries and receipt identifiers are retained. Event streams, debug logs, synthetic values, credentials, and personal paths are not persisted.",
     "fingerprints": {
-      "src/mcp/flow.ts": "e7f42d05ae53cc79ea843854b321d098a2987bd7597e723b1c5e066361c6f65b",
-      "src/mcp/gateway.ts": "d242fc2056d12d936ac0af09dc717b944fd2a9148026c5f889c7e5bfaf30a790",
+      "src/mcp/flow.ts": "1584a45e7bb99ae947d70bdddb0dfa426eec6f6db7517bd71e44745c95cd2e14",
+      "src/mcp/gateway.ts": "eed74b121fe36ea471399704147bd1656df65c12792a9d2258735ae57a8581ab",
       "src/virtual-context/store.ts": "7b0bbc2de4e400b7cb85a23d926bf5ec2c898c7242df57b220026bf3cbc36783",
-      "src/cli/main.ts": "ba7e9f96e426098887f4ca5bc2550ad310445a5782551cc9bf140913bf49cc15",
+      "src/cli/main.ts": "1ba0bca630eeef0d84c1b31e76298b5a6a7cddd73f7a12c8fd2fdac9f5ed50b8",
       "benchmarks/v2/mcp_opaque_flow_cross_host_gate.mjs": "fb4d91d1f02007ddf28ec28f47ea7a5742d09a0d988c0119b992c7597daecb5e",
       "benchmarks/fixtures/opaque_flow_data.mjs": "af3b9cdde4f9a025acc1d8dade13dec080025072edd2d3483dbde7226d11b263",
       "benchmarks/fixtures/opaque_flow_server.mjs": "1a70a6162a7b30ae71f72616d611b7e3e0081806ee666ef64db1dc9bd006d603",
@@ -36,7 +36,7 @@
     "modelDestinationCallsObserved": 0,
     "exactDestinationAcceptances": 2,
     "operatorRootedReceipts": 2,
-    "sharedOperatorKeyId": "ed0912f1ad7374e9df26e811a1b5c68a64778a13f31c46ca80de97b9bc102c48",
+    "sharedOperatorKeyId": "c80c95aff0cd4a79b1c015bc6a06ca90c8242c050d4c4fa958df1167fbd55adf",
     "privateCanariesScannedPerHost": 400,
     "privateCanariesLeaked": 0,
     "publicValueHashesLeaked": false,
@@ -58,8 +58,8 @@
       "receipt": {
         "count": 1,
         "valid": true,
-        "operatorKeyId": "ed0912f1ad7374e9df26e811a1b5c68a64778a13f31c46ca80de97b9bc102c48",
-        "policyCommitment": "sha256:ad2894d0b1ca00950477f40e002704a5d24037448c3ee59a6a6f84bd24c9a581",
+        "operatorKeyId": "c80c95aff0cd4a79b1c015bc6a06ca90c8242c050d4c4fa958df1167fbd55adf",
+        "policyCommitment": "sha256:f403f8848db4fa283b36c823c636058e5c2d92b88b89d353f3cdd4b687068299",
         "destinationSucceeded": true,
         "items": 40,
         "projectionFields": [
@@ -68,15 +68,15 @@
         "whereFields": [
           "segment"
         ],
-        "artifactId": "vctx_901d2b9242798d2bc0e7909f195b25ad",
-        "receiptHash": "95cd80cad844a92d0c10834b5708ba02d02d78b6ee9947d1d4b960c99f9c9aab",
-        "signingKeyId": "ef329ee49fbf322b12078617d03ee0939a814c1db52ee688bf87758492383b56"
+        "artifactId": "vctx_85fb5f4202bc6ce6f57d3322cc7b5af8",
+        "receiptHash": "0444ccc77d15c60fc1964eeaffbc49111d97fe0caeb009055443e01ac5b16397",
+        "signingKeyId": "f2e39098a6a9ba616c1c93e0b2c5da2a780633e745c4c1153e5b1d0841b27dcd"
       },
       "privateCanariesLeaked": 0,
       "publicValueHashesLeaked": false,
       "answer": "VALIDATED",
       "turns": 4,
-      "observedCostUSD": 0.023774700000000003,
+      "observedCostUSD": 0.02254685,
       "exceededOutputCap": false,
       "diagnostic": null
     },
@@ -95,8 +95,8 @@
       "receipt": {
         "count": 1,
         "valid": true,
-        "operatorKeyId": "ed0912f1ad7374e9df26e811a1b5c68a64778a13f31c46ca80de97b9bc102c48",
-        "policyCommitment": "sha256:282badfcba5702f513e3a2db762ed8b0fcbe661446c667e69c73bd00b6837509",
+        "operatorKeyId": "c80c95aff0cd4a79b1c015bc6a06ca90c8242c050d4c4fa958df1167fbd55adf",
+        "policyCommitment": "sha256:5fcef32a827a379687087cea38cdfe679a5e60041fa1b12355a52f816d3bdafa",
         "destinationSucceeded": true,
         "items": 40,
         "projectionFields": [
@@ -105,17 +105,17 @@
         "whereFields": [
           "segment"
         ],
-        "artifactId": "vctx_d49207d8bb4fc4075e3c775d15b55111",
-        "receiptHash": "6d436cec39d410bdc32729bb46a82fde073a5c89961761d633f8b471c4913349",
-        "signingKeyId": "82790897ff9cca947f4353efa72408833a5f66eb15b1330393643c6b9a4cf48e"
+        "artifactId": "vctx_b758c9dc20bfbfc555778fa0eb9bfd71",
+        "receiptHash": "f1fa8a2eb381f7bc1aba252f63124529f002d4289264d4108b673836a24dbb6c",
+        "signingKeyId": "1c69607965f086b5492250a7a3455163776612a7efd9b96a91ca635afc4c40c9"
       },
       "privateCanariesLeaked": 0,
       "publicValueHashesLeaked": false,
       "answer": "VALIDATED",
       "usage": {
         "premiumRequests": 0,
-        "totalApiDurationMs": 6691,
-        "sessionDurationMs": 10246,
+        "totalApiDurationMs": 6311,
+        "sessionDurationMs": 9714,
         "codeChanges": {
           "linesAdded": 0,
           "linesRemoved": 0,
@@ -158,7 +158,7 @@
         "turn.failed"
       ],
       "exceededOutputCap": false,
-      "diagnostic": "stream error: exceeded retry limit, last status: 401 Unauthorized, request id: a1bf5fa62edb5115-TLV; retrying 1/5 in 198ms…\nstream error: exceeded retry limit, last status: 401 Unauthorized, request id: a1bf5fbf3f9a5115-TLV; retrying 2/5 in 387ms…\nstream error: exceeded retry limit, last status: 401 Unauthorized, request id: a1bf5fdb3ae65115-TLV; retrying 3/5 in 777ms…\nstream error: exceeded retry limit, last status: 401 Unauthorized, request id: a1bf5ff82d275115-TLV; retrying 4/5 in 1.75s…\nstream error: exceeded retry limit, last status: 401 Unauthorized, request id: a1bf601b88465115-TLV; retrying 5/5 in 3.026s…\nexceeded retry limit, last status: 401 Unauthorized, request id: a1bf6049a9e85115-TLV\nexceeded retry limit, last status: 401 Unauthorized, request id: a1bf6049a9e85115-TLV"
+      "diagnostic": "stream error: exceeded retry limit, last status: 401 Unauthorized, request id: a1bfaa6a0aa42482-TLV; retrying 1/5 in 189ms…\nstream error: exceeded retry limit, last status: 401 Unauthorized, request id: a1bfaa833a252482-TLV; retrying 2/5 in 404ms…\nstream error: exceeded retry limit, last status: 401 Unauthorized, request id: a1bfaa9e7cb32482-TLV; retrying 3/5 in 826ms…\nstream error: exceeded retry limit, last status: 401 Unauthorized, request id: a1bfaabb6f642482-TLV; retrying 4/5 in 1.596s…\nstream error: exceeded retry limit, last status: 401 Unauthorized, request id: a1bfaadd9c5d2482-TLV; retrying 5/5 in 2.91s…\nexceeded retry limit, last status: 401 Unauthorized, request id: a1bfab091a862482-TLV\nexceeded retry limit, last status: 401 Unauthorized, request id: a1bfab091a862482-TLV"
     }
   ],
   "limitations": [

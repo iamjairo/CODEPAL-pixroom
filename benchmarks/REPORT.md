@@ -12,6 +12,7 @@ Measures token consumption (and, for live arms, response correctness) for **head
 - `bounded-model-check` — exhaustive finite-state exploration of an abstract reference model; valid only for the stated model, bounds, and assumptions.
 - `oss-protocol-integration` — production gateway around a pinned published OSS MCP server with no source modifications; valid for that package/version/workflow only.
 - `oss-cross-server-integration` — production gateway composing two pinned published OSS MCP servers in separate processes with an independently checked side effect; valid for those versions and fixture only.
+- `comparative-mechanism-evaluation` — byte-identical workflow executed through two native mechanisms with distinct authority semantics; valid for the pinned code, adapters, fixture, and explicitly incomparable dimensions only.
 - `live-controlled` — real model call with a fixed, directly graded prompt; currently single-run unless stated otherwise.
 - `live-agentic` — real tool-using agent run; correctness is useful, while tokens/latency are high-variance without paired repetitions.
 
@@ -33,7 +34,7 @@ Evidence: `protocol-integration`. Production stdio gateway plus an unmodified de
 | Constructed direct transcript | 31,013 bytes |
 | Opaque source + authority-rooted flow transcript | 3,414 bytes |
 | Visible-byte reduction | 89.0% |
-| Internal flow latency p50 / p95 / p99 | 0.23 / 0.86 / 1.34 ms |
+| Internal flow latency p50 / p95 / p99 | 0.28 / 0.84 / 0.95 ms |
 
 The protected source was 26,231 bytes while the ordinary virtualization threshold was deliberately set to 100,000,000 characters. Capture therefore occurred because of policy, not optimization eligibility. The destination accepted the exact 40-record projection. Public content hashes, source values, destination arguments, and destination result values were absent from the client transcript.
 
@@ -91,7 +92,7 @@ projection through `create_entities`.
 |---|---:|
 | Source records / selected entities | 200 / 40 |
 | Exact entities in disposable destination JSONL | 40/40 |
-| Private source canaries absent from client transcript | 0/400 leaked |
+| Private source canaries absent from client transcript | 0/600 leaked |
 | Destination tool hidden / direct call denied | Yes / Yes |
 | Separate process homes / inherited credential variables | Yes / 0 |
 | Receipt, operator delegation, exact policy opening | Valid / Valid / Valid |
@@ -105,6 +106,43 @@ files, keychains, network identities, and kernel resources. The persistent side
 effect proves completion for this fixture, not exactly-once behavior during crashes.
 See `results/mcp-oss-cross-server.first-party-macos-arm64-20260716.json`.
 
+### Matched Handle-Capability Protocol comparison
+
+Evidence: `comparative-mechanism-evaluation`. The gate pins HCP runtime 0.3.0 at
+commit `e7eb50158f3d495f1dc99a2755abe08f0d0db716`, clones it cleanly, runs its
+own tests and native data-pipe demo unchanged, then executes a thin HCP-native
+provider adapter over the byte-identical Pinpoint fixture.
+
+| Check | Pinpoint | HCP |
+|---|---:|---:|
+| Exact persistent side effect | 1/1 | 30/30 |
+| Native denial cases | 4/4 | 4/4 |
+| Client-boundary canaries leaked | 0/600 | 0/600 |
+| Fixed predicate/projection owner | Operator flow policy | Comparison source provider |
+| Principal/grant/resource/approval/data-class checks | Not modeled | Runtime enforced |
+| Unmodified published MCP providers | Two | None; two native comparison adapters |
+| Execution evidence | Signed operator-rooted receipt | Rich unsigned in-memory audit |
+
+The denial cases are not treated as interchangeable. Pinpoint denies direct hidden
+destination access, forged capabilities, fixed-predicate override, and forbidden
+projection. HCP denies forged handles, wrong principals, missing target grants, and
+missing approval.
+
+**No scalar winner.** HCP supplies stronger identity/authorization semantics and
+deny-path audit. Pinpoint supplies stronger unmodified MCP interoperability, exact
+row/field policy, process/environment separation, and durable-verifiable receipt
+format when retained. HCP's public repository suite reports 293/296 passing: three
+alpha-readiness checks fail because the checked-in README lacks one expected
+positioning phrase. Its unchanged native data-pipe demo and the 30-run mechanism arm
+both pass.
+
+Timing is intentionally not ranked. HCP's 30 samples measure in-process source task
+plus `data.pipe` with setup excluded. Pinpoint's elapsed time includes a cold gateway
+and two npx-launched published stdio servers. Microsoft Fides Gateway was inspected
+but excluded from scoring because its public gateway does not bind a policy result to
+hidden source-to-destination dispatch; adding that behavior would create a new
+system. See `results/hcp-comparison.first-party-macos-arm64-20260716.json`.
+
 ### Live cross-host gate
 
 Evidence: `live-agentic`. One authorized synthetic flow attempted on three installed clients; two executed and passed, while Codex was blocked by provider authentication before MCP initialization.
@@ -115,7 +153,7 @@ Evidence: `live-agentic`. One authorized synthetic flow attempted on three insta
 | GitHub Copilot CLI 1.0.71-3 / GPT-5.3 Codex | Yes | No | Valid | Accepted 40 | 0/400 canaries | `VALIDATED` |
 | OpenAI Codex CLI 0.45.0 | Not executed: provider 401 | N/A | N/A | N/A | N/A | N/A |
 
-Claude completed in four turns with $0.023775 observed cost. Copilot reported zero premium requests and no file changes. Both receipts validated under one shared operator root with distinct session keys and policy commitments. Neither public source nor selected-payload hash appeared in either executed event stream. This proves two-host protocol usability for one first-party fixture, not organic prevalence or general model quality. See `results/mcp-opaque-flow-cross-host.first-party-macos-arm64-20260715.json`.
+Claude completed in four turns with $0.022547 observed cost. Copilot reported zero premium requests and no file changes. Both receipts validated under one shared operator root with distinct session keys and policy commitments. Neither public source nor selected-payload hash appeared in either executed event stream. This proves two-host protocol usability for one first-party fixture, not organic prevalence or general model quality. See `results/mcp-opaque-flow-cross-host.first-party-macos-arm64-20260715.json`.
 
 ## Benchmark v2 — no-op proxy profile
 

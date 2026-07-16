@@ -13,6 +13,7 @@ npm run bench:qcv-quality
 npm run bench:virtual
 npm run bench:mcp-opaque-flow
 npm run bench:mcp-oss-cross-server
+npm run bench:compare-hcp
 ```
 
 What they establish:
@@ -24,6 +25,7 @@ What they establish:
 | `npm run bench:virtual` | Offline real transform | Token accounting for QCV against the committed comparison fixtures |
 | `npm run bench:mcp-opaque-flow` | Protocol integration | Fail-closed source capture, hidden exact destination calls, bypass denial, transcript canary absence, operator/session/policy authorization, signed receipt verification/chaining, and local latency |
 | `npm run bench:mcp-oss-cross-server` | OSS cross-server integration | Exact hidden composition across pinned unmodified filesystem and memory servers, persistent side-effect verification, separate process environments, and transcript canary absence |
+| `npm run bench:compare-hcp` | Comparative mechanism evaluation | Clean pinned HCP validation plus byte-identical Pinpoint/HCP workflow, native denials, client-boundary canary scan, authority/TCB comparison, and explicit non-comparability |
 
 They do not establish live model quality, provider-reported usage, real-agent savings, or production latency.
 
@@ -46,13 +48,29 @@ The published cross-server gate creates disposable npm homes/caches and a dispos
 memory JSONL file. It passes only if the filesystem server's protected result becomes
 one random capability, the memory destination remains absent from the host tool
 catalog, direct destination access is denied, exactly 40 selected entities persist,
-all 400 source canaries remain absent from the client transcript, and the receipt,
+all 600 source canaries remain absent from the client transcript, and the receipt,
 operator delegation, policy opening, and destination-server binding verify. It does
 not call a model or provider:
 
 ```bash
 npm run bench:mcp-oss-cross-server
 ```
+
+The HCP comparison clones public commit
+`e7eb50158f3d495f1dc99a2755abe08f0d0db716` into a disposable directory. It
+preserves the public suite's current 293/296 result and three readiness failures,
+runs the unchanged native data-pipe demo, then executes 30 same-workflow HCP
+repetitions through public JSON-RPC APIs. It fails if fixture hashes differ, either
+mechanism arm fails, any of 600 canaries appears, the clean HCP clone changes, or the
+Pinpoint worktree changes:
+
+```bash
+npm run bench:compare-hcp
+```
+
+The HCP providers are thin comparison adapters and count toward that arm's trusted
+code. Native denial classes are reported separately. Do not turn the recorded line
+counts, process counts, or incomparable timing scopes into one score.
 
 ## Live cross-host opaque-flow gate
 

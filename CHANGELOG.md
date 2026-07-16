@@ -26,7 +26,8 @@ All notable changes are documented here. This project follows semantic versionin
 - A live Claude Code and GitHub Copilot CLI gate in which both hosts completed the same exact 40-record hidden destination flow, emitted valid receipts, and exposed zero fixture values in retained event-stream grades.
 - A private destination mode using `--destination-config`: one separately spawned stdio server receives internal opaque-flow calls through its own initialize/catalog/request/lifecycle path and never enters the host tool catalog.
 - Deny-by-default destination environment policy: `envAllowlist` names are removed from the source process unless explicitly permitted in `sharedEnvAllowlist`; credential values remain outside JSON policy.
-- A two-published-server gate composing unmodified filesystem 2026.7.10 and memory 2026.7.4 packages, with an exact 40-entity persistent side effect and zero of 400 source canaries in the client transcript.
+- A two-published-server gate composing unmodified filesystem 2026.7.10 and memory 2026.7.4 packages, with an exact 40-entity persistent side effect, 4/4 native denials, and zero of 600 source canaries in the client transcript.
+- A matched Handle-Capability Protocol comparison over a byte-identical fixture: Pinpoint exact with 4/4 native denials and 0/600 canaries; HCP exact 30/30 with 4/4 different native denials and 0/600 canaries. The receipt preserves HCP's 293/296 public repository-test result and reports no scalar winner.
 
 ### Changed
 

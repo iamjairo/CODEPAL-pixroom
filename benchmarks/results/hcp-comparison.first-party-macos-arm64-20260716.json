@@ -1,0 +1,169 @@
+{
+  "schemaVersion": 1,
+  "evidenceLevel": "comparative-mechanism-evaluation",
+  "kind": "pinpoint-vs-hcp-same-workflow",
+  "date": "2026-07-16",
+  "passed": true,
+  "environment": {
+    "platform": "darwin",
+    "release": "25.5.0",
+    "architecture": "arm64",
+    "node": "v26.0.0"
+  },
+  "pins": {
+    "pinpointCommit": "56d21e03134ac49ad3f56c4f1df84e5ce9dc4ee9",
+    "pinpointVersion": "0.1.1",
+    "hcpRepository": "https://github.com/SymbolicLight-AGI/handle-capability-protocol.git",
+    "hcpCommit": "e7eb50158f3d495f1dc99a2755abe08f0d0db716",
+    "hcpRuntimeVersion": "0.3.0"
+  },
+  "fixture": {
+    "matched": true,
+    "sourceRecords": 200,
+    "selectedRecords": 40,
+    "privateCanaries": 600,
+    "sourceSha256": "7f235a19af8e96489517c9800bb0c305ef0f22ccb94a2523b8554ce113e7b56b",
+    "selectedSha256": "2abb52b3672af44b9cbd5bf506ab5182b90400c954c7b9d165c9fa920960ee31"
+  },
+  "repositoryValidation": {
+    "pinpointCurrentSuite": "validated separately by npm test; not rerun inside this comparison process",
+    "hcp": {
+      "exitCode": 1,
+      "tests": 296,
+      "passed": 293,
+      "failed": 3,
+      "failures": [
+        "hcp conformance delegates readiness self-test",
+        "conformance CLI readiness self-test aggregates alpha review evidence",
+        "release metadata stays aligned with v1 alpha readiness positioning"
+      ],
+      "expectedPublicCommitFailurePreserved": true
+    },
+    "hcpNativeDataPipeDemoPassed": true,
+    "hcpCloneCleanAfterRun": true,
+    "pinpointWorktreeUnchangedByGate": true
+  },
+  "commonOutcome": {
+    "pinpoint": {
+      "exactPersistedProjection": true,
+      "exactRuns": 1,
+      "bypassesDenied": "4/4",
+      "bypassClasses": [
+        "direct hidden destination",
+        "forged capability",
+        "fixed-predicate override",
+        "forbidden projection"
+      ],
+      "canariesLeaked": "0/600"
+    },
+    "hcp": {
+      "exactPersistedProjection": true,
+      "exactRuns": 30,
+      "repetitions": 30,
+      "bypassesDenied": "4/4",
+      "bypassClasses": [
+        "forged handle",
+        "wrong source principal",
+        "missing target grant",
+        "missing target approval"
+      ],
+      "canariesLeaked": "0/600"
+    }
+  },
+  "authorityAndEvidence": {
+    "pinpoint": {
+      "sourceSelectionOwner": "versioned operator flow policy",
+      "runtimeEnforced": [
+        "fixed predicate and projection",
+        "source provenance and random capability",
+        "hidden destination and destination server id",
+        "item and byte limits",
+        "separate process catalogs and destination-exclusive environment names"
+      ],
+      "evidence": "operator-rooted Ed25519 signed receipt with HMAC commitments and hash chain",
+      "evidenceDurability": "returned to caller; external retention required"
+    },
+    "hcp": {
+      "sourceSelectionOwner": "comparison source provider adapter",
+      "runtimeEnforced": [
+        "source handle principal ownership",
+        "target capability grant",
+        "target canonical resource",
+        "target required scope",
+        "target approval",
+        "source data class compatibility"
+      ],
+      "evidence": "rich unsigned task and data-pipe audit trace",
+      "evidenceDurability": "in-memory in the reference runtime"
+    }
+  },
+  "interoperabilityAndTcb": {
+    "pinpoint": {
+      "providers": "two pinned unmodified published MCP packages",
+      "logicalProcesses": 3,
+      "relevantSourceLines": 3246
+    },
+    "hcp": {
+      "providers": "two comparison-specific HCP-native adapters",
+      "logicalProcesses": 1,
+      "runtimeSourceLines": 2963,
+      "adapterNonCommentLines": 341
+    },
+    "warning": "Line counts and process counts describe reviewed surfaces; they are not security scores."
+  },
+  "timing": {
+    "pinpoint": {
+      "elapsedMs": 3267.652584,
+      "scope": "cold gateway plus two npx-launched published stdio servers and one flow"
+    },
+    "hcp": {
+      "samples": 30,
+      "scope": "in-process source task plus data.pipe; runtime/provider setup excluded",
+      "p50": 0.23679100000001085,
+      "p95": 0.47845900000000086,
+      "p99": 1.680334000000002,
+      "max": 1.680334000000002
+    },
+    "comparableRanking": false,
+    "reason": "HCP is an in-process mechanism timing with setup excluded; Pinpoint includes cold process/package startup."
+  },
+  "fidesGateway": {
+    "commitInspected": "3f39af1b38a9b6883064b3f79b6bb32661fa72af",
+    "includedAsScoredArm": false,
+    "reason": "The public gateway evaluates and reports policy decisions but does not provide a faithful policy-bound hidden source-to-destination dispatch for this workflow. Adding one would create a new system rather than evaluate Fides."
+  },
+  "source": {
+    "fingerprints": {
+      "benchmarks/competitors/hcp_same_workflow_adapter.mjs": "869a33a0cbbc28e286f10da03edd5eaddb418b09c8d408b24e77292cfd5458b4",
+      "benchmarks/v2/hcp_comparison_gate.mjs": "336db2df1399c130e1af7f2d2cd6b07aed7ba6121d13ffeb04499f57008e1a6f",
+      "benchmarks/v2/mcp_oss_cross_server_gate.mjs": "adf8f23c8c30ebfc156d209e416da463fff8d9859abf9383cae52d5f0997b88f",
+      "hcp-runtime/src/runtime.js": "830ef87a405f8ad11b78f955869abd2b47fd09d2944813c18d5c0dbf95f9e9ac",
+      "hcp-runtime/src/jsonrpc.js": "cbcd7d8447fa2ee813ad859b3345822f8fee76e333b1d68df4a144993a551d10",
+      "hcp-runtime/src/provider-sdk.js": "0f525e9fe09902b3782d89e5acc52904992e9e23cab3f7dc321b656d5aaab563"
+    }
+  },
+  "verdict": {
+    "winner": null,
+    "pinpointStrengths": [
+      "unmodified MCP interoperability",
+      "operator-fixed exact row/field policy and bounds",
+      "separate source/destination processes and environment filtering",
+      "signed operator-rooted receipts"
+    ],
+    "hcpStrengths": [
+      "principal-bound handle ownership",
+      "grant, scope, canonical-resource, capability, approval, and data-class checks",
+      "richer deny-path audit semantics",
+      "lower-complexity in-process mechanism topology"
+    ],
+    "fieldClaim": "The systems solve overlapping but non-identical layers. The result supports Pinpoint as a distinct interoperability and disclosure-bounded execution mechanism, not universal superiority."
+  },
+  "limitations": [
+    "Both same-workflow adapters and this harness were authored by Pinpoint maintainers; this is not independent validation.",
+    "The HCP source adapter owns the fixed predicate/projection because HCP runtime policy does not express row-level selection.",
+    "The Pinpoint arm uses two unmodified published MCP packages; the HCP arm uses two comparison-specific native providers.",
+    "Native denial classes differ and are reported by name rather than collapsed into one security score.",
+    "Timing scopes differ materially and no speed ranking is claimed.",
+    "HCP public commit repository-test failures are preserved and do not invalidate its separately passing data-pipe mechanism arm."
+  ]
+}

@@ -55,6 +55,9 @@ try {
     'benchmarks/results/opaque-flow-model-check.first-party-macos-arm64-20260715.json',
     'benchmarks/results/mcp-oss-filesystem.first-party-macos-arm64-20260715.json',
     'benchmarks/results/mcp-oss-cross-server.first-party-macos-arm64-20260716.json',
+    'benchmarks/results/hcp-comparison.first-party-macos-arm64-20260716.json',
+    'benchmarks/competitors/hcp_same_workflow_adapter.mjs',
+    'benchmarks/v2/hcp_comparison_gate.mjs',
   ]) {
     if (!paths.has(required)) throw new Error(`packed artifact is missing ${required}`);
   }

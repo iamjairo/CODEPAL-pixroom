@@ -44,8 +44,12 @@ const rows = Array.from({ length: 200 }, (_, id) => ({
 const selected = rows
   .filter(({ eligible }) => eligible)
   .map(({ name, entityType, observations }) => ({ name, entityType, observations }));
-const privateCanaries = rows.flatMap(({ name, observations }) => [name, ...observations]);
-writeFileSync(fixturePath, JSON.stringify(rows));
+const privateCanaries = rows.flatMap(({ name, observations, sourceOnly }) => [name, ...observations, sourceOnly]);
+const fixtureText = JSON.stringify(rows);
+const selectedText = JSON.stringify(selected);
+const fixtureSha256 = createHash('sha256').update(fixtureText).digest('hex');
+const selectedSha256 = createHash('sha256').update(selectedText).digest('hex');
+writeFileSync(fixturePath, fixtureText);
 
 function fingerprint(path) {
   return createHash('sha256').update(readFileSync(join(root, path))).digest('hex');
@@ -170,10 +174,41 @@ try {
   const sourceText = JSON.stringify(source);
   const artifactIds = [...new Set(sourceText.match(/vctx_[a-f0-9]{32,64}/g) ?? [])];
   const artifactId = artifactIds[0];
-  const directDestination = await request('tools/call', {
-    name: 'create_entities',
-    arguments: { entities: [] },
-  });
+  const deniedResponses = [
+    await request('tools/call', {
+      name: 'create_entities',
+      arguments: { entities: [] },
+    }),
+    await request('tools/call', {
+      name: MCP_FLOW_TOOL_NAME,
+      arguments: {
+        flow: flowPolicy.name,
+        id: `vctx_${'f'.repeat(32)}`,
+        op: 'json_select',
+        fields: ['name', 'entityType', 'observations'],
+      },
+    }),
+    await request('tools/call', {
+      name: MCP_FLOW_TOOL_NAME,
+      arguments: {
+        flow: flowPolicy.name,
+        id: artifactId,
+        op: 'json_select',
+        where: { eligible: false },
+        fields: ['name', 'entityType', 'observations'],
+      },
+    }),
+    await request('tools/call', {
+      name: MCP_FLOW_TOOL_NAME,
+      arguments: {
+        flow: flowPolicy.name,
+        id: artifactId,
+        op: 'json_select',
+        fields: ['sourceOnly'],
+      },
+    }),
+  ];
+  const bypassesDenied = deniedResponses.filter((response) => response.result?.isError === true).length;
   const flowed = await request('tools/call', {
     name: MCP_FLOW_TOOL_NAME,
     arguments: {
@@ -227,7 +262,7 @@ try {
     toolNames.includes('read_text_file') &&
     toolNames.includes(MCP_FLOW_TOOL_NAME) &&
     !toolNames.includes('create_entities') &&
-    directDestination.result?.isError === true &&
+    bypassesDenied === deniedResponses.length &&
     artifactIds.length === 1 &&
     receiptValid &&
     authorityBindingValid &&
@@ -268,15 +303,18 @@ try {
     fixture: {
       sourceRecords: rows.length,
       selectedRecords: selected.length,
-      sourceBytes: Buffer.byteLength(JSON.stringify(rows)),
+      sourceBytes: Buffer.byteLength(fixtureText),
       privateCanaries: privateCanaries.length,
+      sourceSha256: fixtureSha256,
+      selectedSha256,
     },
     summary: {
       gatewayExitCode,
       sourceToolPresent: toolNames.includes('read_text_file'),
       flowToolPresent: toolNames.includes(MCP_FLOW_TOOL_NAME),
       destinationToolHidden: !toolNames.includes('create_entities'),
-      directDestinationDenied: directDestination.result?.isError === true,
+      bypassAttempts: deniedResponses.length,
+      bypassesDenied,
       artifactCapabilities: artifactIds.length,
       exactPersistedProjection,
       persistedEntities: persisted.length,

@@ -94,6 +94,17 @@ const ossCrossServerReceipt = JSON.parse(
     'utf8',
   ),
 );
+const hcpComparisonReceipt = JSON.parse(
+  readFileSync(
+    join(
+      root,
+      'benchmarks',
+      'results',
+      'hcp-comparison.first-party-macos-arm64-20260716.json',
+    ),
+    'utf8',
+  ),
+);
 const packageJson = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
 const proofAssetPath = join(root, 'assets', 'qcv-evidence-gate.svg');
 const proofAsset = readFileSync(proofAssetPath, 'utf8');
@@ -268,6 +279,21 @@ for (const [sourcePath, expectedHash] of Object.entries(ossCrossServerReceipt.so
   const actualHash = sha256(readFileSync(absolute));
   if (actualHash !== expectedHash) fail(`OSS cross-server receipt fingerprint is stale: ${sourcePath}`);
 }
+for (const sourcePath of [
+  'benchmarks/competitors/hcp_same_workflow_adapter.mjs',
+  'benchmarks/v2/hcp_comparison_gate.mjs',
+  'benchmarks/v2/mcp_oss_cross_server_gate.mjs',
+]) {
+  const expectedHash = hcpComparisonReceipt.source.fingerprints[sourcePath];
+  const absolute = join(root, sourcePath);
+  if (!existsSync(absolute)) {
+    fail(`HCP comparison source does not exist: ${sourcePath}`);
+    continue;
+  }
+  if (sha256(readFileSync(absolute)) !== expectedHash) {
+    fail(`HCP comparison receipt fingerprint is stale: ${sourcePath}`);
+  }
+}
 for (const value of [
   `${crossHostReceipt.summary.hostsPassed}/${crossHostReceipt.summary.hostsExecuted}`,
   integer.format(crossHostReceipt.hosts[1].largestToolCompletionEventChars),
@@ -324,6 +350,17 @@ for (const value of [
   `${ossCrossServerReceipt.summary.privateCanariesLeaked}/${ossCrossServerReceipt.summary.privateCanariesScanned}`,
 ]) {
   if (!readme.includes(value)) fail(`README is missing OSS cross-server receipt value: ${value}`);
+}
+for (const value of [
+  hcpComparisonReceipt.pins.hcpCommit,
+  `${hcpComparisonReceipt.repositoryValidation.hcp.passed}/${hcpComparisonReceipt.repositoryValidation.hcp.tests}`,
+  `${hcpComparisonReceipt.commonOutcome.hcp.exactRuns}/${hcpComparisonReceipt.commonOutcome.hcp.repetitions}`,
+  hcpComparisonReceipt.commonOutcome.pinpoint.bypassesDenied,
+  hcpComparisonReceipt.commonOutcome.hcp.bypassesDenied,
+  hcpComparisonReceipt.commonOutcome.pinpoint.canariesLeaked,
+  'No scalar winner',
+]) {
+  if (!readme.includes(value)) fail(`README is missing HCP comparison value: ${value}`);
 }
 
 if (!readme.includes('./assets/qcv-evidence-gate.svg')) fail('README does not render the proof asset');
