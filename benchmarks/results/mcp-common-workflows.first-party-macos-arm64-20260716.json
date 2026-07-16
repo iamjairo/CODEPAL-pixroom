@@ -16,19 +16,22 @@
     }
   },
   "summary": {
-    "workflows": 6,
-    "workflowsPassed": 6,
-    "publishedServers": 3,
+    "workflows": 10,
+    "workflowsPassed": 10,
+    "publishedServers": 7,
+    "virtualizedWorkflows": 8,
+    "passthroughControls": 2,
     "operations": [
       "count",
       "grep",
       "json_select",
-      "native-filter"
+      "native-filter",
+      "timezone-conversion"
     ],
-    "directVisibleBytes": 936377,
-    "pinpointVisibleBytes": 7576,
-    "aggregateVisibleByteReduction": 0.9919092416836381,
-    "unrelatedCanariesAvoided": 6995
+    "directVisibleBytes": 1259328,
+    "pinpointVisibleBytes": 12251,
+    "aggregateVisibleByteReduction": 0.9902717957513849,
+    "unrelatedCanariesAvoided": 11992
   },
   "workflows": [
     {
@@ -198,17 +201,162 @@
         "visibleByteReduction": 0.9856455360106207,
         "unrelatedCanariesAvoided": 1999
       }
+    },
+    {
+      "id": "fetch-web-research",
+      "description": "Find one fact in a long web research page.",
+      "server": "mcp-server-fetch==2026.7.10",
+      "mode": "virtualized",
+      "operation": "grep",
+      "passed": true,
+      "direct": {
+        "exitCode": 0,
+        "exactAnswer": true,
+        "answer": "WEB-RESEARCH-0427: Pinpoint keeps the full research page local.",
+        "visibleBytes": 108253,
+        "unrelatedCanariesVisible": 1999
+      },
+      "pinpoint": {
+        "exitCode": 0,
+        "exactAnswer": true,
+        "answer": "WEB-RESEARCH-0427: Pinpoint keeps the full research page local.",
+        "artifactCapabilities": 1,
+        "visibleBytes": 1377,
+        "unrelatedCanariesVisible": 0
+      },
+      "comparison": {
+        "sameAnswer": true,
+        "visibleByteReduction": 0.9872797982503949,
+        "unrelatedCanariesAvoided": 1999
+      }
+    },
+    {
+      "id": "database-large-query-result",
+      "description": "Find one flagged row in a 1,000-row SQL report.",
+      "server": "@bytebase/dbhub@0.23.0",
+      "mode": "virtualized",
+      "operation": "json_select",
+      "passed": true,
+      "direct": {
+        "exitCode": 0,
+        "exactAnswer": true,
+        "answer": "database-target-0733",
+        "visibleBytes": 117099,
+        "unrelatedCanariesVisible": 999
+      },
+      "pinpoint": {
+        "exitCode": 0,
+        "exactAnswer": true,
+        "answer": "database-target-0733",
+        "artifactCapabilities": 1,
+        "visibleBytes": 1468,
+        "unrelatedCanariesVisible": 0
+      },
+      "comparison": {
+        "sameAnswer": true,
+        "visibleByteReduction": 0.987463599176765,
+        "unrelatedCanariesAvoided": 999
+      }
+    },
+    {
+      "id": "time-zone-conversion-control",
+      "description": "Convert a meeting time from UTC to Tokyo.",
+      "server": "mcp-server-time==2026.7.10",
+      "mode": "passthrough",
+      "operation": "timezone-conversion",
+      "passed": true,
+      "direct": {
+        "exitCode": 0,
+        "exactAnswer": true,
+        "answer": "+9.0h",
+        "visibleBytes": 452,
+        "unrelatedCanariesVisible": 0
+      },
+      "pinpoint": {
+        "exitCode": 0,
+        "exactAnswer": true,
+        "answer": "+9.0h",
+        "artifactCapabilities": 0,
+        "visibleBytes": 452,
+        "unrelatedCanariesVisible": 0
+      },
+      "comparison": {
+        "sameAnswer": true,
+        "visibleByteReduction": 0,
+        "unrelatedCanariesAvoided": 0
+      }
+    },
+    {
+      "id": "playwright-browser-snapshot",
+      "description": "Inspect one target in a large browser accessibility snapshot.",
+      "server": "@playwright/mcp@0.0.78",
+      "mode": "virtualized",
+      "operation": "grep",
+      "passed": true,
+      "direct": {
+        "exitCode": 0,
+        "exactAnswer": true,
+        "answer": "browser-target-0427",
+        "visibleBytes": 97147,
+        "unrelatedCanariesVisible": 1999
+      },
+      "pinpoint": {
+        "exitCode": 0,
+        "exactAnswer": true,
+        "answer": "browser-target-0427",
+        "artifactCapabilities": 1,
+        "visibleBytes": 1378,
+        "unrelatedCanariesVisible": 0
+      },
+      "comparison": {
+        "sameAnswer": true,
+        "visibleByteReduction": 0.9858153108176269,
+        "unrelatedCanariesAvoided": 1999
+      }
     }
   ],
+  "research": {
+    "date": "2026-07-16",
+    "method": "Official MCP references and vendor servers, corroborated by public package and repository adoption. No ecosystem-wide workflow telemetry was available.",
+    "primarySources": [
+      "https://modelcontextprotocol.io/examples",
+      "https://github.com/modelcontextprotocol/servers",
+      "https://github.com/microsoft/playwright-mcp",
+      "https://github.com/github/github-mcp-server",
+      "https://github.com/bytebase/dbhub",
+      "https://developers.notion.com/docs/mcp",
+      "https://github.com/atlassian/atlassian-mcp-server",
+      "https://github.com/zencoderai/slack-mcp-server"
+    ],
+    "adoptionSignals": {
+      "referenceServersGitHubStars": 88500,
+      "referenceServersGitHubForks": 11200,
+      "playwrightGitHubStars": 35200,
+      "playwrightNpmWeeklyDownloads": 6451720,
+      "playwrightNpmDependents": 99,
+      "githubMcpGitHubStars": 31500,
+      "dbhubGitHubStars": 3200,
+      "dbhubNpmWeeklyDownloads": 18206
+    },
+    "authenticatedFollowUps": [
+      "GitHub repository, issue, pull-request, and workflow operations",
+      "Jira and Confluence search and updates",
+      "Notion workspace search, documentation, tasks, and reports",
+      "Slack channel history, threads, users, and messaging"
+    ]
+  },
   "source": {
     "fingerprints": {
       "src/mcp/gateway.ts": "eed74b121fe36ea471399704147bd1656df65c12792a9d2258735ae57a8581ab",
       "src/virtual-context/store.ts": "7b0bbc2de4e400b7cb85a23d926bf5ec2c898c7242df57b220026bf3cbc36783",
-      "benchmarks/v2/mcp_common_workflows_gate.mjs": "8709b0fc6692ad9dfa244e7a1d67db3f92fca122edc46d97cb2d3953ad4fd809"
+      "benchmarks/v2/mcp_common_workflows_gate.mjs": "c63a16a1f58b88fb4b519c707966ac6204c380b475bb1604ca3ac67af2457aaf"
     }
   },
   "limitations": [
-    "These are maintainer-authored synthetic workflows over three pinned published MCP servers, not organic customer traffic.",
+    "These are maintainer-authored synthetic workflows over seven pinned published MCP servers, not organic customer traffic.",
+    "The selected categories are supported by official references and observable public adoption, not an ecosystem-wide popularity census.",
+    "GitHub, Jira, Confluence, Notion, and Slack comparisons require scoped sandbox accounts and were researched but not executed.",
+    "Fetch and Playwright use deterministic loopback web fixtures; they make no claim about public-web content quality or availability.",
     "The direct arm uses deterministic local parsing after the full result reaches the client; it does not measure model accuracy.",
     "Fixture setup calls are excluded equally from both arms, and package download time is not measured.",
     "Visible bytes count data-bearing MCP responses only, not initialization or tool catalogs.",

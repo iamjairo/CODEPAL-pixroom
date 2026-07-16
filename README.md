@@ -14,7 +14,7 @@
 
 <p align="center">
   <a href="#start-here">See the value</a> ·
-  <a href="#six-everyday-tasks-six-exact-answers">Results</a> ·
+  <a href="#ten-everyday-mcp-jobs-ten-exact-answers">Results</a> ·
   <a href="#install">Try it</a> ·
   <a href="#where-it-fits">Use cases</a> ·
   <a href="#evidence">Evidence</a> ·
@@ -39,12 +39,12 @@ Do not add the image tag until both files exist and render correctly on GitHub l
 
 ---
 
-## Six everyday tasks. Six exact answers.
+## Ten everyday MCP jobs. Ten exact answers.
 
 <p align="center">
-  <strong>6/6 exact</strong> &nbsp;·&nbsp;
-  <strong>99.2% fewer response bytes</strong> &nbsp;·&nbsp;
-  <strong>6,995 unrelated value occurrences kept out</strong>
+  <strong>10/10 exact</strong> &nbsp;·&nbsp;
+  <strong>99.0% fewer response bytes</strong> &nbsp;·&nbsp;
+  <strong>11,992 unrelated value occurrences kept out</strong>
 </p>
 
 <table>
@@ -76,6 +76,18 @@ Do not add the image tag until both files exist and render correctly on GitHub l
       <td><strong>99.5% less</strong><br><sub>same exact log line</sub></td>
     </tr>
     <tr>
+      <td><a href="./comparisons/web-research.md"><strong>Find one fact on a long web page</strong></a></td>
+      <td align="right">108,253 B<br><sub>1,999 unrelated visible</sub></td>
+      <td align="right">1,377 B<br><sub>0 unrelated visible</sub></td>
+      <td><strong>98.7% less</strong><br><sub>same exact source line</sub></td>
+    </tr>
+    <tr>
+      <td><a href="./comparisons/database-query.md"><strong>Find one row in a large SQL report</strong></a></td>
+      <td align="right">117,099 B<br><sub>999 unrelated visible</sub></td>
+      <td align="right">1,468 B<br><sub>0 unrelated visible</sub></td>
+      <td><strong>98.7% less</strong><br><sub>same exact database value</sub></td>
+    </tr>
+    <tr>
       <td><a href="./comparisons/knowledge-graph-lookup.md"><strong>Recall one customer note</strong></a></td>
       <td align="right">132,672 B<br><sub>998 unrelated visible</sub></td>
       <td align="right">1,495 B<br><sub>0 unrelated visible</sub></td>
@@ -93,10 +105,22 @@ Do not add the image tag until both files exist and render correctly on GitHub l
       <td align="right">1,384 B<br><sub>0 unrelated visible</sub></td>
       <td><strong>98.6% less</strong><br><sub>same exact changed line</sub></td>
     </tr>
+    <tr>
+      <td><a href="./comparisons/browser-snapshot.md"><strong>Inspect a large browser page</strong></a></td>
+      <td align="right">97,147 B<br><sub>1,999 unrelated visible</sub></td>
+      <td align="right">1,378 B<br><sub>0 unrelated visible</sub></td>
+      <td><strong>98.6% less</strong><br><sub>same exact page target</sub></td>
+    </tr>
+    <tr>
+      <td><a href="./comparisons/timezone-conversion.md"><strong>Convert a meeting time to Tokyo</strong></a></td>
+      <td align="right">452 B<br><sub>already bounded</sub></td>
+      <td align="right">452 B<br><sub>no artifact created</sub></td>
+      <td><strong>Byte-identical</strong><br><sub>same exact +9.0h answer</sub></td>
+    </tr>
   </tbody>
 </table>
 
-<p align="center"><sub>936,377 bytes direct vs 7,576 bytes with Pinpoint across three pinned published MCP servers. Data-bearing response bytes, not token estimates. <a href="./benchmarks/results/mcp-common-workflows.first-party-macos-arm64-20260716.json">View the receipt.</a></sub></p>
+<p align="center"><sub>1,259,328 bytes without Pinpoint vs 12,251 bytes with Pinpoint across seven pinned published MCP servers. Eight oversized results improved; two already-bounded controls stayed unchanged. Data-bearing response bytes, not token estimates. <a href="./benchmarks/results/mcp-common-workflows.first-party-macos-arm64-20260716.json">Receipt</a> · <a href="./comparisons/README.md">Research and method</a></sub></p>
 
 ## Start here
 

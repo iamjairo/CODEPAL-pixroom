@@ -26,7 +26,7 @@ What they establish:
 | `npm run bench:virtual` | Offline real transform | Token accounting for QCV against the committed comparison fixtures |
 | `npm run bench:mcp-opaque-flow` | Protocol integration | Fail-closed source capture, hidden exact destination calls, bypass denial, transcript canary absence, operator/session/policy authorization, signed receipt verification/chaining, and local latency |
 | `npm run bench:mcp-oss-cross-server` | OSS cross-server integration | Exact hidden composition across pinned unmodified filesystem and memory servers, persistent side-effect verification, separate process environments, and transcript canary absence |
-| `npm run bench:mcp-common-workflows` | Paired OSS protocol integration | Exact direct-versus-Pinpoint outcomes, data-bearing response bytes, unrelated fixture values at the client boundary, and an already-bounded no-op control across filesystem, memory, and Git MCP servers |
+| `npm run bench:mcp-common-workflows` | Paired OSS protocol integration | Exact direct-versus-Pinpoint outcomes, data-bearing response bytes, unrelated fixture values at the client boundary, and three no-op controls across seven published filesystem, memory, Git, Fetch, DBHub, Time, and Playwright MCP servers |
 | `npm run bench:compare-hcp` | Comparative mechanism evaluation | Clean pinned HCP validation plus byte-identical Pinpoint/HCP workflow, native denials, client-boundary canary scan, authority/TCB comparison, and explicit non-comparability |
 
 They do not establish live model quality, provider-reported usage, real-agent savings, or production latency.
@@ -50,23 +50,28 @@ Every pair must produce the same exact answer.
 | Exact account lookup in a 1,000-row JSON export | `@modelcontextprotocol/server-filesystem@2026.7.10` | `json_select` over an artifact |
 | Filtered account count | `@modelcontextprotocol/server-filesystem@2026.7.10` | `count` over an artifact |
 | Incident lookup in a 2,000-line log | `@modelcontextprotocol/server-filesystem@2026.7.10` | literal `grep` over an artifact |
+| One fact in a 2,000-line web page | `mcp-server-fetch==2026.7.10` | literal `grep` over an artifact |
+| One row in a 1,000-row SQL result | `@bytebase/dbhub@0.23.0` | `json_select` over a nested artifact collection |
 | One node from a 500-entity full graph | `@modelcontextprotocol/server-memory@2026.7.4` | `json_select` over an artifact |
 | The same node through native `open_nodes` | `@modelcontextprotocol/server-memory@2026.7.4` | passthrough; no artifact or savings claim |
 | One marker in a 2,000-line commit | `mcp-server-git==2026.7.10` | literal `grep` over an artifact |
+| One target in a large browser page | `@playwright/mcp@0.0.78` | literal `grep` over the default inline accessibility snapshot |
+| UTC meeting time converted to Tokyo | `mcp-server-time==2026.7.10` | passthrough; naturally bounded response |
 
-The retained first-party run passed 6/6 workflows. Across data-bearing responses,
-direct MCP exposed 936,377 bytes and Pinpoint exposed 7,576 bytes, a 99.2% reduction.
-The five oversized workflows kept 6,995 unrelated synthetic marker occurrences out of the
-Pinpoint-side client transcript. The bounded `open_nodes` control created no artifact
-and returned 437 bytes in both arms, so it does not manufacture a benefit when the
-upstream tool already filters well.
+The retained first-party run passed 10/10 workflows. Across data-bearing responses,
+direct MCP exposed 1,259,328 bytes and Pinpoint exposed 12,251 bytes, a 99.0%
+reduction. The eight oversized workflows kept 11,992 unrelated synthetic marker
+occurrences out of the Pinpoint-side client transcript. Two controls created no
+artifact: native `open_nodes` returned 437 bytes in both arms and Time returned 452
+in both.
 
 These are protocol measurements, not model-token measurements. Fixture setup,
 initialization, and tool catalogs are excluded equally; package download time is not
 measured. The direct grader represents what a correct client can compute after receiving
 the full response, not what an LLM will necessarily infer. See the
 [canonical receipt](./results/mcp-common-workflows.first-party-macos-arm64-20260716.json)
-and the [evaluation plan](../planning/common_mcp_workflow_evaluation.md).
+the [internet research index](../comparisons/README.md), and the
+[evaluation plan](../planning/common_mcp_workflow_evaluation.md).
 
 The opaque-flow protocol gate starts the committed unmodified stdio fixture, runs 30 exact flows and eight adversarial calls, scans 400 generated canaries, verifies every receipt and chain link, validates an operator delegation and exact policy opening, rejects receipt/authority tampering and a wrong operator root, and compares client-visible bytes with a constructed direct-MCP transcript. It makes no provider request. The committed receipt is `results/mcp-opaque-flow.first-party-macos-arm64-20260715.json`.
 

@@ -1,6 +1,7 @@
 import { execFileSync, spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { createServer } from 'node:http';
 import { arch, platform, release, tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { PassThrough } from 'node:stream';
@@ -18,6 +19,10 @@ const resultPath = join(
 const filesystemPackage = '@modelcontextprotocol/server-filesystem@2026.7.10';
 const memoryPackage = '@modelcontextprotocol/server-memory@2026.7.4';
 const gitPackage = 'mcp-server-git==2026.7.10';
+const fetchPackage = 'mcp-server-fetch==2026.7.10';
+const timePackage = 'mcp-server-time==2026.7.10';
+const dbhubPackage = '@bytebase/dbhub@0.23.0';
+const playwrightPackage = '@playwright/mcp@0.0.78';
 const temporary = mkdtempSync(join(tmpdir(), 'pinpoint-common-workflows-'));
 let temporaryRemoved = false;
 function removeTemporary() {
@@ -100,6 +105,52 @@ const gitCanaries = gitLines
   .filter((_, index) => index !== 1_427)
   .map((line) => /'(git-private-\d+)'/.exec(line)?.[1])
   .filter(Boolean);
+
+const webResearchTarget = 'WEB-RESEARCH-0427';
+const webResearchLines = Array.from({ length: 2_000 }, (_, index) => {
+  const marker = `web-private-${String(index).padStart(4, '0')}`;
+  return index === 1_427
+    ? `${webResearchTarget}: Pinpoint keeps the full research page local.`
+    : `${marker}: ordinary documentation index entry`;
+});
+const expectedWebResearchLine = webResearchLines[1_427];
+const webResearchCanaries = webResearchLines
+  .filter((_, index) => index !== 1_427)
+  .map((line) => line.split(':', 1)[0]);
+
+const browserTarget = 'browser-target-0427';
+const browserLines = Array.from({ length: 2_000 }, (_, index) => {
+  const marker = `browser-private-${String(index).padStart(4, '0')}`;
+  return index === 1_427 ? browserTarget : marker;
+});
+const browserCanaries = browserLines.filter((value) => value !== browserTarget);
+const browserHtml = [
+  '<!doctype html><html><head><title>Pinpoint browser fixture</title></head><body><main>',
+  '<h1>Support dashboard</h1>',
+  ...browserLines.map((line) => `<p>${line}</p>`),
+  '</main></body></html>',
+].join('');
+const browserInitPath = join(temporary, 'playwright-init.mjs');
+writeFileSync(
+  browserInitPath,
+  `export default async ({ page }) => {\n  await page.setContent(${JSON.stringify(browserHtml)});\n};\n`,
+);
+
+const databaseTargetId = 733;
+const databaseTarget = 'database-target-0733';
+const databaseCanaries = Array.from(
+  { length: 1_000 },
+  (_, index) => `db-private-${String(index).padStart(4, '0')}`,
+).filter((_, index) => index !== databaseTargetId);
+const databaseSql = [
+  'WITH RECURSIVE seq(id) AS (',
+  'SELECT 0 UNION ALL SELECT id + 1 FROM seq WHERE id < 999',
+  ') SELECT id,',
+  "printf('db-private-%04d', id) AS marker,",
+  `CASE WHEN id = ${databaseTargetId} THEN '${databaseTarget}' ELSE 'ordinary' END AS status`,
+  'FROM seq ORDER BY id',
+].join(' ');
+
 const gitEnvironment = {
   PATH: process.env.PATH,
   HOME: home,
@@ -142,6 +193,25 @@ const serverEnvironment = {
   UV_CACHE_DIR: uvCache,
   UV_NO_CONFIG: '1',
 };
+
+const fixtureServer = createServer((request, response) => {
+  if (request.url === '/research.txt') {
+    response.writeHead(200, { 'content-type': 'text/plain; charset=utf-8' });
+    response.end(`${webResearchLines.join('\n')}\n`);
+    return;
+  }
+  response.writeHead(404, { 'content-type': 'text/plain; charset=utf-8' });
+  response.end('not found');
+});
+await new Promise((resolveListen, rejectListen) => {
+  fixtureServer.once('error', rejectListen);
+  fixtureServer.listen(0, '127.0.0.1', resolveListen);
+});
+const fixtureAddress = fixtureServer.address();
+if (!fixtureAddress || typeof fixtureAddress === 'string') {
+  throw new Error('local benchmark fixture server did not bind a TCP port');
+}
+const fixtureBaseUrl = `http://127.0.0.1:${fixtureAddress.port}`;
 
 function responseReader(stream) {
   let buffer = '';
@@ -223,6 +293,7 @@ function fingerprint(path) {
 async function runDirectWorkflow(config) {
   const child = spawn(config.serverCommand ?? 'npx', config.serverArgs, {
     env: config.environment('direct'),
+    ...(config.cwd ? { cwd: config.cwd } : {}),
     stdio: ['pipe', 'pipe', 'pipe'],
   });
   let diagnostics = '';
@@ -236,6 +307,7 @@ async function runDirectWorkflow(config) {
     const source = await client.request('tools/call', config.sourceCall);
     const visibleText = JSON.stringify(source);
     const answer = config.directAnswer(toolText(source));
+    const sourceMetrics = config.sourceMetrics?.(toolText(source));
     child.stdin.end();
     const exitCode = await exited;
     if (exitCode !== 0 && diagnostics) process.stderr.write(diagnostics.slice(-2_000));
@@ -245,6 +317,7 @@ async function runDirectWorkflow(config) {
       answer,
       visibleBytes: Buffer.byteLength(visibleText),
       unrelatedCanariesVisible: countVisibleCanaries(visibleText, config.canaries),
+      ...(sourceMetrics ? { sourceMetrics } : {}),
     };
   } finally {
     if (child.exitCode === null) child.kill('SIGKILL');
@@ -263,6 +336,7 @@ async function runPinpointWorkflow(config) {
     output,
     error,
     env: config.environment('pinpoint'),
+    ...(config.cwd ? { cwd: config.cwd } : {}),
     minChars: 1_000,
   });
   const client = rpcClient(input, output);
@@ -281,6 +355,7 @@ async function runPinpointWorkflow(config) {
     const answer = queried
       ? config.queryAnswer(queryPayload(queried))
       : config.directAnswer(toolText(source));
+    const sourceMetrics = config.sourceMetrics?.(toolText(source));
     const queryResponseText = queried ? JSON.stringify(queried) : '';
     const visibleText = queried ? `${sourceText}\n${queryResponseText}` : sourceText;
     input.end();
@@ -293,6 +368,7 @@ async function runPinpointWorkflow(config) {
       artifactCapabilities: artifactIds.length,
       visibleBytes: Buffer.byteLength(visibleText),
       unrelatedCanariesVisible: countVisibleCanaries(visibleText, config.canaries),
+      ...(sourceMetrics ? { sourceMetrics } : {}),
     };
   } finally {
     input.end();
@@ -313,6 +389,10 @@ async function runPairedWorkflow(config) {
     : direct.unrelatedCanariesVisible === expectedDirectCanaries &&
       pinpoint.unrelatedCanariesVisible === expectedDirectCanaries &&
       Math.abs(visibleByteReduction) <= 0.05;
+  const sourceMetricsPassed = config.verifySourceMetrics?.(
+    direct.sourceMetrics,
+    pinpoint.sourceMetrics,
+  ) ?? true;
   const passed =
     direct.exitCode === 0 &&
     pinpoint.exitCode === 0 &&
@@ -320,13 +400,15 @@ async function runPairedWorkflow(config) {
     pinpoint.exactAnswer &&
     sameAnswer &&
     pinpoint.artifactCapabilities === expectedArtifactCapabilities &&
-    disclosurePassed;
+    disclosurePassed &&
+    sourceMetricsPassed;
   return {
     id: config.id,
     description: config.description,
     server: config.server,
     mode: config.mode,
-    operation: config.query?.op ?? 'native-filter',
+    operation: config.operation ?? config.query?.op ?? 'native-filter',
+    ...(config.upstreamBehavior ? { upstreamBehavior: config.upstreamBehavior } : {}),
     passed,
     direct,
     pinpoint,
@@ -448,6 +530,100 @@ const workflowConfigs = [
     expected: expectedGitLine,
     canaries: gitCanaries,
   },
+  {
+    id: 'fetch-web-research',
+    description: 'Find one fact in a long web research page.',
+    mode: 'virtualized',
+    server: fetchPackage,
+    serverCommand: 'uvx',
+    serverArgs: [fetchPackage, '--ignore-robots-txt'],
+    environment: filesystemEnvironment,
+    sourceCall: {
+      name: 'fetch',
+      arguments: {
+        url: `${fixtureBaseUrl}/research.txt`,
+        max_length: 200_000,
+        start_index: 0,
+        raw: true,
+      },
+    },
+    directAnswer: (text) => text.split(/\r?\n/).find((line) => line.includes(webResearchTarget)) ?? null,
+    query: { op: 'grep', query: webResearchTarget, limit: 5 },
+    queryAnswer: ({ matches }) => matches?.[0]?.text ?? null,
+    expected: expectedWebResearchLine,
+    canaries: webResearchCanaries,
+  },
+  {
+    id: 'database-large-query-result',
+    description: 'Find one flagged row in a 1,000-row SQL report.',
+    mode: 'virtualized',
+    server: dbhubPackage,
+    serverArgs: ['-y', dbhubPackage, '--transport', 'stdio', '--demo'],
+    environment: filesystemEnvironment,
+    sourceCall: { name: 'execute_sql', arguments: { sql: databaseSql } },
+    directAnswer: (text) => {
+      const result = JSON.parse(text);
+      return result.data?.rows?.find(({ id }) => id === databaseTargetId)?.status ?? null;
+    },
+    query: { op: 'json_select', where: { id: databaseTargetId }, fields: ['status'] },
+    queryAnswer: ({ matches }) => matches?.[0]?.status ?? null,
+    expected: databaseTarget,
+    canaries: databaseCanaries,
+  },
+  {
+    id: 'time-zone-conversion-control',
+    description: 'Convert a meeting time from UTC to Tokyo.',
+    mode: 'passthrough',
+    operation: 'timezone-conversion',
+    server: timePackage,
+    serverCommand: 'uvx',
+    serverArgs: [timePackage, '--local-timezone', 'UTC'],
+    environment: filesystemEnvironment,
+    sourceCall: {
+      name: 'convert_time',
+      arguments: {
+        source_timezone: 'UTC',
+        time: '16:30',
+        target_timezone: 'Asia/Tokyo',
+      },
+    },
+    directAnswer: (text) => JSON.parse(text).time_difference ?? null,
+    expected: '+9.0h',
+    expectedDirectCanaries: 0,
+    canaries: [],
+  },
+  {
+    id: 'playwright-browser-snapshot',
+    description: 'Inspect one target in a large browser accessibility snapshot.',
+    mode: 'virtualized',
+    server: playwrightPackage,
+    serverArgs: [
+      '-y',
+      playwrightPackage,
+      '--headless',
+      '--isolated',
+      '--browser',
+      'chrome',
+      '--snapshot-mode',
+      'full',
+      '--image-responses',
+      'omit',
+      '--init-page',
+      browserInitPath,
+    ],
+    environment: filesystemEnvironment,
+    cwd: temporary,
+    sourceCall: {
+      name: 'browser_snapshot',
+      arguments: {},
+    },
+    directAnswer: (text) => text.includes(browserTarget) ? browserTarget : null,
+    query: { op: 'grep', query: browserTarget, limit: 5 },
+    queryAnswer: ({ matches }) =>
+      matches?.some(({ text }) => text.includes(browserTarget)) ? browserTarget : null,
+    expected: browserTarget,
+    canaries: browserCanaries,
+  },
 ];
 
 try {
@@ -473,6 +649,8 @@ try {
       workflows: workflows.length,
       workflowsPassed: workflows.filter(({ passed: workflowPassed }) => workflowPassed).length,
       publishedServers: new Set(workflows.map(({ server }) => server)).size,
+      virtualizedWorkflows: workflows.filter(({ mode }) => mode === 'virtualized').length,
+      passthroughControls: workflows.filter(({ mode }) => mode === 'passthrough').length,
       operations: [...new Set(workflows.map(({ operation }) => operation))].sort(),
       directVisibleBytes,
       pinpointVisibleBytes,
@@ -483,6 +661,36 @@ try {
       ),
     },
     workflows,
+    research: {
+      date: '2026-07-16',
+      method: 'Official MCP references and vendor servers, corroborated by public package and repository adoption. No ecosystem-wide workflow telemetry was available.',
+      primarySources: [
+        'https://modelcontextprotocol.io/examples',
+        'https://github.com/modelcontextprotocol/servers',
+        'https://github.com/microsoft/playwright-mcp',
+        'https://github.com/github/github-mcp-server',
+        'https://github.com/bytebase/dbhub',
+        'https://developers.notion.com/docs/mcp',
+        'https://github.com/atlassian/atlassian-mcp-server',
+        'https://github.com/zencoderai/slack-mcp-server',
+      ],
+      adoptionSignals: {
+        referenceServersGitHubStars: 88_500,
+        referenceServersGitHubForks: 11_200,
+        playwrightGitHubStars: 35_200,
+        playwrightNpmWeeklyDownloads: 6_451_720,
+        playwrightNpmDependents: 99,
+        githubMcpGitHubStars: 31_500,
+        dbhubGitHubStars: 3_200,
+        dbhubNpmWeeklyDownloads: 18_206,
+      },
+      authenticatedFollowUps: [
+        'GitHub repository, issue, pull-request, and workflow operations',
+        'Jira and Confluence search and updates',
+        'Notion workspace search, documentation, tasks, and reports',
+        'Slack channel history, threads, users, and messaging',
+      ],
+    },
     source: {
       fingerprints: Object.fromEntries([
         'src/mcp/gateway.ts',
@@ -491,7 +699,10 @@ try {
       ].map((path) => [path, fingerprint(path)])),
     },
     limitations: [
-      'These are maintainer-authored synthetic workflows over three pinned published MCP servers, not organic customer traffic.',
+      'These are maintainer-authored synthetic workflows over seven pinned published MCP servers, not organic customer traffic.',
+      'The selected categories are supported by official references and observable public adoption, not an ecosystem-wide popularity census.',
+      'GitHub, Jira, Confluence, Notion, and Slack comparisons require scoped sandbox accounts and were researched but not executed.',
+      'Fetch and Playwright use deterministic loopback web fixtures; they make no claim about public-web content quality or availability.',
       'The direct arm uses deterministic local parsing after the full result reaches the client; it does not measure model accuracy.',
       'Fixture setup calls are excluded equally from both arms, and package download time is not measured.',
       'Visible bytes count data-bearing MCP responses only, not initialization or tool catalogs.',
@@ -502,6 +713,7 @@ try {
   console.log(JSON.stringify(result, null, 2));
   if (!passed) process.exitCode = 1;
 } finally {
+  fixtureServer.close();
   removeTemporary();
   process.removeListener('exit', removeTemporary);
 }

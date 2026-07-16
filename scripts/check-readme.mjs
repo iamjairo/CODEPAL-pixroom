@@ -121,9 +121,13 @@ const commonComparisonPages = [
   ['comparisons/customer-record-lookup.md', 'filesystem-exact-record-lookup'],
   ['comparisons/active-account-count.md', 'filesystem-filtered-count'],
   ['comparisons/incident-log-triage.md', 'filesystem-incident-log-triage'],
+  ['comparisons/web-research.md', 'fetch-web-research'],
+  ['comparisons/database-query.md', 'database-large-query-result'],
   ['comparisons/knowledge-graph-lookup.md', 'memory-knowledge-graph-lookup'],
   ['comparisons/native-filter-passthrough.md', 'memory-native-node-lookup-control'],
   ['comparisons/large-commit-triage.md', 'git-large-commit-triage'],
+  ['comparisons/browser-snapshot.md', 'playwright-browser-snapshot'],
+  ['comparisons/timezone-conversion.md', 'time-zone-conversion-control'],
 ];
 const proofAssetPath = join(root, 'assets', 'qcv-evidence-gate.svg');
 const proofAsset = readFileSync(proofAssetPath, 'utf8');
@@ -351,6 +355,12 @@ for (const [pagePath, workflowId] of commonComparisonPages) {
   if (workflow.comparison.visibleByteReduction > 0) {
     expectedValues.push(`**${percentage(workflow.comparison.visibleByteReduction)} less**`);
   }
+  if (workflow.direct.sourceMetrics?.externalizedBytes != null) {
+    expectedValues.push(
+      `**${integer.format(workflow.direct.sourceMetrics.externalizedBytes)} bytes**`,
+      `**${integer.format(workflow.direct.sourceMetrics.unrelatedMarkers)}**`,
+    );
+  }
   for (const value of expectedValues) {
     if (!page.includes(value)) fail(`${pagePath} is missing receipt value: ${value}`);
   }
@@ -372,6 +382,23 @@ for (const [pagePath, workflowId] of commonComparisonPages) {
     if (!readme.includes(reduction)) fail(`README is missing ${workflowId} result: ${reduction}`);
   } else if (!readme.includes('Byte-identical')) {
     fail(`README is missing ${workflowId} passthrough result: Byte-identical`);
+  }
+}
+const comparisonIndexPath = join(root, 'comparisons', 'README.md');
+const comparisonIndex = readFileSync(comparisonIndexPath, 'utf8');
+for (const target of localTargets(comparisonIndex)) {
+  if (/^(?:https?:|mailto:|#)/.test(target)) continue;
+  const [relative] = decodeURIComponent(target).split('#');
+  if (!relative) continue;
+  const targetPath = resolve(dirname(comparisonIndexPath), relative);
+  if (!existsSync(targetPath)) fail(`comparisons/README.md has a missing local target: ${target}`);
+}
+for (const source of commonWorkflowsReceipt.research.primarySources) {
+  if (!comparisonIndex.includes(source)) fail(`comparison research index is missing source: ${source}`);
+}
+for (const value of Object.values(commonWorkflowsReceipt.research.adoptionSignals)) {
+  if (!comparisonIndex.includes(integer.format(value))) {
+    fail(`comparison research index is missing adoption signal: ${integer.format(value)}`);
   }
 }
 for (const sourcePath of [
@@ -463,7 +490,7 @@ if (!existsSync(join(root, 'llms.txt'))) fail('llms.txt is missing');
 if (!readme.includes('./llms.txt')) fail('README does not link llms.txt');
 const endUserSignals = [
   'Let AI agents use private tool data without showing it to the model.',
-  '## Six everyday tasks. Six exact answers.',
+  '## Ten everyday MCP jobs. Ten exact answers.',
   'Pinpoint sits between your AI agent and an MCP server.',
   'The lossless MCP result firewall for AI agents',
   '### A concrete example',

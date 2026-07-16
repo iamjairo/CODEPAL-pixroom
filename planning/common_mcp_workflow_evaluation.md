@@ -34,22 +34,31 @@ Every paired workflow must meet all applicable conditions:
 
 ## Phase 1: credential-free protocol matrix
 
-**Executed.** The matrix covers six workflows, three pinned published MCP servers,
-three Pinpoint query operations, and one native-filter control:
+**Executed.** The matrix covers ten workflows, seven pinned published MCP servers,
+three Pinpoint query operations, and two passthrough controls:
 
 | Domain | Workflow | Operation | Result |
 |---|---|---|---|
 | Customer export | Exact row lookup | `json_select` | Pass |
 | Customer export | Multi-field count | `count` | Pass |
 | Operations | Incident log triage | `grep` | Pass |
+| Web research | Long page fact lookup | `grep` | Pass |
+| Database analytics | Large SQL result lookup | `json_select` | Pass |
 | Knowledge graph | Full-graph node lookup | `json_select` | Pass |
 | Knowledge graph | Native bounded node lookup | passthrough | Pass |
 | Software delivery | Large commit triage | `grep` | Pass |
+| Browser automation | Inline accessibility snapshot | `grep` | Pass |
+| Utility | Timezone conversion | passthrough | Pass |
 
-Aggregate data-bearing bytes were 936,377 direct and 7,576 with Pinpoint, a 99.2%
-reduction. All exact answers matched. The five artifact workflows avoided 6,995
-unrelated fixture-canary occurrences. The passthrough control emitted zero artifacts and was
-437 bytes in both arms.
+Aggregate data-bearing bytes were 1,259,328 direct and 12,251 with Pinpoint, a
+99.0% reduction. All exact answers matched. The eight artifact workflows avoided
+11,992 unrelated fixture-canary occurrences. Both passthrough controls emitted zero
+artifacts and were byte-identical between arms.
+
+The category selection comes from current official MCP examples, official vendor
+servers, and public package/repository adoption signals. It is not an ecosystem-wide
+popularity census. See `comparisons/README.md` for sources and the researched but
+unexecuted authenticated workflows.
 
 Run with `npm run bench:mcp-common-workflows`. The canonical receipt is
 `benchmarks/results/mcp-common-workflows.first-party-macos-arm64-20260716.json`.
@@ -76,8 +85,10 @@ have been reviewed for credentials, personal paths, and non-fixture content.
 
 ## Phase 3: authenticated external MCPs
 
-**Planned, blocked on safe test accounts and explicit authorization.** Add common
-read-heavy workflows from issue tracking, source hosting, databases, and observability.
+**Planned, blocked on safe test accounts and explicit authorization.** Add GitHub,
+Jira/Confluence, Notion, and Slack workflows using disposable organizations and
+synthetic data. Continue adding read-heavy observability and cloud-storage workflows
+only when a pinned representative can be run safely.
 Use synthetic tenants or vendor-provided sandboxes, least-privilege read-only tokens,
 and no production data. Candidate shapes are large issue search, pull-request review,
 schema/catalog inspection, and trace/log investigation.
