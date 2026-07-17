@@ -7,6 +7,7 @@ export {
   createDashboardGroupId,
   createDashboardProducerId,
   dashboardRootFromEnvironment,
+  DashboardGroupReader,
   DashboardJournal,
   listDashboardHistory,
   pruneDashboardHistory,
@@ -14,6 +15,7 @@ export {
 } from './journal.js';
 export type {
   DashboardGroupReadResult,
+  DashboardGroupReaderStats,
   DashboardJournalOptions,
   DashboardProducerState,
   DashboardPruneResult,

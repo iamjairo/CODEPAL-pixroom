@@ -10,7 +10,7 @@ import { join } from 'node:path';
 
 import { afterEach, describe, expect, it } from 'vitest';
 
-import { DashboardJournal, readDashboardGroup } from '../src/dashboard/journal.js';
+import { DashboardGroupReader, DashboardJournal, readDashboardGroup } from '../src/dashboard/journal.js';
 import type { DashboardProviderRouteEvent } from '../src/dashboard/types.js';
 
 const directories: string[] = [];
@@ -109,6 +109,22 @@ describe('DashboardJournal', () => {
     const result = readDashboardGroup(historyRoot, journal.groupId);
     expect(result.events).toHaveLength(1);
     expect(result.corruptRecords).toBe(1);
+    journal.close();
+  });
+
+  it('reuses parsed group state until a journal file changes', () => {
+    const historyRoot = root();
+    const journal = new DashboardJournal({ rootDir: historyRoot, source: 'pinpoint' });
+    journal.onEvent(routeEvent());
+    const reader = new DashboardGroupReader(historyRoot, journal.groupId);
+
+    expect(reader.read().events).toHaveLength(1);
+    expect(reader.read().events).toHaveLength(1);
+    expect(reader.stats()).toEqual({ scans: 2, parses: 1, cacheHits: 1 });
+
+    journal.onEvent({ ...routeEvent(), occurredAt: '2026-07-17T10:00:01.000Z' });
+    expect(reader.read().events).toHaveLength(2);
+    expect(reader.stats()).toEqual({ scans: 3, parses: 2, cacheHits: 1 });
     journal.close();
   });
 });

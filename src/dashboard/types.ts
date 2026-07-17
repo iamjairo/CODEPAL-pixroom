@@ -211,6 +211,8 @@ export interface DashboardSnapshot {
   readonly groupId: string;
   readonly state: 'active' | 'ended' | 'degraded';
   readonly requests: number;
+  readonly eventCount: number;
+  readonly negativeSavingsRoutes: number;
   readonly reversibleCount: number;
   readonly tokenLanes: readonly DashboardTokenLane[];
   readonly byteLanes: readonly DashboardByteLane[];
@@ -232,6 +234,8 @@ export interface DashboardHistorySession {
   readonly lastActivityAt: string | null;
   readonly durationMs: number | null;
   readonly requests: number;
+  readonly eventCount: number;
+  readonly negativeSavingsRoutes: number;
   readonly sources: readonly DashboardSource[];
   readonly tokenLanes: readonly DashboardTokenLane[];
   readonly byteLanes: readonly DashboardByteLane[];

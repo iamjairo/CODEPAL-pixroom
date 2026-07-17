@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 
 import {
   buildDashboardSnapshot,
+  DashboardGroupReader,
   DEFAULT_DASHBOARD_ROOT,
   listDashboardHistory,
   readDashboardGroup,
@@ -132,9 +133,10 @@ export function createDashboardServer(options: DashboardServerOptions): Dashboar
   let heartbeat: NodeJS.Timeout | null = null;
   let lastSignature = '';
   const clients = new Set<http.ServerResponse>();
+  const groupReader = new DashboardGroupReader(rootDir, options.groupId);
 
   const snapshot = (limit = 100): DashboardSnapshot =>
-    buildDashboardSnapshot(readDashboardGroup(rootDir, options.groupId), now(), limit);
+    buildDashboardSnapshot(groupReader.read(), now(), limit);
 
   const writeSse = (response: http.ServerResponse, event: string, value: unknown): void => {
     response.write(`event: ${event}\ndata: ${JSON.stringify(value)}\n\n`);

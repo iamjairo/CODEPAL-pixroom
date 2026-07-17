@@ -1,5 +1,5 @@
 import http from 'node:http';
-import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -109,6 +109,9 @@ describe('dashboard server', () => {
     expect(page.body).toContain('Pinpoint Session Recorder');
     expect(page.headers['content-security-policy']).toContain("default-src 'self'");
     expect(page.headers['cache-control']).toBe('no-store, max-age=0');
+    const sourceCss = readFileSync(join(process.cwd(), 'dashboard', 'src', 'styles.css'), 'utf8');
+    expect(sourceCss).toContain('contain: layout paint');
+    expect(sourceCss).toContain('content-visibility: auto');
 
     expect((await request(address.port, '/api/v1/snapshot')).status).toBe(401);
     const snapshot = await request(address.port, '/api/v1/snapshot', { token: server.token });
@@ -116,6 +119,8 @@ describe('dashboard server', () => {
     expect(JSON.parse(snapshot.body)).toMatchObject({
       groupId: journal.groupId,
       requests: 1,
+      eventCount: 1,
+      negativeSavingsRoutes: 0,
       tokenLanes: [{ source: 'pinpoint', basis: 'estimate', tokensSaved: 75 }],
       privacy: { metadataOnly: true },
     });
@@ -124,6 +129,8 @@ describe('dashboard server', () => {
       sessions: [{
         groupId: journal.groupId,
         requests: 1,
+        eventCount: 1,
+        negativeSavingsRoutes: 0,
         durationMs: expect.any(Number),
         tokenLanes: [{ source: 'pinpoint', tokensSaved: 75 }],
       }],

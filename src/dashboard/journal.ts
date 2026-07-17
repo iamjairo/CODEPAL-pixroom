@@ -70,6 +70,12 @@ export interface DashboardPruneResult {
   readonly overBudget: boolean;
 }
 
+export interface DashboardGroupReaderStats {
+  readonly scans: number;
+  readonly parses: number;
+  readonly cacheHits: number;
+}
+
 function randomIdentifier(prefix: 'dash' | 'prod'): string {
   return `${prefix}_${randomBytes(16).toString('hex')}`;
 }
@@ -368,6 +374,60 @@ export function readDashboardGroup(rootDir: string, groupId: string): DashboardG
   return { groupId, producers, events, corruptRecords };
 }
 
+function dashboardGroupRevision(rootDir: string, groupId: string): string | undefined {
+  validateIdentifier(groupId, 'dash');
+  const groupDir = join(rootDir, groupId);
+  if (!existsSync(groupDir)) return 'missing';
+  try {
+    return readdirSync(groupDir, { withFileTypes: true })
+      .filter((entry) => entry.isFile() && (entry.name.endsWith('.state.json') || /\.events\.jsonl(?:\.1)?$/.test(entry.name)))
+      .sort((left, right) => left.name.localeCompare(right.name))
+      .map((entry) => {
+        const metadata = statSync(join(groupDir, entry.name), { bigint: true });
+        return `${entry.name}:${metadata.ino}:${metadata.size}:${metadata.mtimeNs}`;
+      })
+      .join('|');
+  } catch {
+    // A writer may rotate between readdir and stat. Skip this cache decision.
+    return undefined;
+  }
+}
+
+/** Reuses normalized parsed events until a journal file's identity, size, or mtime changes. */
+export class DashboardGroupReader {
+  private revision: string | undefined;
+  private cached: DashboardGroupReadResult | undefined;
+  private scans = 0;
+  private parses = 0;
+  private cacheHits = 0;
+
+  constructor(
+    private readonly rootDir: string,
+    private readonly groupId: string,
+  ) {}
+
+  read(): DashboardGroupReadResult {
+    this.scans += 1;
+    const revision = dashboardGroupRevision(this.rootDir, this.groupId);
+    if (this.cached && revision != null && revision === this.revision) {
+      this.cacheHits += 1;
+      return this.cached;
+    }
+    try {
+      this.cached = readDashboardGroup(this.rootDir, this.groupId);
+      this.revision = revision;
+      this.parses += 1;
+    } catch (error) {
+      if (!this.cached) throw error;
+    }
+    return this.cached;
+  }
+
+  stats(): DashboardGroupReaderStats {
+    return { scans: this.scans, parses: this.parses, cacheHits: this.cacheHits };
+  }
+}
+
 export function buildDashboardSnapshot(
   group: DashboardGroupReadResult,
   generatedAt = new Date(),
@@ -387,6 +447,7 @@ export function buildDashboardSnapshot(
     receiptsEmitted: 0,
   };
   let reversibleCount = 0;
+  let negativeSavingsRoutes = 0;
   let latestHeadroom: Extract<DashboardEvent, { type: 'headroom.sample' }> | undefined;
   for (const event of group.events) {
     if (event.type === 'headroom.sample') {
@@ -394,6 +455,7 @@ export function buildDashboardSnapshot(
       continue;
     }
     if (event.type === 'provider.route') {
+      if (event.tokensSaved.value < 0) negativeSavingsRoutes += 1;
       reversibleCount += event.reversibleCount;
       for (const stage of event.stages) {
         const key = `${event.source}:${stage.basis}`;
@@ -465,6 +527,8 @@ export function buildDashboardSnapshot(
     state,
     requests: group.events.filter((event) => event.type === 'provider.route').length +
       (latestHeadroom?.requests.value ?? 0),
+    eventCount: group.events.length,
+    negativeSavingsRoutes,
     reversibleCount,
     tokenLanes: [...lanes.values()].sort((left, right) =>
       `${left.source}:${left.basis}`.localeCompare(`${right.source}:${right.basis}`)),
@@ -528,6 +592,8 @@ export function listDashboardHistory(rootDir = DEFAULT_DASHBOARD_ROOT): Dashboar
         ? Math.max(0, Date.parse(lastActivityAt) - Date.parse(startedAt))
         : null,
       requests: snapshot.requests,
+      eventCount: snapshot.eventCount,
+      negativeSavingsRoutes: snapshot.negativeSavingsRoutes,
       sources: snapshot.sources.map(({ source }) => source),
       tokenLanes: snapshot.tokenLanes,
       byteLanes: snapshot.byteLanes,

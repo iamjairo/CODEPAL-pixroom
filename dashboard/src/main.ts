@@ -56,6 +56,8 @@ interface AppState {
   selectedHistoryGroup: string | null;
   historySnapshot: DashboardSnapshot | null;
   historyLoading: boolean;
+  historyError: string | null;
+  historyIndexError: string | null;
 }
 
 const app = document.querySelector<HTMLDivElement>('#app') ?? (() => {
@@ -87,7 +89,12 @@ const state: AppState = {
   selectedHistoryGroup: null,
   historySnapshot: null,
   historyLoading: false,
+  historyError: null,
+  historyIndexError: null,
 };
+
+let pendingSnapshot: DashboardSnapshot | null = null;
+let snapshotScheduled = false;
 
 function readToken(): string | null {
   const hash = new URLSearchParams(location.hash.replace(/^#/, ''));
@@ -186,10 +193,7 @@ function activeSourceCount(snapshot: DashboardSnapshot): number {
 
 function attentionCount(snapshot: DashboardSnapshot): number {
   const degraded = snapshot.sources.filter(({ state }) => state === 'degraded').length;
-  const negative = snapshot.recentEvents.filter(
-    (event) => event.type === 'provider.route' && event.tokensSaved.value < 0,
-  ).length;
-  return degraded + snapshot.corruptRecords + snapshot.mcp.failed + negative;
+  return degraded + snapshot.corruptRecords + snapshot.mcp.failed + snapshot.negativeSavingsRoutes;
 }
 
 function sessionVerdict(snapshot: DashboardSnapshot): {
@@ -198,18 +202,18 @@ function sessionVerdict(snapshot: DashboardSnapshot): {
   readonly detail: string;
 } {
   const attention = attentionCount(snapshot);
+  if (attention > 0) {
+    return {
+      tone: 'attention',
+      title: `${snapshot.state === 'ended' ? 'Session ended with' : 'Session has'} ${attention} signal${attention === 1 ? '' : 's'} requiring review`,
+      detail: 'Inspect degraded sources, failed MCP operations, corrupt records, and negative-savings routes below.',
+    };
+  }
   if (snapshot.state === 'ended') {
     return {
       tone: 'ended',
       title: 'Session closed with evidence intact',
-      detail: `${snapshot.requests} provider requests and ${snapshot.recentEvents.length} metadata events remain available locally.`,
-    };
-  }
-  if (attention > 0) {
-    return {
-      tone: 'attention',
-      title: `${attention} signal${attention === 1 ? '' : 's'} need review`,
-      detail: 'Open the evidence tape to locate degraded sources, failed operations, or negative-savings routes.',
+      detail: `${snapshot.requests} provider requests and ${snapshot.eventCount} metadata events remain available locally.`,
     };
   }
   return {
@@ -316,8 +320,7 @@ function statusTone(): string {
   return 'live';
 }
 
-function render(): void {
-  const snapshot = state.snapshot;
+function mountShell(): void {
   app.innerHTML = `
     <div class="app-shell">
       <header class="masthead">
@@ -331,27 +334,115 @@ function render(): void {
         <div class="session-state" data-tone="${statusTone()}">
           <span class="state-light" aria-hidden="true"></span>
           <div>
-            <strong>${escapeHtml(statusLabel())}</strong>
-            <span>${snapshot ? `Updated ${escapeHtml(formatTime(snapshot.generatedAt))}` : 'Waiting for local telemetry'}</span>
+            <strong data-session-label>${escapeHtml(statusLabel())}</strong>
+            <span data-session-time>Waiting for local telemetry</span>
           </div>
         </div>
       </header>
       ${renderNavigation()}
-      <main id="main" tabindex="-1">
-        ${state.error ? renderAlert(state.error) : ''}
-        ${snapshot ? renderView(snapshot) : renderWaiting()}
-      </main>
+      <main id="main" tabindex="-1"></main>
     </div>
   `;
-  bindInteractions();
+}
+
+function updateChrome(snapshot: DashboardSnapshot | null): void {
+  const session = app.querySelector<HTMLElement>('.session-state');
+  if (session) session.dataset.tone = statusTone();
+  const label = app.querySelector<HTMLElement>('[data-session-label]');
+  if (label) label.textContent = statusLabel();
+  const time = app.querySelector<HTMLElement>('[data-session-time]');
+  if (time) time.textContent = snapshot
+    ? `Updated ${formatTime(snapshot.generatedAt)}`
+    : 'Waiting for local telemetry';
+  for (const button of app.querySelectorAll<HTMLButtonElement>('[data-view]')) {
+    const selected = button.dataset.view === state.view;
+    button.classList.toggle('is-active', selected);
+    if (selected) button.setAttribute('aria-current', 'page');
+    else button.removeAttribute('aria-current');
+  }
+}
+
+interface RenderContinuity {
+  readonly focus?: {
+    readonly attribute: string;
+    readonly value: string;
+    readonly selectionStart?: number | null;
+    readonly selectionEnd?: number | null;
+  };
+  readonly scrollAreas: readonly { readonly top: number; readonly left: number }[];
+  readonly pageY: number;
+}
+
+const SCROLL_AREA_SELECTOR = '.table-wrap, .request-list, .session-index';
+const FOCUS_ATTRIBUTES = [
+  'data-request-search',
+  'data-outcome-filter',
+  'data-provider-filter',
+  'data-request-key',
+  'data-history-group',
+  'data-action',
+] as const;
+
+function captureRenderContinuity(main: HTMLElement): RenderContinuity {
+  const active = document.activeElement;
+  let focus: RenderContinuity['focus'];
+  if (active instanceof HTMLElement && main.contains(active)) {
+    const attribute = FOCUS_ATTRIBUTES.find((candidate) => active.hasAttribute(candidate));
+    if (attribute) {
+      focus = {
+        attribute,
+        value: active.getAttribute(attribute) ?? '',
+        ...(active instanceof HTMLInputElement
+          ? { selectionStart: active.selectionStart, selectionEnd: active.selectionEnd }
+          : {}),
+      };
+    }
+  }
+  return {
+    ...(focus ? { focus } : {}),
+    scrollAreas: [...main.querySelectorAll<HTMLElement>(SCROLL_AREA_SELECTOR)]
+      .map(({ scrollTop: top, scrollLeft: left }) => ({ top, left })),
+    pageY: window.scrollY,
+  };
+}
+
+function restoreRenderContinuity(main: HTMLElement, continuity: RenderContinuity): void {
+  [...main.querySelectorAll<HTMLElement>(SCROLL_AREA_SELECTOR)].forEach((element, index) => {
+    const saved = continuity.scrollAreas[index];
+    if (!saved) return;
+    element.scrollTop = saved.top;
+    element.scrollLeft = saved.left;
+  });
+  if (continuity.focus) {
+    const target = [...main.querySelectorAll<HTMLElement>(`[${continuity.focus.attribute}]`)]
+      .find((element) => element.getAttribute(continuity.focus!.attribute) === continuity.focus!.value);
+    target?.focus({ preventScroll: true });
+    if (target instanceof HTMLInputElement) {
+      target.setSelectionRange(continuity.focus.selectionStart ?? null, continuity.focus.selectionEnd ?? null);
+    }
+  }
+  window.scrollTo(0, continuity.pageY);
+}
+
+function render(): void {
+  const snapshot = state.snapshot;
+  updateChrome(snapshot);
+  const main = app.querySelector<HTMLElement>('#main');
+  if (!main) return;
+  const continuity = captureRenderContinuity(main);
+  main.innerHTML = `
+    ${state.error ? renderAlert(state.error) : ''}
+    ${snapshot ? renderView(snapshot) : renderWaiting()}
+  `;
+  restoreRenderContinuity(main, continuity);
 }
 
 function renderNavigation(): string {
   return `
     <nav class="view-nav" aria-label="Dashboard views">
-      <div class="view-tabs" role="tablist">
+      <div class="view-tabs">
         ${views.map(({ id, label, icon: iconNode }) => `
-          <button type="button" role="tab" aria-selected="${state.view === id}" data-view="${id}" class="view-tab${state.view === id ? ' is-active' : ''}">
+          <button type="button"${state.view === id ? ' aria-current="page"' : ''} data-view="${id}" class="view-tab${state.view === id ? ' is-active' : ''}">
             ${icon(iconNode)}<span>${label}</span>
           </button>
         `).join('')}
@@ -412,7 +503,7 @@ function renderLive(snapshot: DashboardSnapshot): string {
         </div>
         <dl class="brief-facts">
           <div><dt>Exact bytes held out</dt><dd>${formatBytes(mcpRetained)}</dd></div>
-          <div><dt>Observed requests</dt><dd>${formatNumber(snapshot.requests)}</dd></div>
+          <div><dt>Session requests</dt><dd>${formatNumber(snapshot.requests)}</dd></div>
           <div><dt>Last evidence</dt><dd>${escapeHtml(formatTime(latestActivity))}</dd></div>
         </dl>
       </header>
@@ -424,7 +515,7 @@ function renderLive(snapshot: DashboardSnapshot): string {
               <h3 id="tape-title">Evidence tape</h3>
               <p>One chronological record across provider, MCP, and Copilot paths.</p>
             </div>
-            <span>${tape.length} retained events</span>
+            <span>Latest ${tape.length} of ${snapshot.eventCount}</span>
           </div>
           ${renderEvidenceTape(tape)}
         </section>
@@ -559,22 +650,22 @@ function renderRequests(snapshot: DashboardSnapshot): string {
   return `
     <section class="request-explorer" aria-labelledby="requests-title">
       <header class="page-heading">
-        <div><h2 id="requests-title">Provider routes</h2><p>Inspect decisions without opening prompt or response content.</p></div>
-        <dl class="page-facts"><div><dt>Observed</dt><dd>${allEvents.length}</dd></div><div><dt>Transformed</dt><dd>${appliedCount}</dd></div><div data-tone="${negativeCount > 0 ? 'attention' : 'clear'}"><dt>Negative savings</dt><dd>${negativeCount}</dd></div></dl>
+        <div><h2 id="requests-title">Provider routes</h2><p>Inspect the latest retained decision window without opening prompt or response content.</p></div>
+        <dl class="page-facts"><div><dt>Window</dt><dd>${allEvents.length}</dd></div><div><dt>Transformed</dt><dd>${appliedCount}</dd></div><div data-tone="${snapshot.negativeSavingsRoutes > 0 ? 'attention' : 'clear'}"><dt>Session negatives</dt><dd>${snapshot.negativeSavingsRoutes}</dd></div></dl>
       </header>
       <div class="request-toolbar" role="search">
-        <label class="search-field">${icon(Search)}<span class="sr-only">Search requests</span><input type="search" data-request-search value="${escapeHtml(state.requestQuery)}" placeholder="Search model, provider, or stage"></label>
+        <label class="search-field" for="request-search">${icon(Search)}<span class="sr-only">Search requests</span><input id="request-search" name="request-search" type="search" data-request-search value="${escapeHtml(state.requestQuery)}" placeholder="Search model, provider, or stage"></label>
         <div class="filter-group" aria-label="Provider filter">
           ${(['all', 'openai', 'anthropic'] as const).map((value) => `<button type="button" data-provider-filter="${value}" aria-pressed="${state.requestProvider === value}">${value === 'all' ? 'All providers' : value === 'openai' ? 'OpenAI' : 'Anthropic'}</button>`).join('')}
         </div>
-        <label class="select-field"><span>Outcome</span><select data-outcome-filter><option value="all"${state.requestOutcome === 'all' ? ' selected' : ''}>All outcomes</option><option value="applied"${state.requestOutcome === 'applied' ? ' selected' : ''}>Transformed</option><option value="passthrough"${state.requestOutcome === 'passthrough' ? ' selected' : ''}>Pass-through</option><option value="negative"${state.requestOutcome === 'negative' ? ' selected' : ''}>Negative savings</option></select>${icon(ChevronDown)}</label>
+        <label class="select-field" for="request-outcome"><span>Outcome</span><select id="request-outcome" name="request-outcome" data-outcome-filter><option value="all"${state.requestOutcome === 'all' ? ' selected' : ''}>All outcomes</option><option value="applied"${state.requestOutcome === 'applied' ? ' selected' : ''}>Transformed</option><option value="passthrough"${state.requestOutcome === 'passthrough' ? ' selected' : ''}>Pass-through</option><option value="negative"${state.requestOutcome === 'negative' ? ' selected' : ''}>Negative savings</option></select>${icon(ChevronDown)}</label>
         <span class="filter-result">${filtered.length} of ${allEvents.length}</span>
       </div>
       <div class="request-workbench">
-        <div class="request-list" role="list">
-          ${filtered.length > 0 ? filtered.map(renderRequestRow).join('') : '<div class="domain-empty compact-empty"><h3>No matching routes</h3><p>Adjust the provider, outcome, or search filters.</p></div>'}
-        </div>
-        <aside class="request-detail" aria-live="polite">
+        <ul class="request-list">
+          ${filtered.length > 0 ? filtered.map(renderRequestRow).join('') : '<li class="domain-empty compact-empty"><h3>No matching routes</h3><p>Adjust the provider, outcome, or search filters.</p></li>'}
+        </ul>
+        <aside class="request-detail" aria-live="polite" tabindex="-1">
           ${selected ? renderRequestDetail(selected) : renderRequestPrompt(filtered[0] ?? null)}
         </aside>
       </div>
@@ -588,14 +679,14 @@ function renderRequestRow(event: Extract<DashboardEvent, { type: 'provider.route
   const ratio = event.tokensText.value > 0
     ? event.tokensSaved.value / event.tokensText.value * 100
     : 0;
-  return `<button type="button" class="request-row${selected ? ' is-selected' : ''}" data-request-key="${escapeHtml(eventKey(event))}" role="listitem" aria-pressed="${selected}">
+  return `<li><button type="button" class="request-row${selected ? ' is-selected' : ''}" data-request-key="${escapeHtml(eventKey(event))}" aria-pressed="${selected}">
     <time datetime="${escapeHtml(event.occurredAt)}">${escapeHtml(formatTime(event.occurredAt))}</time>
     <span class="provider-glyph" data-provider="${event.provider}">${event.provider === 'openai' ? 'O' : 'A'}</span>
     <span class="request-route"><strong>${escapeHtml(event.model ?? 'Unknown model')}</strong><small>${escapeHtml(event.provider)} · ${escapeHtml(applied.map(({ stage }) => stage).join(' + ') || 'pass-through')}</small></span>
     <span class="request-volume"><strong>${formatNumber(event.tokensText.value)} → ${formatNumber(event.tokensCompressed.value)}</strong><small>${escapeHtml(event.tokensSaved.basis)}</small></span>
     <span class="request-saving" data-tone="${event.tokensSaved.value < 0 ? 'attention' : applied.length > 0 ? 'clear' : 'muted'}"><strong>${event.tokensSaved.value >= 0 ? '+' : ''}${formatNumber(event.tokensSaved.value)}</strong><small>${formatPercent(ratio)}</small></span>
     ${icon(ChevronDown)}
-  </button>`;
+  </button></li>`;
 }
 
 function renderRequestPrompt(event: Extract<DashboardEvent, { type: 'provider.route' }> | null): string {
@@ -686,16 +777,28 @@ function renderMcpEventTable(events: readonly DashboardEvent[]): string {
 
 function renderHistory(): string {
   const selectedSummary = state.history.find(({ groupId }) => groupId === state.selectedHistoryGroup) ?? state.history[0] ?? null;
+  const selectedIndex = selectedSummary
+    ? state.history.findIndex(({ groupId }) => groupId === selectedSummary.groupId)
+    : -1;
+  const baseline = selectedIndex >= 0
+    ? state.history[selectedIndex + 1] ?? null
+    : null;
   const detail = state.historySnapshot;
   return `
     <section class="history-atlas" aria-labelledby="history-title">
       <header class="page-heading"><div><h2 id="history-title">Session atlas</h2><p>Compare source-qualified evidence across the local retention window.</p></div><span class="retention-note">30 days · 64 MiB bounded</span></header>
-      ${state.history.length > 0 ? `<div class="history-workbench">
+      ${state.historyIndexError
+        ? `<div class="detail-empty history-error">${icon(TriangleAlert)}<h3>Session index unavailable</h3><p>${escapeHtml(state.historyIndexError)}</p><button type="button" data-action="retry-history-index">Retry</button></div>`
+        : state.history.length > 0 ? `<div class="history-workbench">
         <nav class="session-index" aria-label="Recorded sessions">
           ${state.history.map((session) => renderHistoryButton(session, session.groupId === selectedSummary?.groupId)).join('')}
         </nav>
-        <section class="history-detail" aria-live="polite">
-          ${state.historyLoading ? '<div class="history-loading"><span></span><span></span><span></span></div>' : detail ? renderHistoricalSnapshot(detail, selectedSummary) : '<div class="detail-empty">Select a recorded session.</div>'}
+        <section class="history-detail" aria-live="polite" tabindex="-1">
+          ${state.historyLoading
+            ? '<div class="history-loading" role="status"><span class="sr-only">Loading session evidence</span><i></i><i></i><i></i></div>'
+            : state.historyError
+              ? `<div class="detail-empty history-error">${icon(TriangleAlert)}<h3>Session evidence unavailable</h3><p>${escapeHtml(state.historyError)}</p><button type="button" data-action="retry-history">Retry</button></div>`
+              : detail ? renderHistoricalSnapshot(detail, selectedSummary, baseline) : '<div class="detail-empty">Select a recorded session.</div>'}
         </section>
       </div>` : '<div class="domain-empty">' + icon(Archive) + '<h3>No durable history yet</h3><p>Dashboard-enabled sessions appear here after their first metadata event.</p></div>'}
     </section>
@@ -714,17 +817,87 @@ function renderHistoryButton(session: DashboardHistorySession, selected: boolean
   </button>`;
 }
 
-function renderHistoricalSnapshot(snapshot: DashboardSnapshot, summary: DashboardHistorySession | null): string {
+function renderHistoricalSnapshot(
+  snapshot: DashboardSnapshot,
+  summary: DashboardHistorySession | null,
+  baseline: DashboardHistorySession | null,
+): string {
   const verdict = sessionVerdict(snapshot);
   return `
-    <div class="historical-header" data-tone="${verdict.tone}"><div>${icon(verdict.tone === 'attention' ? TriangleAlert : BadgeCheck)}<span>${escapeHtml(verdict.title)}</span></div><code>${escapeHtml(snapshot.groupId.slice(0, 22))}</code></div>
+    <div class="historical-header" data-tone="${verdict.tone}" tabindex="-1"><div>${icon(verdict.tone === 'attention' ? TriangleAlert : BadgeCheck)}<span>${escapeHtml(verdict.title)}</span></div><code>${escapeHtml(snapshot.groupId.slice(0, 22))}</code></div>
+    ${renderHistoryComparison(summary, baseline)}
     <div class="history-calibration">
       ${snapshot.tokenLanes.map(renderCalibrationLane).join('') || '<p>No token lanes recorded.</p>'}
       ${snapshot.byteLanes.map(renderByteCalibration).join('')}
     </div>
-    <dl class="history-facts"><div><dt>Started</dt><dd>${escapeHtml(formatDateTime(summary?.startedAt ?? null))}</dd></div><div><dt>Duration</dt><dd>${formatDuration(summary?.durationMs ?? null)}</dd></div><div><dt>Events</dt><dd>${snapshot.recentEvents.length}</dd></div><div><dt>MCP receipts</dt><dd>${snapshot.mcp.receiptsEmitted}</dd></div></dl>
-    <div class="history-tape"><h3>Session evidence</h3>${renderEvidenceTape(snapshot.recentEvents.slice(-8).reverse())}</div>
+    <dl class="history-facts"><div><dt>Started</dt><dd>${escapeHtml(formatDateTime(summary?.startedAt ?? null))}</dd></div><div><dt>Duration</dt><dd>${formatDuration(summary?.durationMs ?? null)}</dd></div><div><dt>Events</dt><dd>${snapshot.eventCount}</dd></div><div><dt>MCP receipts</dt><dd>${snapshot.mcp.receiptsEmitted}</dd></div></dl>
+    <div class="history-tape"><h3>Latest session evidence <span>${Math.min(8, snapshot.recentEvents.length)} of ${snapshot.eventCount}</span></h3>${renderEvidenceTape(snapshot.recentEvents.slice(-8).reverse())}</div>
   `;
+}
+
+function renderHistoryComparison(
+  current: DashboardHistorySession | null,
+  baseline: DashboardHistorySession | null,
+): string {
+  if (!current || !baseline) {
+    return '<div class="comparison-empty">No older session is available for comparison.</div>';
+  }
+  const currentBytes = current.byteLanes.reduce((total, lane) => total + lane.bytesRetained, 0);
+  const baselineBytes = baseline.byteLanes.reduce((total, lane) => total + lane.bytesRetained, 0);
+  const currentSignals = current.mcp.failed + current.corruptRecords;
+  const baselineSignals = baseline.mcp.failed + baseline.corruptRecords;
+  const matchingLaneDeltas = current.tokenLanes.flatMap((lane) => {
+    const previous = baseline.tokenLanes.find(
+      (candidate) => candidate.source === lane.source && candidate.basis === lane.basis,
+    );
+    return previous ? [{ label: sourceLabel(lane.source), value: lane.tokensSaved - previous.tokensSaved }] : [];
+  });
+  const comparisons = [
+    { label: 'Requests', value: current.requests - baseline.requests, format: formatSignedNumber, semantic: false },
+    { label: 'Exact bytes held out', value: currentBytes - baselineBytes, format: formatSignedBytes, semantic: false },
+    { label: 'Adverse signals', value: currentSignals - baselineSignals, format: formatSignedNumber, inverse: true },
+    ...(current.durationMs != null && baseline.durationMs != null
+      ? [{ label: 'Duration', value: current.durationMs - baseline.durationMs, format: formatSignedDuration, semantic: false }]
+      : []),
+    ...matchingLaneDeltas.slice(0, 2).map(({ label, value }) => ({
+      label: `${label} tokens saved`,
+      value,
+      format: formatSignedNumber,
+      semantic: false,
+    })),
+  ];
+  return `
+    <section class="session-comparison" aria-label="Comparison with older session">
+      <div><span>Compared with</span><strong>${escapeHtml(formatDateTime(baseline.startedAt))}</strong></div>
+      ${comparisons.map(({ label, value, format, inverse, semantic }) => {
+        const tone = !semantic && !inverse
+          ? 'neutral'
+          : value === 0 ? 'neutral' : inverse ? value < 0 ? 'positive' : 'negative' : value > 0 ? 'positive' : 'negative';
+        return `<div data-tone="${tone}"><span>${escapeHtml(label)}</span><strong>${escapeHtml(format(value))}</strong></div>`;
+      }).join('')}
+    </section>
+  `;
+}
+
+function formatSignedNumber(value: number): string {
+  return `${value > 0 ? '+' : ''}${formatNumber(value)}`;
+}
+
+function formatSignedBytes(value: number): string {
+  return `${value > 0 ? '+' : value < 0 ? '-' : ''}${formatBytes(Math.abs(value))}`;
+}
+
+function formatSignedDuration(value: number): string {
+  return `${value > 0 ? '+' : value < 0 ? '-' : ''}${formatDuration(Math.abs(value))}`;
+}
+
+function focusMobileDetail(selector: string): void {
+  if (!matchMedia('(max-width: 700px)').matches) return;
+  requestAnimationFrame(() => {
+    const detail = document.querySelector<HTMLElement>(selector);
+    detail?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    detail?.focus({ preventScroll: true });
+  });
 }
 
 function renderSystem(snapshot: DashboardSnapshot): string {
@@ -750,43 +923,57 @@ function renderSystem(snapshot: DashboardSnapshot): string {
 }
 
 function bindInteractions(): void {
-  for (const element of document.querySelectorAll<HTMLButtonElement>('[data-view]')) {
-    element.addEventListener('click', () => setView(element.dataset.view as ViewName));
-  }
-  document.querySelector<HTMLButtonElement>('[data-action="retry"]')?.addEventListener('click', () => {
-    state.retryMs = 1_000;
-    void connect();
-  });
-  document.querySelector<HTMLInputElement>('[data-request-search]')?.addEventListener('input', (event) => {
-    state.requestQuery = (event.currentTarget as HTMLInputElement).value;
-    render();
-    document.querySelector<HTMLInputElement>('[data-request-search]')?.focus();
-  });
-  for (const element of document.querySelectorAll<HTMLButtonElement>('[data-provider-filter]')) {
-    element.addEventListener('click', () => {
-      state.requestProvider = element.dataset.providerFilter as RequestProviderFilter;
+  app.addEventListener('click', (event) => {
+    const target = event.target instanceof Element ? event.target : null;
+    const view = target?.closest<HTMLButtonElement>('[data-view]');
+    if (view?.dataset.view) {
+      setView(view.dataset.view as ViewName);
+      return;
+    }
+    if (target?.closest('[data-action="retry"]')) {
+      state.retryMs = 1_000;
+      void connect();
+      return;
+    }
+    if (target?.closest('[data-action="retry-history"]')) {
+      if (state.selectedHistoryGroup) void selectHistory(state.selectedHistoryGroup);
+      return;
+    }
+    if (target?.closest('[data-action="retry-history-index"]')) {
+      state.historyIndexError = null;
+      render();
+      void loadHistory(true);
+      return;
+    }
+    const provider = target?.closest<HTMLButtonElement>('[data-provider-filter]');
+    if (provider?.dataset.providerFilter) {
+      state.requestProvider = provider.dataset.providerFilter as RequestProviderFilter;
       state.selectedRequest = null;
       render();
-    });
-  }
-  document.querySelector<HTMLSelectElement>('[data-outcome-filter]')?.addEventListener('change', (event) => {
-    state.requestOutcome = (event.currentTarget as HTMLSelectElement).value as RequestOutcomeFilter;
+      return;
+    }
+    const request = target?.closest<HTMLButtonElement>('[data-request-key]');
+    if (request) {
+      const key = request.dataset.requestKey ?? null;
+      state.selectedRequest = state.selectedRequest === key ? null : key;
+      render();
+      if (state.selectedRequest) focusMobileDetail('.request-detail');
+      return;
+    }
+    const historyGroup = target?.closest<HTMLButtonElement>('[data-history-group]');
+    if (historyGroup?.dataset.historyGroup) void selectHistory(historyGroup.dataset.historyGroup);
+  });
+  app.addEventListener('input', (event) => {
+    if (!(event.target instanceof HTMLInputElement) || !event.target.matches('[data-request-search]')) return;
+    state.requestQuery = event.target.value;
+    render();
+  });
+  app.addEventListener('change', (event) => {
+    if (!(event.target instanceof HTMLSelectElement) || !event.target.matches('[data-outcome-filter]')) return;
+    state.requestOutcome = event.target.value as RequestOutcomeFilter;
     state.selectedRequest = null;
     render();
   });
-  for (const element of document.querySelectorAll<HTMLButtonElement>('[data-request-key]')) {
-    element.addEventListener('click', () => {
-      const key = element.dataset.requestKey ?? null;
-      state.selectedRequest = state.selectedRequest === key ? null : key;
-      render();
-    });
-  }
-  for (const element of document.querySelectorAll<HTMLButtonElement>('[data-history-group]')) {
-    element.addEventListener('click', () => {
-      const groupId = element.dataset.historyGroup;
-      if (groupId) void selectHistory(groupId);
-    });
-  }
 }
 
 function setView(view: ViewName): void {
@@ -815,6 +1002,7 @@ async function loadHistory(selectLatest = false): Promise<void> {
   try {
     const payload = await api<{ sessions: DashboardHistorySession[] }>('/api/v1/history');
     state.history = payload.sessions;
+    state.historyIndexError = null;
     const selectedStillExists = state.selectedHistoryGroup != null &&
       payload.sessions.some(({ groupId }) => groupId === state.selectedHistoryGroup);
     if (selectLatest || !selectedStillExists) {
@@ -829,7 +1017,8 @@ async function loadHistory(selectLatest = false): Promise<void> {
     }
     if (state.view === 'history') render();
   } catch {
-    // The live recorder stays useful if history is temporarily unavailable.
+    state.historyIndexError = 'The local session index could not be read. Live evidence remains available.';
+    if (state.view === 'history') render();
   }
 }
 
@@ -838,8 +1027,10 @@ async function selectHistory(groupId: string): Promise<void> {
   state.selectedHistoryGroup = groupId;
   state.historySnapshot = null;
   state.historyLoading = true;
+  state.historyError = null;
   render();
   await loadHistoricalSnapshot(groupId);
+  focusMobileDetail('.history-detail');
 }
 
 async function loadHistoricalSnapshot(groupId: string): Promise<void> {
@@ -849,8 +1040,12 @@ async function loadHistoricalSnapshot(groupId: string): Promise<void> {
     );
     if (state.selectedHistoryGroup !== groupId) return;
     state.historySnapshot = payload.session;
+    state.historyError = null;
   } catch {
-    if (state.selectedHistoryGroup === groupId) state.historySnapshot = null;
+    if (state.selectedHistoryGroup === groupId) {
+      state.historySnapshot = null;
+      state.historyError = 'The local history record could not be read. Existing live evidence is unaffected.';
+    }
   } finally {
     if (state.selectedHistoryGroup === groupId) {
       state.historyLoading = false;
@@ -860,9 +1055,10 @@ async function loadHistoricalSnapshot(groupId: string): Promise<void> {
 }
 
 function scheduleReconnect(): void {
-  if (state.retryTimer != null || document.hidden || state.connection === 'unauthorized') return;
+  if (state.connection === 'unauthorized') return;
   state.connection = 'reconnecting';
   render();
+  if (state.retryTimer != null || document.hidden) return;
   state.retryTimer = window.setTimeout(() => {
     state.retryTimer = null;
     void connect();
@@ -891,11 +1087,20 @@ async function readSse(response: Response, signal: AbortSignal): Promise<void> {
         if (line.startsWith('data:')) data.push(line.slice(5).trimStart());
       }
       if (event === 'snapshot' && data.length > 0) {
-        state.snapshot = JSON.parse(data.join('\n')) as DashboardSnapshot;
-        state.connection = 'live';
-        state.error = null;
-        state.retryMs = 1_000;
-        render();
+        pendingSnapshot = JSON.parse(data.join('\n')) as DashboardSnapshot;
+        if (!snapshotScheduled) {
+          snapshotScheduled = true;
+          queueMicrotask(() => {
+            snapshotScheduled = false;
+            if (signal.aborted || !pendingSnapshot) return;
+            state.snapshot = pendingSnapshot;
+            pendingSnapshot = null;
+            state.connection = 'live';
+            state.error = null;
+            state.retryMs = 1_000;
+            render();
+          });
+        }
       }
     }
   }
@@ -903,6 +1108,8 @@ async function readSse(response: Response, signal: AbortSignal): Promise<void> {
 
 async function connect(): Promise<void> {
   state.streamController?.abort();
+  snapshotScheduled = false;
+  pendingSnapshot = null;
   if (!state.token) {
     state.connection = 'unauthorized';
     state.error = null;
@@ -915,10 +1122,6 @@ async function connect(): Promise<void> {
   state.error = null;
   render();
   try {
-    state.snapshot = await api<DashboardSnapshot>('/api/v1/snapshot', controller.signal);
-    state.connection = 'live';
-    render();
-    void loadHistory();
     const response = await fetch('/api/v1/stream', {
       headers: { authorization: `Bearer ${state.token}` },
       cache: 'no-store',
@@ -926,6 +1129,7 @@ async function connect(): Promise<void> {
     });
     if (response.status === 401) throw new Error('unauthorized');
     if (!response.ok) throw new Error(`stream_failed_${response.status}`);
+    if (state.view === 'history') void loadHistory(true);
     await readSse(response, controller.signal);
   } catch (error) {
     if (controller.signal.aborted) return;
@@ -966,6 +1170,20 @@ document.addEventListener('keydown', (event) => {
     }
     return;
   }
+  if (!editing && (event.key === 'ArrowLeft' || event.key === 'ArrowRight')) {
+    const focusedView = (event.target as HTMLElement | null)?.closest<HTMLButtonElement>('[data-view]');
+    if (focusedView) {
+      event.preventDefault();
+      const current = views.findIndex(({ id }) => id === focusedView.dataset.view);
+      const direction = event.key === 'ArrowRight' ? 1 : -1;
+      const next = views[(current + direction + views.length) % views.length];
+      if (next) {
+        setView(next.id);
+        requestAnimationFrame(() => document.querySelector<HTMLButtonElement>(`[data-view="${next.id}"]`)?.focus());
+      }
+      return;
+    }
+  }
   if (!editing && event.key === '/') {
     event.preventDefault();
     if (state.view !== 'requests') setView('requests');
@@ -979,5 +1197,7 @@ document.addEventListener('keydown', (event) => {
   }
 });
 
+mountShell();
+bindInteractions();
 render();
 void connect();
