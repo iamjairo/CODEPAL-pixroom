@@ -50,7 +50,9 @@ describe('durable capture and replay', () => {
     expect(record?.originalBody).toBeUndefined();
     expect(record?.transformedBody).toBeUndefined();
     expect(JSON.stringify(record)).not.toContain('private text');
-    expect(statSync(path).mode & 0o777).toBe(0o600);
+    if (process.platform !== 'win32') {
+      expect(statSync(path).mode & 0o777).toBe(0o600);
+    }
     expect(runtime.capture.stats()).toEqual({ records: 1, failures: 0 });
     await runtime.shutdown();
   });
@@ -144,7 +146,7 @@ describe('durable capture and replay', () => {
         path,
         includeBodies: false,
         fsync: true,
-        maxBytes: 2_500,
+        maxBytes: 1_500,
         maxFiles: 10,
       },
       virtualContext: { enabled: false },
@@ -164,9 +166,11 @@ describe('durable capture and replay', () => {
 
     expect(existsSync(path)).toBe(true);
     expect(existsSync(`${path}.1`)).toBe(true);
-    expect(statSync(path).size).toBeLessThanOrEqual(2_500);
-    expect(statSync(`${path}.1`).size).toBeLessThanOrEqual(2_500);
-    expect(statSync(`${path}.1`).mode & 0o777).toBe(0o600);
+    expect(statSync(path).size).toBeLessThanOrEqual(1_500);
+    expect(statSync(`${path}.1`).size).toBeLessThanOrEqual(1_500);
+    if (process.platform !== 'win32') {
+      expect(statSync(`${path}.1`).mode & 0o777).toBe(0o600);
+    }
     const retained = [path, ...Array.from({ length: 9 }, (_, index) => `${path}.${index + 1}`)]
       .filter((file) => existsSync(file))
       .flatMap((file) => readFileSync(file, 'utf8').split(/\r?\n/).filter(Boolean));

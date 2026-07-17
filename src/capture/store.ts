@@ -163,7 +163,7 @@ export class CaptureWriter {
       rmSync(destination, { force: true });
       renameSync(source, destination);
     }
-    if (this.config.fsync) {
+    if (this.config.fsync && process.platform !== 'win32') {
       const directory = openSync(dirname(this.config.path), 'r');
       try {
         fsyncSync(directory);

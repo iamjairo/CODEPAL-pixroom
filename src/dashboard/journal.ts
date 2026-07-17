@@ -118,14 +118,14 @@ function fsyncDirectory(path: string): void {
 function atomicPrivateJson(path: string, value: unknown): void {
   ensurePrivateDirectory(dirname(path));
   const temporary = `${path}.${randomUUID()}.tmp`;
-  writeFileSync(temporary, `${JSON.stringify(value)}\n`, { encoding: 'utf8', mode: 0o600, flag: 'wx' });
-  chmodSync(temporary, 0o600);
-  const descriptor = openSync(temporary, 'r');
+  const descriptor = openSync(temporary, 'wx', 0o600);
   try {
+    writeSync(descriptor, `${JSON.stringify(value)}\n`);
     fsyncSync(descriptor);
   } finally {
     closeSync(descriptor);
   }
+  chmodSync(temporary, 0o600);
   renameSync(temporary, path);
   fsyncDirectory(dirname(path));
 }
