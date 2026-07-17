@@ -10,8 +10,16 @@ import { join } from 'node:path';
 
 import { afterEach, describe, expect, it } from 'vitest';
 
-import { DashboardGroupReader, DashboardJournal, readDashboardGroup } from '../src/dashboard/journal.js';
-import type { DashboardProviderRouteEvent } from '../src/dashboard/types.js';
+import {
+  buildDashboardSnapshot,
+  DashboardGroupReader,
+  DashboardJournal,
+  readDashboardGroup,
+} from '../src/dashboard/journal.js';
+import type {
+  DashboardHeadroomSampleEvent,
+  DashboardProviderRouteEvent,
+} from '../src/dashboard/types.js';
 
 const directories: string[] = [];
 
@@ -59,7 +67,51 @@ function routeEvent(): DashboardProviderRouteEvent {
   };
 }
 
+function idleHeadroomEvent(): DashboardHeadroomSampleEvent {
+  const metric = (value: number, unit: 'requests' | 'tokens') => ({
+    value,
+    unit,
+    source: 'headroom' as const,
+    basis: 'provider-reported' as const,
+    scope: 'session' as const,
+  });
+  return {
+    schemaVersion: 1,
+    type: 'headroom.sample',
+    source: 'headroom',
+    occurredAt: '2026-07-17T10:00:00.000Z',
+    healthy: true,
+    version: '1.2.3',
+    attribution: 'dedicated',
+    coverage: 'aggregate-fallback',
+    model: null,
+    requests: metric(0, 'requests'),
+    tokensText: metric(0, 'tokens'),
+    tokensSent: metric(0, 'tokens'),
+    outputTokens: metric(0, 'tokens'),
+    tokensSaved: metric(0, 'tokens'),
+    costSaved: null,
+    quota: [],
+  };
+}
+
 describe('DashboardJournal', () => {
+  it('keeps idle Headroom attachment out of token calibration', () => {
+    const historyRoot = root();
+    const journal = new DashboardJournal({ rootDir: historyRoot, source: 'headroom' });
+    journal.onEvent(idleHeadroomEvent());
+
+    const snapshot = buildDashboardSnapshot(readDashboardGroup(historyRoot, journal.groupId));
+    expect(snapshot.requests).toBe(0);
+    expect(snapshot.tokenLanes).toEqual([]);
+    expect(snapshot.headroom).toMatchObject({
+      healthy: true,
+      attribution: 'dedicated',
+      model: null,
+    });
+    journal.close();
+  });
+
   it('persists only validated metadata in private producer files', () => {
     const historyRoot = root();
     const journal = new DashboardJournal({ rootDir: historyRoot, source: 'pinpoint' });
@@ -125,6 +177,47 @@ describe('DashboardJournal', () => {
     journal.onEvent({ ...routeEvent(), occurredAt: '2026-07-17T10:00:01.000Z' });
     expect(reader.read().events).toHaveLength(2);
     expect(reader.stats()).toEqual({ scans: 3, parses: 2, cacheHits: 1 });
+    journal.close();
+  });
+
+  it('uses MCP lifecycle evidence when a producer state close marker is interrupted', () => {
+    const historyRoot = root();
+    const journal = new DashboardJournal({ rootDir: historyRoot, source: 'mcp' });
+    const metric = (value: number) => ({
+      value,
+      unit: 'bytes' as const,
+      source: 'mcp' as const,
+      basis: 'exact-bytes' as const,
+      scope: 'request' as const,
+    });
+    journal.onEvent({
+      schemaVersion: 1,
+      type: 'mcp.result',
+      source: 'mcp',
+      occurredAt: '2026-07-17T10:00:00.000Z',
+      tool: 'accounts_list',
+      outcome: 'succeeded',
+      virtualized: true,
+      protectedSource: false,
+      bytesBefore: metric(1_000),
+      bytesVisible: metric(100),
+      artifactKind: 'json-array',
+      artifactItems: 10,
+    });
+    journal.onEvent({
+      schemaVersion: 1,
+      type: 'mcp.lifecycle',
+      source: 'mcp',
+      occurredAt: '2026-07-17T10:00:01.000Z',
+      state: 'stopped',
+      flowsConfigured: 0,
+      privateDestination: false,
+    });
+
+    const snapshot = buildDashboardSnapshot(readDashboardGroup(historyRoot, journal.groupId));
+    expect(journal.snapshot().endedAt).toBeNull();
+    expect(snapshot.sources).toContainEqual(expect.objectContaining({ source: 'mcp', state: 'ended' }));
+    expect(snapshot.state).toBe('ended');
     journal.close();
   });
 });

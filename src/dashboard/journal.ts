@@ -449,6 +449,7 @@ export function buildDashboardSnapshot(
   let reversibleCount = 0;
   let negativeSavingsRoutes = 0;
   let latestHeadroom: Extract<DashboardEvent, { type: 'headroom.sample' }> | undefined;
+  let latestMcpLifecycle: Extract<DashboardEvent, { type: 'mcp.lifecycle' }> | undefined;
   for (const event of group.events) {
     if (event.type === 'headroom.sample') {
       if (!latestHeadroom || event.occurredAt >= latestHeadroom.occurredAt) latestHeadroom = event;
@@ -477,6 +478,11 @@ export function buildDashboardSnapshot(
       if (event.virtualized) virtualizedResults += 1;
       continue;
     }
+    if (event.type === 'mcp.lifecycle') {
+      if (!latestMcpLifecycle || event.occurredAt >= latestMcpLifecycle.occurredAt) {
+        latestMcpLifecycle = event;
+      }
+    }
     if (event.type === 'mcp.tool') mcp.toolCalls += 1;
     else if (event.type === 'mcp.query') mcp.queries += 1;
     else if (event.type === 'mcp.flow') {
@@ -485,7 +491,14 @@ export function buildDashboardSnapshot(
     }
     if ('outcome' in event) mcp[event.outcome] += 1;
   }
-  if (latestHeadroom) {
+  if (latestHeadroom && (
+    latestHeadroom.requests.value !== 0 ||
+    latestHeadroom.tokensText.value !== 0 ||
+    latestHeadroom.tokensSent.value !== 0 ||
+    latestHeadroom.outputTokens.value !== 0 ||
+    latestHeadroom.tokensSaved.value !== 0 ||
+    (latestHeadroom.costSaved?.value ?? 0) !== 0
+  )) {
     lanes.set('headroom:provider-reported', {
       source: 'headroom',
       basis: 'provider-reported',
@@ -511,6 +524,12 @@ export function buildDashboardSnapshot(
   const headroomSource = sourceMap.get('headroom');
   if (headroomSource && latestHeadroom && !latestHeadroom.healthy) {
     sourceMap.set('headroom', { ...headroomSource, state: 'degraded' });
+  }
+  const mcpSource = sourceMap.get('mcp');
+  if (mcpSource && latestMcpLifecycle?.state === 'stopped') {
+    sourceMap.set('mcp', { ...mcpSource, state: 'ended' });
+  } else if (mcpSource && latestMcpLifecycle?.state === 'failed') {
+    sourceMap.set('mcp', { ...mcpSource, state: 'degraded' });
   }
   const sourceStates = [...sourceMap.values()];
   const state = group.corruptRecords > 0

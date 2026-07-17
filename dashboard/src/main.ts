@@ -30,6 +30,11 @@ import type {
   DashboardSnapshot,
   DashboardTokenLane,
 } from '../../src/dashboard/types.js';
+import {
+  isIdleHeadroomSample,
+  selectVisibleEvidenceEvents,
+  selectVisibleTokenLanes,
+} from './evidence.js';
 
 import './styles.css';
 
@@ -296,6 +301,16 @@ function describeEvent(event: DashboardEvent): TapeEntry {
       icon: Cable,
     };
   }
+  if (isIdleHeadroomSample(event)) {
+    return {
+      title: event.healthy ? 'Copilot connected' : 'Copilot proxy starting',
+      detail: `${event.attribution === 'shared' ? 'Shared proxy' : 'Dedicated proxy'} · waiting for first request`,
+      measure: event.healthy ? 'Ready' : 'Starting',
+      basis: 'connection state',
+      tone: event.healthy ? 'info' : 'muted',
+      icon: TerminalSquare,
+    };
+  }
   return {
     title: event.healthy ? 'Copilot telemetry attached' : 'Copilot telemetry unavailable',
     detail: `${event.model ?? 'Unknown model'} · ${event.attribution === 'shared' ? 'shared proxy attribution' : 'dedicated session'}`,
@@ -483,7 +498,9 @@ function renderView(snapshot: DashboardSnapshot): string {
 function renderLive(snapshot: DashboardSnapshot): string {
   const verdict = sessionVerdict(snapshot);
   const mcpRetained = snapshot.byteLanes.reduce((total, lane) => total + lane.bytesRetained, 0);
-  const tape = snapshot.recentEvents.slice(-14).reverse();
+  const visibleEvidence = selectVisibleEvidenceEvents(snapshot.recentEvents);
+  const tokenLanes = selectVisibleTokenLanes(snapshot.tokenLanes);
+  const tape = visibleEvidence.slice(-14).reverse();
   const latestActivity = snapshot.sources.reduce<string | null>(
     (latest, source) => latest == null || (source.lastActivityAt ?? '') > latest
       ? source.lastActivityAt
@@ -515,7 +532,7 @@ function renderLive(snapshot: DashboardSnapshot): string {
               <h3 id="tape-title">Evidence tape</h3>
               <p>One chronological record across provider, MCP, and Copilot paths.</p>
             </div>
-            <span>Latest ${tape.length} of ${snapshot.eventCount}</span>
+            <span>Latest ${tape.length} visible · ${snapshot.eventCount} recorded</span>
           </div>
           ${renderEvidenceTape(tape)}
         </section>
@@ -528,8 +545,8 @@ function renderLive(snapshot: DashboardSnapshot): string {
             </div>
           </div>
           <div class="calibration-lanes">
-            ${snapshot.tokenLanes.length > 0
-              ? snapshot.tokenLanes.map(renderCalibrationLane).join('')
+            ${tokenLanes.length > 0
+              ? tokenLanes.map(renderCalibrationLane).join('')
               : '<div class="inline-empty">No token-bearing route events yet.</div>'}
           </div>
           ${snapshot.byteLanes.map(renderByteCalibration).join('')}
@@ -604,10 +621,26 @@ function renderSourceRegister(snapshot: DashboardSnapshot): string {
 function renderCopilotNotice(snapshot: DashboardSnapshot): string {
   const headroom = snapshot.headroom;
   if (!headroom) return '';
+  const hasUsage = selectVisibleTokenLanes(snapshot.tokenLanes).some((lane) => lane.source === 'headroom');
   const quota = headroom.quota.find((item) => item.category === 'premium_interactions') ?? headroom.quota[0];
+  if (!hasUsage) {
+    return `
+      <aside class="copilot-notice" data-attribution="${headroom.attribution}">
+        <div>${icon(TerminalSquare)}<span>Copilot / Headroom</span><strong>Awaiting first request</strong></div>
+        <p>${headroom.healthy
+          ? 'The proxy is connected. Usage appears after Copilot completes its first model request.'
+          : 'The proxy is still starting. Usage will appear after Headroom connects and Copilot completes a request.'}</p>
+        <dl>
+          <div><dt>Connection</dt><dd>${headroom.healthy ? 'Ready' : 'Starting'}</dd></div>
+          <div><dt>Attribution</dt><dd>${headroom.attribution === 'shared' ? 'Shared proxy' : 'Dedicated session'}</dd></div>
+          <div><dt>Coverage</dt><dd>Waiting for usage</dd></div>
+        </dl>
+      </aside>
+    `;
+  }
   return `
     <aside class="copilot-notice" data-attribution="${headroom.attribution}">
-      <div>${icon(TerminalSquare)}<span>Copilot / Headroom</span><strong>${escapeHtml(headroom.model ?? 'Unknown model')}</strong></div>
+      <div>${icon(TerminalSquare)}<span>Copilot / Headroom</span><strong>${escapeHtml(headroom.model ?? 'Model not reported')}</strong></div>
       <p>${headroom.attribution === 'shared'
         ? 'Shared proxy attribution: Copilot-class traffic since attach, not process-exact billing.'
         : 'Dedicated proxy attribution: counters are scoped to this wrapped session.'}</p>
@@ -823,15 +856,16 @@ function renderHistoricalSnapshot(
   baseline: DashboardHistorySession | null,
 ): string {
   const verdict = sessionVerdict(snapshot);
+  const tokenLanes = selectVisibleTokenLanes(snapshot.tokenLanes);
   return `
     <div class="historical-header" data-tone="${verdict.tone}" tabindex="-1"><div>${icon(verdict.tone === 'attention' ? TriangleAlert : BadgeCheck)}<span>${escapeHtml(verdict.title)}</span></div><code>${escapeHtml(snapshot.groupId.slice(0, 22))}</code></div>
     ${renderHistoryComparison(summary, baseline)}
     <div class="history-calibration">
-      ${snapshot.tokenLanes.map(renderCalibrationLane).join('') || '<p>No token lanes recorded.</p>'}
+      ${tokenLanes.map(renderCalibrationLane).join('') || '<p>No token lanes recorded.</p>'}
       ${snapshot.byteLanes.map(renderByteCalibration).join('')}
     </div>
     <dl class="history-facts"><div><dt>Started</dt><dd>${escapeHtml(formatDateTime(summary?.startedAt ?? null))}</dd></div><div><dt>Duration</dt><dd>${formatDuration(summary?.durationMs ?? null)}</dd></div><div><dt>Events</dt><dd>${snapshot.eventCount}</dd></div><div><dt>MCP receipts</dt><dd>${snapshot.mcp.receiptsEmitted}</dd></div></dl>
-    <div class="history-tape"><h3>Latest session evidence <span>${Math.min(8, snapshot.recentEvents.length)} of ${snapshot.eventCount}</span></h3>${renderEvidenceTape(snapshot.recentEvents.slice(-8).reverse())}</div>
+    <div class="history-tape"><h3>Latest session evidence <span>${Math.min(8, selectVisibleEvidenceEvents(snapshot.recentEvents).length)} visible · ${snapshot.eventCount} recorded</span></h3>${renderEvidenceTape(selectVisibleEvidenceEvents(snapshot.recentEvents).slice(-8).reverse())}</div>
   `;
 }
 
@@ -901,13 +935,14 @@ function focusMobileDetail(selector: string): void {
 }
 
 function renderSystem(snapshot: DashboardSnapshot): string {
+  const tokenLanes = selectVisibleTokenLanes(snapshot.tokenLanes);
   return `
     <section class="system-layout">
       <div class="section-heading"><div><p class="eyebrow">SYSTEM / TRUST BOUNDARY</p><h2>Local recorder state</h2></div><span class="basis-note">Read-only control plane</span></div>
       <div class="system-grid">
         <article>${icon(TerminalSquare)}<span>Session</span><strong>${escapeHtml(snapshot.groupId.slice(0, 22))}</strong><small>${snapshot.state}</small></article>
         <article>${icon(Database)}<span>Metadata records</span><strong>${formatNumber(snapshot.recentEvents.length)}</strong><small>${snapshot.corruptRecords} isolated corrupt records</small></article>
-        <article>${icon(Gauge)}<span>Counting lanes</span><strong>${formatNumber(snapshot.tokenLanes.length)}</strong><small>Never merged across bases</small></article>
+        <article>${icon(Gauge)}<span>Counting lanes</span><strong>${formatNumber(tokenLanes.length)}</strong><small>Never merged across bases</small></article>
         <article>${icon(ShieldCheck)}<span>Transport</span><strong>Loopback only</strong><small>Bearer-protected, no mutation routes</small></article>
       </div>
       <div class="privacy-manifest">
