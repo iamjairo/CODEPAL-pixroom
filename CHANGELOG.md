@@ -4,6 +4,21 @@ All notable changes are documented here. This project follows semantic versionin
 
 ## Unreleased
 
+## 0.2.4 - 2026-07-18
+
+### Changed
+
+- First publication now requires a granular npm automation token authorized for
+	the `@codepal` scope with bypass-2FA publishing enabled. The reviewer-protected
+	GitHub environment remains the only place that receives the token.
+
+### Fixed
+
+- The failed `v0.2.3` candidate completed signed provenance generation but npm
+	rejected the existing protected token with `E403` before package publication
+	or release-asset upload. Version `0.2.4` supersedes it after credential
+	remediation.
+
 ## 0.2.3 - 2026-07-18
 
 ### Fixed
