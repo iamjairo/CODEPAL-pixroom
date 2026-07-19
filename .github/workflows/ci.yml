@@ -36,11 +36,20 @@ jobs:
       - run: npm ci --ignore-scripts
       - run: npm run verify
       - if: matrix.node == 24
+        name: Install Chromium for dashboard E2E
+        run: npx playwright install --with-deps chromium
+      - if: matrix.node == 24
+        name: Test dashboard in Chromium
+        run: npm run test:dashboard:e2e
+      - if: matrix.node == 24
         name: Install Spin model checker
         run: sudo apt-get update && sudo apt-get install -y spin
       - if: matrix.node == 24
         name: Check opaque-flow reference model
         run: npm run formal:opaque-flow
+      - if: matrix.node == 24
+        name: Check opaque-flow asynchronous model
+        run: npm run formal:opaque-flow:async
       - if: matrix.node == 24
         run: npm run bench:anthropic:self-test
       - if: matrix.node == 24

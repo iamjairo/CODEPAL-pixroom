@@ -20,6 +20,12 @@ protected URL instead. The default dashboard address is `127.0.0.1:8790`; an
 explicitly requested busy port fails, while the default may move to an available
 loopback port.
 
+An embedded dashboard server follows the wrapped command's lifetime. The
+metadata journal does not: after the command exits, `pinpoint dashboard` starts
+a new protected loopback server over the retained history. An already-rendered
+page keeps its last evidence during a disconnect, but a hard refresh requires a
+running local server.
+
 ## Data model
 
 Every event is rebuilt from an exact runtime allowlist before persistence.
@@ -57,8 +63,15 @@ The HTTP server binds only to `127.0.0.1`. It validates the exact Host and
 same-origin Origin, exposes authenticated GET APIs only, rejects mutations, has
 no CORS, uses no-store responses, and serves a strict CSP with local scripts,
 styles, fonts, and connections only. A random 256-bit bearer token is delivered
-in the browser URL fragment, removed immediately, retained only in tab memory,
-and required for snapshot/history/event/SSE APIs.
+in the browser URL fragment, removed immediately, retained in that tab's
+origin-scoped `sessionStorage` so refresh survives, and required for
+snapshot/history/event/SSE APIs. Closing the tab clears it; a new protected URL
+replaces a stale token when a server restarts on the same port.
+
+SSE is the low-latency path. A visible tab also reconciles the authoritative
+snapshot every two seconds and on focus, visibility, online, and back-forward
+cache restoration. Reconciliation requests are single-flight, time-bounded,
+and reject regressive or out-of-order snapshots.
 
 This protects against ordinary hostile web pages and DNS rebinding. It does not
 protect against another process running as the same operating-system user that

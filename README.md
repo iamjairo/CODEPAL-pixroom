@@ -110,7 +110,7 @@
   </tbody>
 </table>
 
-<p align="center"><sub>1,259,328 bytes without Pinpoint vs 12,251 bytes with Pinpoint across seven pinned published MCP servers. Eight oversized results improved; two already-bounded controls stayed unchanged. Data-bearing response bytes, not token estimates. <a href="./benchmarks/results/mcp-common-workflows.first-party-macos-arm64-20260716.json">Receipt</a> · <a href="./comparisons/README.md">Research and method</a></sub></p>
+<p align="center"><sub>1,259,326 bytes without Pinpoint vs 12,249 bytes with Pinpoint across seven pinned published MCP servers. Eight oversized results improved; two already-bounded controls stayed unchanged. Data-bearing response bytes, not token estimates. <a href="./benchmarks/results/mcp-common-workflows.first-party-macos-arm64-20260716.json">Receipt</a> · <a href="./comparisons/README.md">Research and method</a></sub></p>
 
 ## Start here
 
@@ -185,14 +185,14 @@ That is the basic integration.
 You need Node.js 22 or newer. Install the CLI globally:
 
 ```bash
-npm install -g @codepal/pinpoint
+npm install -g @codepalaiorg/pinpoint
 pinpoint --version
 ```
 
 Or run the offline demo without a global install:
 
 ```bash
-npx @codepal/pinpoint demo
+npx @codepalaiorg/pinpoint demo
 ```
 
 Source-checkout fallback:
@@ -251,6 +251,9 @@ pinpoint proxy --dashboard
 
 Pinpoint opens one protected loopback tab. Use `--no-open` to print the URL
 instead, or run `pinpoint dashboard` later to inspect local metadata history.
+The live server follows the wrapped command's lifetime. When the command exits,
+the journal remains on disk; run `pinpoint dashboard` to reopen and refresh the
+ended session safely.
 The recorder keeps provider-token lanes, Headroom-reported Copilot usage, MCP
 exact bytes, provider quota, and estimated cost on separate labeled bases.
 Shared Headroom proxies are marked as partial attribution; cost remains
@@ -460,7 +463,7 @@ Pinpoint is a good fit when one tool has structured data another tool needs, the
 | Claude Code MCP | Replace the configured server command | Live synthetic flow passed |
 | GitHub Copilot CLI | Replace the configured server command | Live synthetic flow passed; zero premium requests |
 | VS Code, Codex, Cursor, other MCP hosts | Same stdio wrapper pattern | Independent replication remains open |
-| Node.js applications | Import `@codepal/pinpoint/mcp` | Packed consumer smoke |
+| Node.js applications | Import `@codepalaiorg/pinpoint/mcp` | Packed consumer smoke |
 
 Pinpoint is **Subscription-compatible at the MCP layer**. The host keeps its current model, API key, OAuth, or subscription login. No new model provider key is required.
 
@@ -480,7 +483,7 @@ The tests use synthetic data. They preserve failures and remove raw model event 
 | Published OSS cross-server flow | **40/40 entities; 4/4 denials; 0/600 canaries** | Filesystem `2026.7.10` to memory `2026.7.4`; exact JSONL side effect |
 | Matched HCP comparison | **Pinpoint exact; HCP 30/30 exact; both 4/4 denials and 0/600 canaries** | Byte-identical fixture and native authority comparison; No scalar winner |
 | Constructed visible traffic | **31,013 -> 3,414 bytes, 89.0% lower** | Same synthetic source/destination payload with authority receipt |
-| Local flow latency | **0.58 ms p95** | 30 local protocol samples, not a production load test |
+| Local flow latency | **2.30 ms p95** | 30 local protocol samples, not a production load test |
 
 <details>
 <summary><strong>Detailed receipt measurements</strong></summary>
@@ -622,12 +625,12 @@ Pinpoint also ships provider API wrappers. These are secondary to the MCP gatewa
 
 ```bash
 cd /path/to/your-app
-npm install @codepal/pinpoint
+npm install @codepalaiorg/pinpoint
 ```
 
 ```ts
 import Anthropic from '@anthropic-ai/sdk';
-import { withPinpoint } from '@codepal/pinpoint/anthropic';
+import { withPinpoint } from '@codepalaiorg/pinpoint/anthropic';
 
 const client = await withPinpoint(new Anthropic());
 try {
@@ -699,6 +702,8 @@ Security-sensitive MCP or release changes also run:
 ```bash
 npm run formal:opaque-flow
 npm run formal:opaque-flow:mutation
+npm run formal:opaque-flow:async
+npm run test:mcp-adversarial
 ```
 
 Use [GitHub Discussions](https://github.com/CodePalAI/pinpoint/discussions) for architecture questions and sanitized field reports. Report vulnerabilities through [SECURITY.md](./SECURITY.md).
